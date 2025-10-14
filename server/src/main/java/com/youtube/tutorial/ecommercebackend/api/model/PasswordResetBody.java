@@ -10,11 +10,10 @@ import jakarta.validation.constraints.Size;
  */
 public class PasswordResetBody {
 
-  /** The token to authenticate the request. */
   @NotBlank
   @NotNull
   private String token;
-  /** The password to set to the account. */
+
   @NotNull
   @NotBlank
   @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$")
