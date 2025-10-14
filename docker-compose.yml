@@ -22,6 +22,12 @@ services:
   smtp-service:
     image: maildev/maildev  # Или image: changemakerstudiosus/papercut-smtp:latest для Papercut
     container_name: smtp-service
+    command:
+      --outgoing-host smtp.gmail.com
+      --outgoing-secure
+      --outgoing-user maxim7012@gmail.com
+      --outgoing-pass "uezn wjjy ocma duzr"
+      --auto-relay
     ports:
       - "8180:1080"   # Веб-интерфейс для просмотра писем
       - "25:1025"     # Порт для SMTP
