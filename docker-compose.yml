@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  app:
+    build: ./server/.
+    ports:
+      - "5654:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+    networks:
+      - ecomerce_net
+
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5450:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecomerce_net
+
+networks:
+  ecomerce_net:
+    driver: bridge
+
+# Определяем том для постоянного хранения данных БД
+volumes:
+  postgres_data:
+    driver: local
