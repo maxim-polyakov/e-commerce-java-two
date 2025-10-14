@@ -56,6 +56,7 @@ public class EmailService {
     try {
       javaMailSender.send(message);
     } catch (MailException ex) {
+      System.out.println(ex.getMessage());
       throw new EmailFailureException();
     }
   }

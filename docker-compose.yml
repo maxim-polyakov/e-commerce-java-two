@@ -6,9 +6,25 @@ services:
       - "5654:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      # Настройки для подключения к SMTP-серверу
+      - SPRING_MAIL_HOST=smtp-service  # Имя сервиса из docker-compose
+      - SPRING_MAIL_PORT=1025
+      # Аутентификация не требуется
     volumes:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
+    networks:
+      - ecomerce_net
+    depends_on:
+      - smtp-service  # Указываем зависимость от SMTP-сервиса
+
+  # Добавляем новый сервис для отправки почты
+  smtp-service:
+    image: maildev/maildev  # Или image: changemakerstudiosus/papercut-smtp:latest для Papercut
+    container_name: smtp-service
+    ports:
+      - "8180:1080"   # Веб-интерфейс для просмотра писем
+      - "25:1025"     # Порт для SMTP
     networks:
       - ecomerce_net
 
@@ -16,7 +32,6 @@ networks:
   ecomerce_net:
     driver: bridge
 
-# Определяем том для постоянного хранения данных БД
 volumes:
   postgres_data:
     driver: local

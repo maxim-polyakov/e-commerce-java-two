@@ -12,6 +12,7 @@ import com.youtube.tutorial.ecommercebackend.model.LocalUser;
 import com.youtube.tutorial.ecommercebackend.service.UserService;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,21 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
   /** The user service. */
+  @Autowired
   private UserService userService;
 
-  /**
-   * Spring injected constructor.
-   * @param userService
-   */
-  public AuthenticationController(UserService userService) {
-    this.userService = userService;
-  }
-
-  /**
-   * Post Mapping to handle registering users.
-   * @param registrationBody The registration information.
-   * @return Response to front end.
-   */
   @PostMapping("/register")
   public ResponseEntity registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
     try {
@@ -58,11 +47,6 @@ public class AuthenticationController {
     }
   }
 
-  /**
-   * Post Mapping to handle user logins to provide authentication token.
-   * @param loginBody The login information.
-   * @return The authentication token if successful.
-   */
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginBody loginBody) {
     String jwt = null;
@@ -90,12 +74,6 @@ public class AuthenticationController {
     }
   }
 
-  /**
-   * Post mapping to verify the email of an account using the emailed token.
-   * @param token The token emailed for verification. This is not the same as a
-   *              authentication JWT.
-   * @return 200 if successful. 409 if failure.
-   */
   @PostMapping("/verify")
   public ResponseEntity verifyEmail(@RequestParam String token) {
     if (userService.verifyUser(token)) {
@@ -105,21 +83,11 @@ public class AuthenticationController {
     }
   }
 
-  /**
-   * Gets the profile of the currently logged-in user and returns it.
-   * @param user The authentication principal object.
-   * @return The user profile.
-   */
   @GetMapping("/me")
   public LocalUser getLoggedInUserProfile(@AuthenticationPrincipal LocalUser user) {
     return user;
   }
 
-  /**
-   * Sends an email to the user with a link to reset their password.
-   * @param email The email to reset.
-   * @return Ok if sent, bad request if email not found.
-   */
   @PostMapping("/forgot")
   public ResponseEntity forgotPassword(@RequestParam String email) {
     try {
@@ -132,11 +100,6 @@ public class AuthenticationController {
     }
   }
 
-  /**
-   * Resets the users password with the given token and password.
-   * @param body The information for the password reset.
-   * @return Okay if password was set.
-   */
   @PostMapping("/reset")
   public ResponseEntity resetPassword(@Valid @RequestBody PasswordResetBody body) {
     userService.resetPassword(body);

@@ -5,6 +5,7 @@ import com.youtube.tutorial.ecommercebackend.model.Address;
 import com.youtube.tutorial.ecommercebackend.model.LocalUser;
 import com.youtube.tutorial.ecommercebackend.model.dao.AddressDAO;
 import com.youtube.tutorial.ecommercebackend.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,30 +29,15 @@ import java.util.Optional;
 public class UserController {
 
   /** The Address DAO. */
+  @Autowired
   private AddressDAO addressDAO;
+
+  @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
+
+  @Autowired
   private UserService userService;
 
-  /**
-   * Constructor for spring injection.
-   * @param addressDAO
-   * @param simpMessagingTemplate
-   * @param userService
-   */
-  public UserController(AddressDAO addressDAO,
-                        SimpMessagingTemplate simpMessagingTemplate,
-                        UserService userService) {
-    this.addressDAO = addressDAO;
-    this.simpMessagingTemplate = simpMessagingTemplate;
-    this.userService = userService;
-  }
-
-  /**
-   * Gets all addresses for the given user and presents them.
-   * @param user The authenticated user account.
-   * @param userId The user ID to get the addresses of.
-   * @return The list of addresses.
-   */
   @GetMapping("/{userId}/address")
   public ResponseEntity<List<Address>> getAddress(
       @AuthenticationPrincipal LocalUser user, @PathVariable Long userId) {
@@ -61,13 +47,6 @@ public class UserController {
     return ResponseEntity.ok(addressDAO.findByUser_Id(userId));
   }
 
-  /**
-   * Allows the user to add a new address.
-   * @param user The authenticated user.
-   * @param userId The user id for the new address.
-   * @param address The Address to be added.
-   * @return The saved address.
-   */
   @PutMapping("/{userId}/address")
   public ResponseEntity<Address> putAddress(
       @AuthenticationPrincipal LocalUser user, @PathVariable Long userId,
@@ -85,14 +64,6 @@ public class UserController {
     return ResponseEntity.ok(savedAddress);
   }
 
-  /**
-   * Updates the given address.
-   * @param user The authenticated user.
-   * @param userId The user ID the address belongs to.
-   * @param addressId The address ID to alter.
-   * @param address The updated address object.
-   * @return The saved address object.
-   */
   @PatchMapping("/{userId}/address/{addressId}")
   public ResponseEntity<Address> patchAddress(
       @AuthenticationPrincipal LocalUser user, @PathVariable Long userId,
