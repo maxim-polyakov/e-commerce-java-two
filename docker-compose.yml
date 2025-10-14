@@ -3,9 +3,9 @@ services:
   client:
     build: ./client/
     env_file:
-      - .env
+      - ./client/.env
     ports:
-      - "3000:3000"
+      - "3056:3000"
     restart: unless-stopped
     networks:
       - ecomerce_net
