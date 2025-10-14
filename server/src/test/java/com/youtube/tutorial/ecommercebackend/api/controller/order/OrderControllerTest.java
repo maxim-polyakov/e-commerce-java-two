@@ -2,7 +2,7 @@ package com.youtube.tutorial.ecommercebackend.api.controller.order;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.youtube.tutorial.ecommercebackend.model.WebOrder;
+import com.ecommercebackend.model.WebOrder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

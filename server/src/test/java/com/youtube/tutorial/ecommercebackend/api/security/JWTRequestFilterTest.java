@@ -1,8 +1,8 @@
 package com.youtube.tutorial.ecommercebackend.api.security;
 
-import com.youtube.tutorial.ecommercebackend.model.LocalUser;
-import com.youtube.tutorial.ecommercebackend.model.dao.LocalUserDAO;
-import com.youtube.tutorial.ecommercebackend.service.JWTService;
+import com.ecommercebackend.model.LocalUser;
+import com.ecommercebackend.model.dao.LocalUserDAO;
+import com.ecommercebackend.service.JWTService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

@@ -1,7 +1,7 @@
 package com.youtube.tutorial.ecommercebackend.api.security;
 
-import com.youtube.tutorial.ecommercebackend.model.LocalUser;
-import com.youtube.tutorial.ecommercebackend.model.dao.LocalUserDAO;
+import com.ecommercebackend.model.LocalUser;
+import com.ecommercebackend.model.dao.LocalUserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
