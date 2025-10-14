@@ -34,21 +34,14 @@ import java.util.Map;
 public class WebsocketConfiguration
     implements WebSocketMessageBrokerConfigurer {
 
-  /** The Application Context. */
   private ApplicationContext context;
-  /** The JWT Request Filter. */
+
   private JWTRequestFilter jwtRequestFilter;
-  /** The User Service. */
+
   private UserService userService;
-  /** Matcher instance. */
+
   private static final AntPathMatcher MATCHER = new AntPathMatcher();
 
-  /**
-   * Default constructor for spring injection.
-   * @param context
-   * @param jwtRequestFilter
-   * @param userService
-   */
   public WebsocketConfiguration(ApplicationContext context,
                                 JWTRequestFilter jwtRequestFilter,
                                 UserService userService) {
@@ -57,28 +50,17 @@ public class WebsocketConfiguration
     this.userService = userService;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/websocket").setAllowedOriginPatterns("**").withSockJS();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
     registry.enableSimpleBroker("/topic");
     registry.setApplicationDestinationPrefixes("/app");
   }
 
-  /**
-   * Creates an AuthorizationManager for managing authentication required for
-   * specific channels.
-   * @return The AuthorizationManager object.
-   */
   private AuthorizationManager<Message<?>> makeMessageAuthorizationManager() {
     MessageMatcherDelegatingAuthorizationManager.Builder messages =
         new MessageMatcherDelegatingAuthorizationManager.Builder();
@@ -88,9 +70,6 @@ public class WebsocketConfiguration
     return messages.build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
     AuthorizationManager<Message<?>> authorizationManager =
@@ -105,20 +84,13 @@ public class WebsocketConfiguration
         new DestinationLevelAuthorizationChannelInterceptor());
   }
 
-  /**
-   * Interceptor for rejecting client messages on specific channels.
-   */
   private class RejectClientMessagesOnChannelsChannelInterceptor
       implements ChannelInterceptor {
 
-    /** Paths that do not allow client messages. */
     private String[] paths = new String[] {
         "/topic/user/*/address"
     };
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
       if (message.getHeaders().get("simpMessageType").equals(SimpMessageType.MESSAGE)) {
@@ -134,16 +106,9 @@ public class WebsocketConfiguration
 
   }
 
-  /**
-   * Interceptor to apply authorization and permissions onto specific
-   * channels and path variables.
-   */
   private class DestinationLevelAuthorizationChannelInterceptor
       implements ChannelInterceptor {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
       if (message.getHeaders().get("simpMessageType").equals(SimpMessageType.SUBSCRIBE)) {

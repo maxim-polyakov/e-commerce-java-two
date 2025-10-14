@@ -25,7 +25,7 @@ public class VerificationToken {
   @Column(name = "id", nullable = false)
   private Long id;
   /** The token that was sent to the user. */
-  @Lob
+
   @Column(name = "token", nullable = false, unique = true)
   private String token;
   /** The timestamp of when the token was created. */

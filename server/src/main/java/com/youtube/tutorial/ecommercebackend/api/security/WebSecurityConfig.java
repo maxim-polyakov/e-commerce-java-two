@@ -18,12 +18,6 @@ public class WebSecurityConfig {
     this.jwtRequestFilter = jwtRequestFilter;
   }
 
-  /**
-   * Filter chain to configure security.
-   * @param http The security object.
-   * @return The chain built.
-   * @throws Exception Thrown on error configuring.
-   */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf().disable().cors().disable();

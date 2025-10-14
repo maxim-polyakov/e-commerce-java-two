@@ -24,29 +24,16 @@ public class EmailService {
   /** The JavaMailSender instance. */
   private JavaMailSender javaMailSender;
 
-  /**
-   * Constructor for spring injection.
-   * @param javaMailSender
-   */
   public EmailService(JavaMailSender javaMailSender) {
     this.javaMailSender = javaMailSender;
   }
 
-  /**
-   * Makes a SimpleMailMessage for sending.
-   * @return The SimpleMailMessage created.
-   */
   private SimpleMailMessage makeMailMessage() {
     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
     simpleMailMessage.setFrom(fromAddress);
     return simpleMailMessage;
   }
 
-  /**
-   * Sends a verification email to the user.
-   * @param verificationToken The verification token to be sent.
-   * @throws EmailFailureException Thrown if are unable to send the email.
-   */
   public void sendVerificationEmail(VerificationToken verificationToken) throws EmailFailureException {
     SimpleMailMessage message = makeMailMessage();
     message.setTo(verificationToken.getUser().getEmail());
@@ -61,12 +48,6 @@ public class EmailService {
     }
   }
 
-  /**
-   * Sends a password reset request email to the user.
-   * @param user The user to send to.
-   * @param token The token to send the user for reset.
-   * @throws EmailFailureException
-   */
   public void sendPasswordResetEmail(LocalUser user, String token) throws EmailFailureException {
     SimpleMailMessage message = makeMailMessage();
     message.setTo(user.getEmail());
