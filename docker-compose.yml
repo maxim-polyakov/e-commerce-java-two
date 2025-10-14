@@ -25,8 +25,8 @@ services:
     command:
       --outgoing-host smtp.gmail.com
       --outgoing-secure
-      --outgoing-user maxim7012@gmail.com
-      --outgoing-pass "uezn wjjy ocma duzr"
+      --outgoing-user mailer7012@gmail.com
+      --outgoing-pass "ubub wypx vdmz ewvt"
       --auto-relay
     ports:
       - "8180:1080"   # Веб-интерфейс для просмотра писем
