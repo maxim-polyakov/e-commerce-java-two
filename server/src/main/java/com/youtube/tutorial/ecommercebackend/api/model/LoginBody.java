@@ -8,11 +8,10 @@ import jakarta.validation.constraints.NotNull;
  */
 public class LoginBody {
 
-  /** The username to log in with. */
   @NotNull
   @NotBlank
   private String username;
-  /** The password to log in with. */
+
   @NotNull
   @NotBlank
   private String password;

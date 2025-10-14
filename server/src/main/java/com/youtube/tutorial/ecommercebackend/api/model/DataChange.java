@@ -6,22 +6,13 @@ package com.youtube.tutorial.ecommercebackend.api.model;
  */
 public class DataChange<T> {
 
-  /** The ChangeType. */
   private ChangeType changeType;
-  /** The data being changed. */
+
   private T data;
 
-  /**
-   * Default constructor.
-   */
   public DataChange() {
   }
 
-  /**
-   * Creates an instance.
-   * @param changeType The ChangeType.
-   * @param data The data changed.
-   */
   public DataChange(ChangeType changeType, T data) {
     this.changeType = changeType;
     this.data = data;
@@ -39,9 +30,6 @@ public class DataChange<T> {
     this.data = data;
   }
 
-  /**
-   * Enum to specify what kind of change is taking place.
-   */
   public enum ChangeType {
     INSERT,
     UPDATE,
