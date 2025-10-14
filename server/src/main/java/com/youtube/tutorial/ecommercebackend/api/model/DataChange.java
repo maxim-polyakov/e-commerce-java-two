@@ -7,7 +7,7 @@ package com.youtube.tutorial.ecommercebackend.api.model;
 public class DataChange<T> {
 
   private ChangeType changeType;
-  
+
   private T data;
 
   public DataChange() {
