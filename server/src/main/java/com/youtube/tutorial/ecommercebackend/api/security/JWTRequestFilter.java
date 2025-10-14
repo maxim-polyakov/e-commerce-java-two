@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageType;
@@ -31,14 +32,12 @@ import java.util.Optional;
 @Component
 public class JWTRequestFilter extends OncePerRequestFilter implements ChannelInterceptor {
 
+  @Autowired
   private JWTService jwtService;
 
+  @Autowired
   private LocalUserDAO localUserDAO;
 
-  public JWTRequestFilter(JWTService jwtService, LocalUserDAO localUserDAO) {
-    this.jwtService = jwtService;
-    this.localUserDAO = localUserDAO;
-  }
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
