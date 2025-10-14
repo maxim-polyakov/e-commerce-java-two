@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class UserNotVerifiedException extends Exception {
 
-  @Autowired
   private boolean newEmailSent;
+
+
+  public UserNotVerifiedException(boolean newEmailSent) {
+    this.newEmailSent = newEmailSent;
+  }
 
   public boolean isNewEmailSent() {
     return newEmailSent;
