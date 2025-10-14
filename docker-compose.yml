@@ -12,21 +12,6 @@ services:
     networks:
       - ecomerce_net
 
-  db:
-    image: postgres:15
-    container_name: postgres-db
-    restart: unless-stopped
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    ports:
-      - "5450:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - ecomerce_net
-
 networks:
   ecomerce_net:
     driver: bridge
