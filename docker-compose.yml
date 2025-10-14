@@ -1,9 +1,19 @@
 version: '3.8'
 services:
+  client:
+    build: ./client/
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - ecomerce_net
   app:
     build: ./server/.
     ports:
       - "5654:8080"
+    restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       # Настройки для подключения к SMTP-серверу
@@ -22,6 +32,7 @@ services:
   smtp-service:
     image: maildev/maildev  # Или image: changemakerstudiosus/papercut-smtp:latest для Papercut
     container_name: smtp-service
+    restart: unless-stopped
     command:
       --outgoing-host smtp.gmail.com
       --outgoing-secure
