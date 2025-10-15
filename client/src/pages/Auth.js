@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE } from "../utils/consts.js";
+import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOMMERCE_ROUTE } from "../utils/consts.js";
 import { login, registration } from "../http/userApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
@@ -73,7 +73,7 @@ const Auth = observer(() => {
                 user.setIsAuth(true);
 
                 swapMethod();
-                navigate("/");
+                navigate(ECOMMERCE_ROUTE); // Изменено: перенаправляем на ECOMMERCE_ROUTE
             } else {
                 await registration(
                     email,

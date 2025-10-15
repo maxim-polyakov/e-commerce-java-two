@@ -3,14 +3,23 @@ import SendMail from "./pages/SendMail";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Ecommerce from "./pages/Ecommerce";
 import {
     LOGIN_ROUTE,
     REGISTRATION_ROUTE,
     SEND_MAIL,
     VERIFY_EMAIL_ROUTE,
     FORGOT_PASSWORD_ROUTE,
-    RESET_PASSWORD_ROUTE
+    RESET_PASSWORD_ROUTE,
+    ECOMMERCE_ROUTE
 } from "./utils/consts";
+
+export const authRoutes = [
+    {
+        path: ECOMMERCE_ROUTE,
+        Component: Ecommerce
+    }
+];
 
 export const publicRoutes = [
     {

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter } from "react-router-dom";
-import MyNavbar from "./components/MyNavbar.js";
 import { observer } from "mobx-react-lite";
 import { check } from "./http/userApi";
 import { Spinner, Container } from "react-bootstrap";
@@ -45,7 +44,6 @@ const App = observer(() => {
 
     return (
         <BrowserRouter>
-            <MyNavbar />
             <AppRouter />
         </BrowserRouter>
     );
