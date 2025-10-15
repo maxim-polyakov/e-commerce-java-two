@@ -77,16 +77,7 @@ const ForgotPassword = () => {
                                     Вернуться к авторизации
                                 </Button>
                             </Link>
-
-                            <Button
-                                variant="outline-primary"
-                                onClick={() => {
-                                    setIsSubmitted(false);
-                                    setEmail("");
-                                }}
-                            >
-                                Отправить письмо еще раз
-                            </Button>
+                            
                         </div>
                     </Card.Body>
                 </Card>
