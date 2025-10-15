@@ -95,15 +95,12 @@ export const check = async () => {
     try {
         // Проверяем наличие токена в localStorage перед запросом
         const token = localStorage.getItem("token");
-        console.log(token);
         if (!token) {
             // Не выбрасываем ошибку, просто возвращаем null или false
             return null;
         }
 
         const { data } = await $authhost.get("/auth/check");
-
-        console.log(data);
 
         // Обновляем токен, если сервер вернул новый
         if (data.jwt) {
