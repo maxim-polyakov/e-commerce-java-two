@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL } from "../utils/consts.js";
+import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE } from "../utils/consts.js";
 import { login, registration } from "../http/userApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
@@ -196,6 +196,22 @@ const Auth = observer(() => {
                         type="password"
                         required
                     />
+
+                    {/* Кнопка "Забыл пароль" только для страницы логина */}
+                    {isLogin && (
+                        <div className="mt-2 text-end">
+                            <Link
+                                to={FORGOT_PASSWORD_ROUTE}
+                                style={{
+                                    textDecoration: "none",
+                                    fontSize: "14px",
+                                    color: "#6c757d"
+                                }}
+                            >
+                                Забыли пароль?
+                            </Link>
+                        </div>
+                    )}
 
                     <div className="d-flex justify-content-between mt-3 pl-3 pr-3 align-items-center">
                         <div>

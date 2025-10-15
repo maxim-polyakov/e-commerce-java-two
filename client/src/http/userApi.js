@@ -155,3 +155,77 @@ export const verifyEmail = async (token) => {
         throw new Error(errorMessage);
     }
 };
+
+export const sendPasswordResetEmail = async (email) => {
+    try {
+        console.log("Sending password reset email to:", email);
+        const { data } = await $host.post(`/auth/forgot?email=${email}`);
+
+        console.log("Password reset email sent successfully:", data);
+        return data;
+    } catch (error) {
+        console.log("Password reset error:", error);
+
+        let errorMessage = "Ошибка при отправке письма";
+
+        if (error.response) {
+            if (error.response.status === 404) {
+                errorMessage = "Пользователь с таким email не найден";
+            }
+            else if (error.response.status === 400) {
+                errorMessage = error.response.data?.message || "Неверный email адрес";
+            }
+            else if (error.response.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+        }
+        else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
+            errorMessage = "Не удалось подключиться к серверу";
+        }
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+    }
+};
+
+export const resetPassword = async (token, password) => {
+    try {
+        console.log("Resetting password with token:", token);
+        const { data } = await $host.post("/auth/reset", {
+            token,
+            password
+        });
+
+        console.log("Password reset successful:", data);
+        return data;
+    } catch (error) {
+        console.log("Password reset error:", error);
+
+        let errorMessage = "Ошибка при смене пароля";
+
+        if (error.response) {
+            if (error.response.status === 400) {
+                errorMessage = error.response.data?.message || "Неверный или просроченный токен";
+            }
+            else if (error.response.status === 404) {
+                errorMessage = "Пользователь не найден";
+            }
+            else if (error.response.status === 410) {
+                errorMessage = "Ссылка для сброса пароля устарела";
+            }
+            else if (error.response.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+        }
+        else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
+            errorMessage = "Не удалось подключиться к серверу";
+        }
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+    }
+};
