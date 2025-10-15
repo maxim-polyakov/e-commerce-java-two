@@ -192,7 +192,6 @@ export const sendPasswordResetEmail = async (email) => {
 
 export const resetPassword = async (token, password) => {
     try {
-        console.log("Resetting password with token:", token);
         const { data } = await $host.post("/auth/reset", {
             token,
             password
