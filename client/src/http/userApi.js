@@ -1,17 +1,8 @@
 import { $host, $authhost } from ".";
 import { jwtDecode } from "jwt-decode";
 
-export const registration = async (email, username, firstName,lastName, password) => {
+export const registration = async (email, username, firstName, lastName, password) => {
     try {
-
-        console.log('Sending data:', {
-            email,
-            username,
-            firstName,
-            lastName,
-            password,
-        });
-
         const response = await $host.post("/auth/register", {
             email,
             username,
@@ -20,8 +11,13 @@ export const registration = async (email, username, firstName,lastName, password
             password,
         });
 
-        console.log(response);
-        return "На почту было отправлено письмо"
+        // Если статус 200, возвращаем текстовое сообщение
+        if (response.status === 200) {
+            return "Письмо с подтверждением отправлено на вашу электронную почту";
+        }
+
+        return response.data;
+
     } catch (error) {
         console.log("Registration error:", error);
 
@@ -42,14 +38,15 @@ export const registration = async (email, username, firstName,lastName, password
     }
 };
 
-export const login = async (email, password) => {
+export const login = async (username, password) => {
     try {
+        console.log(username, password);
         const { data } = await $host.post("/auth/login", {
-            email,
+            username,
             password,
         });
         localStorage.setItem("token", data.jwt);
-        return jwtDecode(data.token);
+        return jwtDecode(data.jwt);
     } catch (error) {
         console.log("Login error:", error);
 
@@ -98,24 +95,27 @@ export const check = async () => {
     try {
         // Проверяем наличие токена в localStorage перед запросом
         const token = localStorage.getItem("token");
+        console.log(token);
         if (!token) {
             // Не выбрасываем ошибку, просто возвращаем null или false
             return null;
         }
 
-        const { data } = await $authhost.get("api/user/auth");
+        const { data } = await $authhost.get("/auth/check");
+
+        console.log(data);
 
         // Обновляем токен, если сервер вернул новый
-        if (data.token) {
-            localStorage.setItem("token", data.token);
+        if (data.jwt) {
+            localStorage.setItem("token", data.jwt);
         }
 
-        return jwtDecode(data.token);
+        return jwtDecode(data.jwt);
     } catch (error) {
-        console.log("Ошибка проверки авторизации:", error.message);
+        console.log("Ошибка проверки авторизации:", error);
 
         // Очищаем токен при ошибке авторизации
-        localStorage.removeItem("token");
+        //localStorage.removeItem("token");
 
         // Не выбрасываем ошибку, просто возвращаем null
         return null;

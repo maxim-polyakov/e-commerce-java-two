@@ -6,10 +6,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Configuration of the security on endpoints.
- */
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 public class WebSecurityConfig {
 
@@ -18,17 +21,34 @@ public class WebSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf().disable().cors().disable();
-    // We need to make sure our authentication filter is run before the http request filter is run.
-    http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
-    http.authorizeHttpRequests()
-        // Specific exclusions or rules.
-        .requestMatchers("/product", "/auth/register", "/auth/login",
-            "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
-            "/websocket", "/websocket/**").permitAll()
-        // Everything else should be authenticated.
-        .anyRequest().authenticated();
+    http
+        .csrf().disable()
+        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Добавьте CORS конфигурацию
+        .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/product", "/auth/register", "/auth/login",
+                "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
+                "/websocket", "/websocket/**").permitAll()
+            .anyRequest().authenticated()
+        );
+
     return http.build();
   }
 
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    // Максимально разрешающая конфигурация
+    configuration.setAllowedOriginPatterns(List.of("*"));
+    configuration.setAllowedMethods(List.of("*"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("*"));
+    configuration.setAllowCredentials(false);
+    configuration.setMaxAge(3600L);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 }

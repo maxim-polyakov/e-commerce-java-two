@@ -9,8 +9,10 @@ const $authhost = axios.create({
 });
 
 const authInterceptor = (config) => {
+    console.log("API URL:", process.env.REACT_APP_API_URL);
     config.headers.authorization = `Bearer ${localStorage.getItem("token")}`;
 
+    console.log(config);
     return config;
 };
 

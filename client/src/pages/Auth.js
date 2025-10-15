@@ -30,24 +30,25 @@ const Auth = observer(() => {
 
     const signIn = async () => {
         // Проверка на пустые поля
-        if (!email.trim() || !password.trim()) {
-            setError("Email и пароль обязательны для заполнения");
-            return;
-        }
-
-        // Для регистрации проверяем дополнительные поля
-        if (!isLogin) {
-            if (!username.trim() || !firstName.trim() || !lastName.trim()) {
+        if (isLogin) {
+            if (!username.trim() || !password.trim()) {
+                setError("Имя пользователя и пароль обязательны для заполнения");
+                return;
+            }
+        } else {
+            if (!email.trim() || !username.trim() || !firstName.trim() || !lastName.trim() || !password.trim()) {
                 setError("Все поля должны быть заполнены");
                 return;
             }
         }
 
-        // Проверка валидности email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Введите корректный email адрес");
-            return;
+        // Для регистрации проверяем валидность email
+        if (!isLogin) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                setError("Введите корректный email адрес");
+                return;
+            }
         }
 
         // Проверка длины пароля
@@ -56,8 +57,8 @@ const Auth = observer(() => {
             return;
         }
 
-        // Проверка username (только для регистрации)
-        if (!isLogin && username.length < 3) {
+        // Проверка username
+        if (username.length < 3) {
             setError("Имя пользователя должно содержать минимум 3 символа");
             return;
         }
@@ -67,28 +68,23 @@ const Auth = observer(() => {
 
             let data;
             if (isLogin) {
-                data = await login(email, password);
+                data = await login(username, password);
+                user.setUser(data);
+                user.setIsAuth(true);
+
+                swapMethod();
+                navigate("/");
             } else {
-                data = await registration(
+                await registration(
                     email,
                     username,
                     firstName,
                     lastName,
                     password
                 );
+                swapMethod();
+                navigate("/");
             }
-
-            user.setUser(data);
-            user.setIsAuth(true);
-
-            setEmail("");
-            setUsername("");
-            setFirstName("");
-            setLastName("");
-            setPassword("");
-
-            // Перенаправляем пользователя после успешной авторизации/регистрации
-            navigate("/");
 
         } catch (error) {
             console.log("Ошибка авторизации:", error);
@@ -100,7 +96,7 @@ const Auth = observer(() => {
     // Функция для проверки, активна ли кнопка
     const isButtonDisabled = () => {
         if (isLogin) {
-            return !email.trim() || !password.trim();
+            return !username.trim() || !password.trim();
         } else {
             return !email.trim() || !username.trim() || !firstName.trim() || !lastName.trim() || !password.trim();
         }
@@ -124,20 +120,30 @@ const Auth = observer(() => {
                 )}
 
                 <Form className="d-flex flex-column">
-                    <Form.Control
-                        className="mt-3"
-                        placeholder="Введите email"
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                            setError(""); // Очищаем ошибку при изменении поля
-                        }}
-                        required
-                    />
-
-                    {/* Дополнительные поля только для регистрации */}
-                    {!isLogin && (
+                    {/* Для логина показываем поле username, для регистрации - оба поля */}
+                    {isLogin ? (
+                        <Form.Control
+                            className="mt-3"
+                            placeholder="Введите имя пользователя"
+                            value={username}
+                            onChange={(e) => {
+                                setUsername(e.target.value);
+                                setError(""); // Очищаем ошибку при изменении поля
+                            }}
+                            required
+                        />
+                    ) : (
                         <>
+                            <Form.Control
+                                className="mt-3"
+                                placeholder="Введите email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    setError("");
+                                }}
+                                required
+                            />
                             <Form.Control
                                 className="mt-2"
                                 placeholder="Введите имя пользователя"
@@ -148,6 +154,12 @@ const Auth = observer(() => {
                                 }}
                                 required
                             />
+                        </>
+                    )}
+
+                    {/* Дополнительные поля только для регистрации */}
+                    {!isLogin && (
+                        <>
                             <Form.Control
                                 className="mt-2"
                                 placeholder="Введите имя"
