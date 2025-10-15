@@ -1,13 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from "mobx-react-lite";
 import ProductList from './ProductList';
 import Cart from './Cart';
 import CartButton from './CartButton';
-import ProductShowcase from './ProductShowcase'; // Новая компонента витрины
+import ProductShowcase from './ProductShowcase';
+import OrderHistory from './OrderHistory';
+import { getCurrentUser } from '../http/userApi';
 import './Ecommerce.css';
 
 const Ecommerce = observer(() => {
-    const [activeSection, setActiveSection] = useState('showcase'); // 'showcase' или 'catalog'
+    const [activeSection, setActiveSection] = useState('showcase');
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const userData = await getCurrentUser();
+                setUser(userData);
+            } catch (error) {
+                console.error('Ошибка загрузки пользователя:', error);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     return (
         <div className="ecommerce">
@@ -27,17 +43,29 @@ const Ecommerce = observer(() => {
                         >
                             📋 Все товары
                         </button>
+                        <button
+                            className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
+                            onClick={() => setActiveSection('orders')}
+                        >
+                            📦 Мои заказы
+                        </button>
                     </nav>
-                    <CartButton />
+
+                    <div className="header-right">
+                        {user && (
+                            <div className="user-welcome">
+                                Привет, <strong>{user.firstName}</strong>!
+                            </div>
+                        )}
+                        <CartButton />
+                    </div>
                 </div>
             </header>
 
             <main className="ecommerce-main">
-                {activeSection === 'showcase' ? (
-                    <ProductShowcase />
-                ) : (
-                    <ProductList />
-                )}
+                {activeSection === 'showcase' && <ProductShowcase />}
+                {activeSection === 'catalog' && <ProductList />}
+                {activeSection === 'orders' && <OrderHistory />}
             </main>
 
             <Cart />

@@ -1,16 +1,101 @@
 import { $authhost } from ".";
-/**
- * Получает список продуктов с сервера с авторизацией
- * @returns {Promise<Array>} Массив объектов продуктов
- */
+
 export const getProducts = async () => {
     try {
-        const response = await $authhost.get('/product');
-
-        // Данные должны соответствовать вашей структуре JSON
-        return response.data;
+        const { data } = await $authhost.get('/product');
+        return data;
     } catch (error) {
-        console.error('Ошибка при получении продуктов:', error.message);
-        throw error;
+        console.log("Get products error:", error);
+
+        let errorMessage = "Ошибка получения списка продуктов";
+
+        // Обработка ошибок БИЗНЕС-ЛОГИКИ (сервер ответил с ошибкой)
+        if (error.response) {
+            // Сервер ответил, но с ошибкой (4xx, 5xx)
+            if (error.response.status === 401) {
+                errorMessage = "Требуется авторизация";
+                // Очищаем токен при ошибке авторизации
+                localStorage.removeItem("token");
+            }
+            else if (error.response.status === 403) {
+                errorMessage = "Доступ запрещен";
+            }
+            else if (error.response.status === 404) {
+                errorMessage = "Продукты не найдены";
+            }
+            else if (error.response.status === 400) {
+                errorMessage = error.response.data?.message || "Неверный запрос";
+            }
+            else if (error.response.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            else if (typeof error.response.data === 'string') {
+                // Пытаемся извлечь сообщение из HTML/текста
+                const match = error.response.data.match(/Error: (.+?)(<br>|\n|$)/);
+                if (match && match[1]) {
+                    errorMessage = match[1].trim();
+                }
+            }
+        }
+        // Обработка ошибок ПОДКЛЮЧЕНИЯ (сервер не ответил)
+        else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
+            errorMessage = "Не удалось подключиться к серверу";
+        }
+        // Обработка других ошибок
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+    }
+};
+
+export const getUserOrders = async () => {
+    try {
+        const { data } = await $authhost.get('/order');
+        return data;
+    } catch (error) {
+        console.log("Get user orders error:", error);
+
+        let errorMessage = "Ошибка получения списка заказов";
+
+        // Обработка ошибок БИЗНЕС-ЛОГИКИ (сервер ответил с ошибкой)
+        if (error.response) {
+            // Сервер ответил, но с ошибкой (4xx, 5xx)
+            if (error.response.status === 401) {
+                errorMessage = "Требуется авторизация";
+                // Очищаем токен при ошибке авторизации
+                localStorage.removeItem("token");
+            }
+            else if (error.response.status === 403) {
+                errorMessage = "Доступ запрещен";
+            }
+            else if (error.response.status === 404) {
+                errorMessage = "Заказы не найдены";
+            }
+            else if (error.response.status === 400) {
+                errorMessage = error.response.data?.message || "Неверный запрос";
+            }
+            else if (error.response.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            else if (typeof error.response.data === 'string') {
+                // Пытаемся извлечь сообщение из HTML/текста
+                const match = error.response.data.match(/Error: (.+?)(<br>|\n|$)/);
+                if (match && match[1]) {
+                    errorMessage = match[1].trim();
+                }
+            }
+        }
+        // Обработка ошибок ПОДКЛЮЧЕНИЯ (сервер не ответил)
+        else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
+            errorMessage = "Не удалось подключиться к серверу";
+        }
+        // Обработка других ошибок
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
     }
 };
