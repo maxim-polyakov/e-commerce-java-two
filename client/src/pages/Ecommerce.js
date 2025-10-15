@@ -1,29 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { observer } from "mobx-react-lite";
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
 import CartButton from '../components/CartButton';
 import ProductShowcase from '../components/ProductShowcase';
 import OrderHistory from '../components/OrderHistory';
-import { getCurrentUser } from '../http/userApi';
+import UserProfile from '../components/UserProfile'; // Импортируем компонент профиля
 import './Ecommerce.css';
 
 const Ecommerce = observer(() => {
-    const [activeSection, setActiveSection] = useState('showcase');
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const userData = await getCurrentUser();
-                setUser(userData);
-            } catch (error) {
-                console.error('Ошибка загрузки пользователя:', error);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    const [activeSection, setActiveSection] = useState('showcase'); // 'showcase', 'catalog', 'orders', 'profile'
 
     return (
         <div className="ecommerce">
@@ -49,16 +35,14 @@ const Ecommerce = observer(() => {
                         >
                             📦 Мои заказы
                         </button>
+                        <button
+                            className={`nav-btn ${activeSection === 'profile' ? 'active' : ''}`}
+                            onClick={() => setActiveSection('profile')}
+                        >
+                            👤 Профиль
+                        </button>
                     </nav>
-
-                    <div className="header-right">
-                        {user && (
-                            <div className="user-welcome">
-                                Привет, <strong>{user.firstName}</strong>!
-                            </div>
-                        )}
-                        <CartButton />
-                    </div>
+                    <CartButton />
                 </div>
             </header>
 
@@ -66,6 +50,7 @@ const Ecommerce = observer(() => {
                 {activeSection === 'showcase' && <ProductShowcase />}
                 {activeSection === 'catalog' && <ProductList />}
                 {activeSection === 'orders' && <OrderHistory />}
+                {activeSection === 'profile' && <UserProfile />}
             </main>
 
             <Cart />
