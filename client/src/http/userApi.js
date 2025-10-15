@@ -80,3 +80,31 @@ export const login = async (email, password) => {
         throw new Error(errorMessage);
     }
 };
+
+export const check = async () => {
+    try {
+        // Проверяем наличие токена в localStorage перед запросом
+        const token = localStorage.getItem("token");
+        if (!token) {
+            // Не выбрасываем ошибку, просто возвращаем null или false
+            return null;
+        }
+
+        const { data } = await $authhost.get("api/user/auth");
+
+        // Обновляем токен, если сервер вернул новый
+        if (data.token) {
+            localStorage.setItem("token", data.token);
+        }
+
+        return jwtDecode(data.token);
+    } catch (error) {
+        console.log("Ошибка проверки авторизации:", error.message);
+
+        // Очищаем токен при ошибке авторизации
+        localStorage.removeItem("token");
+
+        // Не выбрасываем ошибку, просто возвращаем null
+        return null;
+    }
+};
