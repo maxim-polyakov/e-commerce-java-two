@@ -40,7 +40,6 @@ export const registration = async (email, username, firstName, lastName, passwor
 
 export const login = async (username, password) => {
     try {
-        console.log(username, password);
         const { data } = await $host.post("/auth/login", {
             username,
             password,
