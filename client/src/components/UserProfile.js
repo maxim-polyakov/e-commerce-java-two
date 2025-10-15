@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { getCurrentUser } from '../http/userApi';
+import { getCurrentUser } from '../http/authApi';
 import './UserProfile.css';
 
 const UserProfile = observer(() => {

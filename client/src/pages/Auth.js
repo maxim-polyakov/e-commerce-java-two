@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOMMERCE_ROUTE } from "../utils/consts.js";
-import { login, registration } from "../http/userApi.js";
+import { login, registration } from "../http/authApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
 

@@ -3,7 +3,7 @@ import { Container, Card, Spinner, Alert, Button } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index";
-import { verifyEmail } from "../http/userApi"; // Импортируем метод
+import { verifyEmail } from "../http/authApi"; // Импортируем метод
 import { LOGIN_ROUTE } from "../utils/consts";
 
 const VerifyEmail = observer(() => {

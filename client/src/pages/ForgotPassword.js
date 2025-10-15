@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Container, Card, Button, Form, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts";
-import { sendPasswordResetEmail } from "../http/userApi"; // Добавьте этот импорт
+import { sendPasswordResetEmail } from "../http/authApi"; // Добавьте этот импорт
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
@@ -77,7 +77,7 @@ const ForgotPassword = () => {
                                     Вернуться к авторизации
                                 </Button>
                             </Link>
-                            
+
                         </div>
                     </Card.Body>
                 </Card>

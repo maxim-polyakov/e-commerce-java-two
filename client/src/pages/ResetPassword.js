@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Container, Card, Button, Form, Alert, Spinner } from "react-bootstrap";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts";
-import { resetPassword } from "../http/userApi";
+import { resetPassword } from "../http/authApi";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();

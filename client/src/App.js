@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { check } from "./http/userApi";
+import { check } from "./http/authApi";
 import { Spinner, Container } from "react-bootstrap";
 import { Context } from "./index.js";
 import AppRouter from "./components/AppRouter";
