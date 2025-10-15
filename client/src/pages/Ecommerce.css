@@ -1,0 +1,38 @@
+.ecommerce {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.ecommerce-header {
+    background: white;
+    padding: 20px 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.ecommerce-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 2rem;
+}
+
+.ecommerce-main {
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .ecommerce-header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .ecommerce-header h1 {
+        font-size: 1.5rem;
+    }
+}
