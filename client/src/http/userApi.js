@@ -1,14 +1,27 @@
 import { $host, $authhost } from ".";
 import { jwtDecode } from "jwt-decode";
 
-export const registration = async (email, password) => {
+export const registration = async (email, username, firstName,lastName, password) => {
     try {
-        const { data } = await $host.post("api/user/registration", {
+
+        console.log('Sending data:', {
             email,
+            username,
+            firstName,
+            lastName,
             password,
         });
-        localStorage.setItem("token", data.token);
-        return jwtDecode(data.token);
+
+        const response = await $host.post("/auth/register", {
+            email,
+            username,
+            firstName,
+            lastName,
+            password,
+        });
+
+        console.log(response);
+        return "На почту было отправлено письмо"
     } catch (error) {
         console.log("Registration error:", error);
 
@@ -31,11 +44,11 @@ export const registration = async (email, password) => {
 
 export const login = async (email, password) => {
     try {
-        const { data } = await $host.post("api/user/login", {
+        const { data } = await $host.post("/auth/login", {
             email,
             password,
         });
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.jwt);
         return jwtDecode(data.token);
     } catch (error) {
         console.log("Login error:", error);

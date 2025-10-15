@@ -3,7 +3,9 @@ import { BrowserRouter } from "react-router-dom";
 import MyNavbar from "./components/MyNavbar.js";
 import { observer } from "mobx-react-lite";
 import { check } from "./http/userApi";
-
+import { Spinner, Container } from "react-bootstrap";
+import { Context } from "./index.js";
+import AppRouter from "./components/AppRouter";
 
 const App = observer(() => {
     const { user } = useContext(Context);
@@ -43,6 +45,7 @@ const App = observer(() => {
     return (
         <BrowserRouter>
             <MyNavbar />
+            <AppRouter />
         </BrowserRouter>
     );
 });

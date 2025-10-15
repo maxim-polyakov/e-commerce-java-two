@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LOGIN_ROUTE, REGISTRATION_ROUTE} from "../utils/consts.js";
+import { LOGIN_ROUTE, REGISTRATION_ROUTE } from "../utils/consts.js";
 import { login, registration } from "../http/userApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
@@ -13,11 +13,17 @@ const Auth = observer(() => {
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(""); // Состояние для ошибок
 
     const swapMethod = () => {
         setEmail("");
+        setUsername("");
+        setFirstName("");
+        setLastName("");
         setPassword("");
         setError(""); // Очищаем ошибки при смене формы
     };
@@ -25,8 +31,16 @@ const Auth = observer(() => {
     const signIn = async () => {
         // Проверка на пустые поля
         if (!email.trim() || !password.trim()) {
-            setError("Все поля должны быть заполнены");
+            setError("Email и пароль обязательны для заполнения");
             return;
+        }
+
+        // Для регистрации проверяем дополнительные поля
+        if (!isLogin) {
+            if (!username.trim() || !firstName.trim() || !lastName.trim()) {
+                setError("Все поля должны быть заполнены");
+                return;
+            }
         }
 
         // Проверка валидности email
@@ -42,6 +56,12 @@ const Auth = observer(() => {
             return;
         }
 
+        // Проверка username (только для регистрации)
+        if (!isLogin && username.length < 3) {
+            setError("Имя пользователя должно содержать минимум 3 символа");
+            return;
+        }
+
         try {
             setError(""); // Очищаем ошибки перед запросом
 
@@ -49,20 +69,40 @@ const Auth = observer(() => {
             if (isLogin) {
                 data = await login(email, password);
             } else {
-                data = await registration(email, password);
+                data = await registration(
+                    email,
+                    username,
+                    firstName,
+                    lastName,
+                    password
+                );
             }
 
             user.setUser(data);
             user.setIsAuth(true);
 
             setEmail("");
+            setUsername("");
+            setFirstName("");
+            setLastName("");
             setPassword("");
-            navigate(GALLERY_ROUTE);
+
+            // Перенаправляем пользователя после успешной авторизации/регистрации
+            navigate("/");
 
         } catch (error) {
             console.log("Ошибка авторизации:", error);
             // Просто используем message из ошибки, так как мы уже обработали её в API функциях
             setError(error.message);
+        }
+    };
+
+    // Функция для проверки, активна ли кнопка
+    const isButtonDisabled = () => {
+        if (isLogin) {
+            return !email.trim() || !password.trim();
+        } else {
+            return !email.trim() || !username.trim() || !firstName.trim() || !lastName.trim() || !password.trim();
         }
     };
 
@@ -94,6 +134,43 @@ const Auth = observer(() => {
                         }}
                         required
                     />
+
+                    {/* Дополнительные поля только для регистрации */}
+                    {!isLogin && (
+                        <>
+                            <Form.Control
+                                className="mt-2"
+                                placeholder="Введите имя пользователя"
+                                value={username}
+                                onChange={(e) => {
+                                    setUsername(e.target.value);
+                                    setError("");
+                                }}
+                                required
+                            />
+                            <Form.Control
+                                className="mt-2"
+                                placeholder="Введите имя"
+                                value={firstName}
+                                onChange={(e) => {
+                                    setFirstName(e.target.value);
+                                    setError("");
+                                }}
+                                required
+                            />
+                            <Form.Control
+                                className="mt-2"
+                                placeholder="Введите фамилию"
+                                value={lastName}
+                                onChange={(e) => {
+                                    setLastName(e.target.value);
+                                    setError("");
+                                }}
+                                required
+                            />
+                        </>
+                    )}
+
                     <Form.Control
                         className="mt-2"
                         placeholder="Введите пароль"
@@ -105,6 +182,7 @@ const Auth = observer(() => {
                         type="password"
                         required
                     />
+
                     <div className="d-flex justify-content-between mt-3 pl-3 pr-3 align-items-center">
                         <div>
                             {isLogin ? (
@@ -136,7 +214,7 @@ const Auth = observer(() => {
                         <Button
                             variant="outline-success"
                             onClick={signIn}
-                            disabled={!email.trim() || !password.trim()} // Кнопка неактивна при пустых полях
+                            disabled={isButtonDisabled()} // Кнопка неактивна при пустых полях
                         >
                             {isLogin ? "Войти" : "Зарегистрироваться"}
                         </Button>

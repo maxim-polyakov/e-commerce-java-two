@@ -37,7 +37,7 @@ services:
       --outgoing-host smtp.gmail.com
       --outgoing-secure
       --outgoing-user mailer7012@gmail.com
-      --outgoing-pass "ubub wypx vdmz ewvt"
+      --outgoing-pass "wuvi xnbi ngnr shjf"
       --auto-relay
     ports:
       - "8180:1080"   # Веб-интерфейс для просмотра писем
