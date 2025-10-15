@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from "mobx-react-lite";
-import ProductList from './ProductList';
-import Cart from './Cart';
-import CartButton from './CartButton';
-import ProductShowcase from './ProductShowcase';
-import OrderHistory from './OrderHistory';
+import ProductList from '../components/ProductList';
+import Cart from '../components/Cart';
+import CartButton from '../components/CartButton';
+import ProductShowcase from '../components/ProductShowcase';
+import OrderHistory from '../components/OrderHistory';
 import { getCurrentUser } from '../http/userApi';
 import './Ecommerce.css';
 
