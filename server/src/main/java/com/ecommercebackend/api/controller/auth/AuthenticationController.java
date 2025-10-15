@@ -9,6 +9,7 @@ import com.ecommercebackend.exception.EmailNotFoundException;
 import com.ecommercebackend.exception.UserAlreadyExistsException;
 import com.ecommercebackend.exception.UserNotVerifiedException;
 import com.ecommercebackend.model.LocalUser;
+import com.ecommercebackend.service.JWTService;
 import com.ecommercebackend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class AuthenticationController {
   /** The user service. */
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private JWTService jwtService;
 
   @PostMapping("/register")
   public ResponseEntity registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
@@ -104,4 +108,22 @@ public class AuthenticationController {
     return ResponseEntity.ok().build();
   }
 
+  @GetMapping("/check")
+  public ResponseEntity<LoginResponse> check(@AuthenticationPrincipal LocalUser user) {
+    if (user == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    // Генерация JWT токена по аналогии с loginUser
+    String jwt = jwtService.generateJWT(user);
+
+    if (jwt == null) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } else {
+        LoginResponse response = new LoginResponse();
+        response.setJwt(jwt);
+        response.setSuccess(true);
+        return ResponseEntity.ok(response);
+      }
+  }
 }
