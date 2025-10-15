@@ -112,7 +112,7 @@ export const check = async () => {
         console.log("Ошибка проверки авторизации:", error);
 
         // Очищаем токен при ошибке авторизации
-        //localStorage.removeItem("token");
+        localStorage.removeItem("token");
 
         // Не выбрасываем ошибку, просто возвращаем null
         return null;
