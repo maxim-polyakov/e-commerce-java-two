@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LOGIN_ROUTE, REGISTRATION_ROUTE } from "../utils/consts.js";
+import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL } from "../utils/consts.js";
 import { login, registration } from "../http/userApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
@@ -82,8 +82,10 @@ const Auth = observer(() => {
                     lastName,
                     password
                 );
+
+                localStorage.setItem('registeredEmail', email);
                 swapMethod();
-                navigate("/");
+                navigate(SEND_MAIL); // Перенаправляем на страницу подтверждения
             }
 
         } catch (error) {

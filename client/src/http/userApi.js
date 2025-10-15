@@ -118,3 +118,40 @@ export const check = async () => {
         return null;
     }
 };
+
+export const verifyEmail = async (token) => {
+    try {
+        console.log("Verifying email with token:", token);
+        const { data } = await $host.post(`/auth/verify?token=${token}`);
+
+        console.log("Email verification successful:", data);
+        return data;
+    } catch (error) {
+        console.log("Email verification error:", error);
+
+        let errorMessage = "Ошибка верификации email";
+
+        if (error.response) {
+            if (error.response.status === 400) {
+                errorMessage = error.response.data?.message || "Неверный или просроченный токен";
+            }
+            else if (error.response.status === 404) {
+                errorMessage = error.response.data?.message || "Пользователь не найден";
+            }
+            else if (error.response.status === 410) {
+                errorMessage = error.response.data?.message || "Ссылка для подтверждения устарела";
+            }
+            else if (error.response.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+        }
+        else if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
+            errorMessage = "Не удалось подключиться к серверу";
+        }
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+    }
+};
