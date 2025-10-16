@@ -33,6 +33,8 @@ services:
     image: maildev/maildev  # Или image: changemakerstudiosus/papercut-smtp:latest для Papercut
     container_name: smtp-service
     restart: unless-stopped
+    environment:
+      - NODE_OPTIONS=--no-warnings=DeprecationWarning
     command:
       --outgoing-host smtp.gmail.com
       --outgoing-secure
