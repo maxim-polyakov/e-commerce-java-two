@@ -25,25 +25,8 @@ services:
       - ./pom.xml:/app/pom.xml
     networks:
       - ecomerce_net
-    depends_on:
-      - smtp-service  # Указываем зависимость от SMTP-сервиса
 
-  # Добавляем новый сервис для отправки почты
-  smtp-service:
-    image: maildev/maildev  # Или image: changemakerstudiosus/papercut-smtp:latest для Papercut
-    container_name: smtp-service
-    restart: unless-stopped
-    command:
-      --outgoing-host smtp.gmail.com
-      --outgoing-port 465
-      --outgoing-secure
-      --outgoing-user mailer7012@gmail.com
-      --outgoing-pass "kjth nnei uekm wkak"
-    ports:
-      - "8180:1080"   # Веб-интерфейс для просмотра писем
-      - "25:1025"     # Порт для SMTP
-    networks:
-      - ecomerce_net
+
 
 networks:
   ecomerce_net:
