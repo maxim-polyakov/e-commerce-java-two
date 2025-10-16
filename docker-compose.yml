@@ -35,6 +35,8 @@ services:
     restart: unless-stopped
     environment:
       - NODE_OPTIONS=--no-warnings=DeprecationWarning
+    env_file:
+      - ./server/.env
     command:
       --outgoing-host smtp.gmail.com
       --outgoing-port 465
