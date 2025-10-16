@@ -16,9 +16,6 @@ services:
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      # Настройки для подключения к SMTP-серверу
-      - SPRING_MAIL_HOST=smtp-service  # Имя сервиса из docker-compose
-      - SPRING_MAIL_PORT=1025
       # Аутентификация не требуется
     volumes:
       - ./src:/app/src
@@ -35,13 +32,6 @@ services:
     restart: unless-stopped
     environment:
       - NODE_OPTIONS=--no-warnings=DeprecationWarning
-    command:
-      --outgoing-host smtp.mailersend.net
-      --outgoing-port 587
-      --outgoing-secure
-      --outgoing-user MS_moPySW@test-vz9dlem21174kj50.mlsender.net
-      --outgoing-pass "mlsn.dd1f04004e902c57e4272381f431047fb8c646fceaeaff07facf895c03fe17df"
-      --auto-relay
     ports:
       - "8180:1080"   # Веб-интерфейс
       # 🔥 УБЕРИТЕ маппирование порта 25:1025 - он не нужен для исходящей почты!
