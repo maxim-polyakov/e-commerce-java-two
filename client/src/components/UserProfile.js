@@ -1,30 +1,129 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { getCurrentUser } from '../http/authApi';
-import { Context } from '../index'; // Импортируем контекст
+import { getUserAddresses, addUserAddress, updateUserAddress } from '../http/userApi';
+import { Context } from '../index';
 import './UserProfile.css';
 
 const UserProfile = observer(() => {
     const { user } = useContext(Context);
     const [profile, setProfile] = useState(null);
+    const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [addressLoading, setAddressLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [addressError, setAddressError] = useState(null);
+    const [showAddressForm, setShowAddressForm] = useState(false);
+    const [editingAddress, setEditingAddress] = useState(null);
+
+    const [addressForm, setAddressForm] = useState({
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        country: '',
+        isDefault: false
+    });
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchUserData = async () => {
             try {
                 const userData = await getCurrentUser();
+                console.log("User data received:", userData);
                 setProfile(userData);
+
+                // Загружаем адреса пользователя
+                await fetchUserAddresses(userData.id);
             } catch (err) {
+                console.error("Error fetching user:", err);
                 setError('Не удалось загрузить информацию о пользователе');
-                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchUser();
+        fetchUserData();
     }, []);
+
+    const fetchUserAddresses = async (userId) => {
+        try {
+            setAddressLoading(true);
+            console.log("Fetching addresses for user:", userId);
+            const addressesData = await getUserAddresses(userId);
+            console.log("Addresses received:", addressesData);
+            setAddresses(addressesData);
+            setAddressError(null);
+        } catch (err) {
+            console.error("Error fetching addresses:", err);
+            setAddressError(err.message || 'Не удалось загрузить адреса доставки');
+        } finally {
+            setAddressLoading(false);
+        }
+    };
+
+    const handleAddressSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!profile) {
+            setAddressError("Профиль пользователя не загружен");
+            return;
+        }
+
+        try {
+            setAddressError(null);
+            console.log("Submitting address form:", addressForm);
+
+            if (editingAddress) {
+                // Редактирование адреса
+                console.log("Updating address:", editingAddress.id);
+                await updateUserAddress(profile.id, editingAddress.id, addressForm);
+            } else {
+                // Добавление нового адреса
+                console.log("Adding new address for user:", profile.id);
+                await addUserAddress(profile.id, addressForm);
+            }
+
+            // Обновляем список адресов
+            await fetchUserAddresses(profile.id);
+
+            // Сбрасываем форму
+            setAddressForm({
+                addressLine1: '',
+                addressLine2: '',
+                city: '',
+                country: '',
+            });
+            setShowAddressForm(false);
+            setEditingAddress(null);
+
+        } catch (err) {
+            console.error("Error in address submission:", err);
+            setAddressError(err.message || 'Ошибка при сохранении адреса');
+        }
+    };
+
+    const handleEditAddress = (address) => {
+        console.log("Editing address:", address);
+        setEditingAddress(address);
+        setAddressForm({
+            addressLine1: address.addressLine1 || '',
+            addressLine2: address.addressLine2 || '',
+            city: address.city || '',
+            country: address.country || '',
+        });
+        setShowAddressForm(true);
+    };
+
+    const handleCancelEdit = () => {
+        setShowAddressForm(false);
+        setEditingAddress(null);
+        setAddressForm({
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            country: '',
+        });
+        setAddressError(null);
+    };
 
     const handleLogout = () => {
         user.setIsAuth(false);
@@ -86,7 +185,6 @@ const UserProfile = observer(() => {
                         <span className="value">{profile.lastName}</span>
                     </div>
 
-                    {/* Статус аутентификации из контекста */}
                     <div className="detail-item">
                         <span className="label">Статус:</span>
                         <span className="value">
@@ -97,6 +195,109 @@ const UserProfile = observer(() => {
                             )}
                         </span>
                     </div>
+                </div>
+
+                {/* Секция адресов доставки */}
+                <div className="addresses-section">
+                    <div className="section-header">
+                        <h3>Адреса доставки</h3>
+                        <button
+                            className="btn-add-address"
+                            onClick={() => setShowAddressForm(true)}
+                            disabled={addressLoading}
+                        >
+                            + Добавить адрес
+                        </button>
+                    </div>
+
+                    {addressError && (
+                        <div className="error-message">{addressError}</div>
+                    )}
+
+                    {showAddressForm && (
+                        <div className="address-form">
+                            <h4>{editingAddress ? 'Редактировать адрес' : 'Добавить новый адрес'}</h4>
+                            <form onSubmit={handleAddressSubmit}>
+                                <div className="form-group">
+                                    <label>Улица и дом адреса 1:</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.addressLine1}
+                                        onChange={(e) => setAddressForm({...addressForm, addressLine1: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Улица и дом адреса 2:</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.addressLine2}
+                                        onChange={(e) => setAddressForm({...addressForm, addressLine2: e.target.value})}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Город:</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.city}
+                                        onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Страна:</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.country}
+                                        onChange={(e) => setAddressForm({...addressForm, country: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-actions">
+                                    <button type="submit" className="btn-save">
+                                        {editingAddress ? 'Сохранить' : 'Добавить'}
+                                    </button>
+                                    <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
+                                        Отмена
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {addressLoading ? (
+                        <div className="loading-addresses">Загрузка адресов...</div>
+                    ) : (
+                        <div className="addresses-list">
+                            {addresses.length === 0 ? (
+                                <p className="no-addresses">Адреса доставки не добавлены</p>
+                            ) : (
+                                addresses.map((address) => (
+                                    <div key={address.id} className={`address-card ${address.isDefault ? 'default' : ''}`}>
+                                        {address.isDefault && (
+                                            <div className="default-badge">По умолчанию</div>
+                                        )}
+                                        <div className="address-content">
+                                            <p><strong>Улица 1:</strong> {address.addressLine1}</p>
+                                            {address.addressLine2 && (
+                                                <p><strong>Улица 2:</strong> {address.addressLine2}</p>
+                                            )}
+                                            <p><strong>Город:</strong> {address.city}</p>
+                                            <p><strong>Страна:</strong> {address.country}</p>
+                                        </div>
+                                        <div className="address-actions">
+                                            <button
+                                                className="btn-edit"
+                                                onClick={() => handleEditAddress(address)}
+                                            >
+                                                Редактировать
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Кнопка выхода */}
