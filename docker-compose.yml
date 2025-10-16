@@ -25,8 +25,6 @@ services:
       - ./pom.xml:/app/pom.xml
     networks:
       - ecomerce_net
-    depends_on:
-      - smtp-service  # Указываем зависимость от SMTP-сервиса
 
 networks:
   ecomerce_net:
