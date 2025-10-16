@@ -35,6 +35,7 @@ services:
     restart: unless-stopped
     command:
       --outgoing-host smtp.gmail.com
+      --outgoing-port 465
       --outgoing-secure
       --outgoing-user mailer7012@gmail.com
       --outgoing-pass "kjth nnei uekm wkak"
