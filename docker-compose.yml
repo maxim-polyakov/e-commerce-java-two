@@ -36,15 +36,14 @@ services:
     environment:
       - NODE_OPTIONS=--no-warnings=DeprecationWarning
     command:
-      --outgoing-host smtp.gmail.com
-      --outgoing-port 465
-      --outgoing-secure
-      --outgoing-user mailer7012@gmail.com
-      --outgoing-pass "kjth nnei uekm wkak"
+      --outgoing-host smtp.mailersend.net  # 🔥 Заменили хост
+      --outgoing-port 587                  # 🔥 Порт для TLS
+      --outgoing-secure                    # 🔥 Включаем шифрование
+      --outgoing-user MS_moPySW@test-vz9dlem21174kj50.mlsender.net      # 🔥 Замените на ваш SMTP Username из MailerSend
+      --outgoing-pass "mlsn.dd1f04004e902c57e4272381f431047fb8c646fceaeaff07facf895c03fe17df"    # 🔥 Замените на ваш SMTP Token
       --auto-relay
     ports:
-      - "8180:1080"   # Веб-интерфейс
-      # 🔥 УБЕРИТЕ маппирование порта 25:1025 - он не нужен для исходящей почты!
+      - "8180:1080"   # Веб-интерфейс для просмотра писем
     networks:
       - ecomerce_net
 
