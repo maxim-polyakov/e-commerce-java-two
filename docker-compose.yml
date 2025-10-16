@@ -37,7 +37,7 @@ services:
       - NODE_OPTIONS=--no-warnings=DeprecationWarning
     command:
       --outgoing-host smtp.gmail.com
-      --outgoing-port 587
+      --outgoing-port 465
       --outgoing-secure
       --outgoing-user mailer7012@gmail.com
       --outgoing-pass "kjth nnei uekm wkak"
