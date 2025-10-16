@@ -39,7 +39,6 @@ services:
       --outgoing-secure
       --outgoing-user mailer7012@gmail.com
       --outgoing-pass "kjth nnei uekm wkak"
-      --auto-relay
     ports:
       - "8180:1080"   # Веб-интерфейс для просмотра писем
       - "25:1025"     # Порт для SMTP
