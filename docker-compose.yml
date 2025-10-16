@@ -33,6 +33,7 @@ services:
     image: maildev/maildev
     container_name: smtp-service
     restart: unless-stopped
+    network_mode: "host"
     environment:
       - NODE_OPTIONS=--no-warnings=DeprecationWarning
       - DEBUG=maildev*
