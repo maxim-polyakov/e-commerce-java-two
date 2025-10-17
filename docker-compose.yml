@@ -41,7 +41,7 @@ services:
       - ./server/.env
     command:
       --outgoing-host smtp.gmail.com
-      --outgoing-port 587
+      --outgoing-port 2525
       --outgoing-secure
       --outgoing-user mailer7012@gmail.com
       --outgoing-pass "ttwz eocs yvvk moay"
