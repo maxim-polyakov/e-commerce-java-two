@@ -34,7 +34,7 @@ public class WebOrder {
   @JoinColumn(name = "address_id", nullable = false)
   private Address address;
 
-  @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<WebOrderQuantities> quantities = new ArrayList<>();
 
   public List<WebOrderQuantities> getQuantities() {

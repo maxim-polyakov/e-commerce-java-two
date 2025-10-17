@@ -1,13 +1,13 @@
 package com.ecommercebackend.api.controller.order;
 
+import com.ecommercebackend.api.model.RegistrationBody;
 import com.ecommercebackend.model.LocalUser;
 import com.ecommercebackend.model.WebOrder;
 import com.ecommercebackend.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,6 +24,11 @@ public class OrderController {
   @GetMapping
   public List<WebOrder> getOrders(@AuthenticationPrincipal LocalUser user) {
     return orderService.getOrders(user);
+  }
+
+  @PostMapping("/create")
+  public WebOrder createOrder(@AuthenticationPrincipal LocalUser user, @Valid @RequestBody WebOrder order) {
+    return orderService.createOrder(order, user);
   }
 
 }
