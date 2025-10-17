@@ -169,60 +169,6 @@ const ProductShowcase = observer(() => {
                 </div>
             </section>
 
-            {/* Все товары сеткой */}
-            <section className="all-products">
-                <h3>📦 Все товары ({filteredAndSortedProducts.length})</h3>
-                <div className="products-showcase-grid">
-                    {filteredAndSortedProducts.map(product => (
-                        <div key={product.id} className="showcase-product-card">
-                            <div className="card-header">
-                                <h4>{product.name}</h4>
-                                {product.isNew && <span className="new-badge">NEW</span>}
-                            </div>
-
-                            <div className="product-image">
-                                {product.image ? (
-                                    <img src={product.image} alt={product.name} />
-                                ) : (
-                                    <div className="image-placeholder">📦</div>
-                                )}
-                            </div>
-
-                            <div className="product-details">
-                                <p className="description">{product.shortDescription}</p>
-                                <div className="product-stats">
-                                    <div className="stat">
-                                        <span className="stat-label">Цена:</span>
-                                        <span className="stat-value">${product.price}</span>
-                                    </div>
-                                    <div className="stat">
-                                        <span className="stat-label">В наличии:</span>
-                                        <span className="stat-value">{product.inventory.quantity} шт.</span>
-                                    </div>
-                                    <div className="stat">
-                                        <span className="stat-label">Рейтинг:</span>
-                                        <span className="stat-value">⭐ {product.rating || '4.5'}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="card-actions">
-                                <button
-                                    className="primary-btn"
-                                    onClick={() => handleAddToCart(product)}
-                                    disabled={product.inventory.quantity === 0}
-                                >
-                                    {product.inventory.quantity === 0 ? 'Нет в наличии' : 'В корзину'}
-                                </button>
-                                <button className="secondary-btn">
-                                    ❤️
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             {/* Баннер акции */}
             <section className="promo-banner">
                 <div className="banner-content">
