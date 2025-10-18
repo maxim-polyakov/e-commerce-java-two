@@ -17,8 +17,7 @@ const UserProfile = observer(() => {
     const [editingAddress, setEditingAddress] = useState(null);
 
     const [addressForm, setAddressForm] = useState({
-        addressLine1: '',
-        addressLine2: '',
+        addressLine: '',
         city: '',
         country: '',
         isDefault: false
@@ -87,8 +86,7 @@ const UserProfile = observer(() => {
 
             // Сбрасываем форму
             setAddressForm({
-                addressLine1: '',
-                addressLine2: '',
+                addressLine: '',
                 city: '',
                 country: '',
             });
@@ -105,8 +103,7 @@ const UserProfile = observer(() => {
         console.log("Editing address:", address);
         setEditingAddress(address);
         setAddressForm({
-            addressLine1: address.addressLine1 || '',
-            addressLine2: address.addressLine2 || '',
+            addressLine: address.addressLine || '',
             city: address.city || '',
             country: address.country || '',
         });
@@ -117,8 +114,7 @@ const UserProfile = observer(() => {
         setShowAddressForm(false);
         setEditingAddress(null);
         setAddressForm({
-            addressLine1: '',
-            addressLine2: '',
+            addressLine: '',
             city: '',
             country: '',
         });
@@ -219,20 +215,12 @@ const UserProfile = observer(() => {
                             <h4>{editingAddress ? 'Редактировать адрес' : 'Добавить новый адрес'}</h4>
                             <form onSubmit={handleAddressSubmit}>
                                 <div className="form-group">
-                                    <label>Улица и дом адреса 1:</label>
+                                    <label>Адрес:</label>
                                     <input
                                         type="text"
-                                        value={addressForm.addressLine1}
+                                        value={addressForm.addressLine}
                                         onChange={(e) => setAddressForm({...addressForm, addressLine1: e.target.value})}
                                         required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Улица и дом адреса 2:</label>
-                                    <input
-                                        type="text"
-                                        value={addressForm.addressLine2}
-                                        onChange={(e) => setAddressForm({...addressForm, addressLine2: e.target.value})}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -274,14 +262,8 @@ const UserProfile = observer(() => {
                             ) : (
                                 addresses.map((address) => (
                                     <div key={address.id} className={`address-card ${address.isDefault ? 'default' : ''}`}>
-                                        {address.isDefault && (
-                                            <div className="default-badge">По умолчанию</div>
-                                        )}
-                                        <div className="address-content">
-                                            <p><strong>Улица 1:</strong> {address.addressLine1}</p>
-                                            {address.addressLine2 && (
-                                                <p><strong>Улица 2:</strong> {address.addressLine2}</p>
-                                            )}
+                                                                                <div className="address-content">
+                                            <p><strong>Адрес:</strong> {address.addressLine}</p>
                                             <p><strong>Город:</strong> {address.city}</p>
                                             <p><strong>Страна:</strong> {address.country}</p>
                                         </div>
