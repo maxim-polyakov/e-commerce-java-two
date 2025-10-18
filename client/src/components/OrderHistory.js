@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { getUserOrders } from '../http/productApi';
+import { getUserOrders } from '../http/orderApi';
 import './OrderHistory.css';
 
 const OrderHistory = observer(() => {
