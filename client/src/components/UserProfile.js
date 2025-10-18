@@ -219,7 +219,7 @@ const UserProfile = observer(() => {
                                     <input
                                         type="text"
                                         value={addressForm.addressLine}
-                                        onChange={(e) => setAddressForm({...addressForm, addressLine1: e.target.value})}
+                                        onChange={(e) => setAddressForm({...addressForm, addressLine: e.target.value})}
                                         required
                                     />
                                 </div>
