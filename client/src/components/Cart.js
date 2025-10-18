@@ -171,6 +171,46 @@ const Cart = observer(() => {
                                 ))}
                             </div>
 
+                            {items.length > 0 && (
+                                <div className="address-section">
+                                    <h3>Адрес доставки</h3>
+                                    {isLoadingAddresses ? (
+                                        <div className="loading-addresses">Загрузка адресов...</div>
+                                    ) : addresses.length > 0 ? (
+                                        <div className="address-selector">
+                                            <select
+                                                value={selectedAddressId}
+                                                onChange={(e) => setSelectedAddressId(Number(e.target.value))}
+                                                className="address-select"
+                                                disabled={isLoading}
+                                            >
+                                                {addresses.map(address => (
+                                                    <option key={address.id} value={address.id}>
+                                                        {address.addressLine1}, {address.city}, {address.country}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <div className="selected-address-details">
+                                                {getSelectedAddress() && (
+                                                    <div className="address-info">
+                                                        <p><strong>Адрес:</strong> {getSelectedAddress().addressLine1}</p>
+                                                        {getSelectedAddress().addressLine2 && (
+                                                            <p><strong>Дополнительно:</strong> {getSelectedAddress().addressLine2}</p>
+                                                        )}
+                                                        <p><strong>Город:</strong> {getSelectedAddress().city}</p>
+                                                        <p><strong>Страна:</strong> {getSelectedAddress().country}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="no-addresses">
+                                            <p>Нет сохраненных адресов</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {orderError && (
                                 <div className="order-error">
                                     {orderError}
