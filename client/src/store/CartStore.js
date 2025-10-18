@@ -14,11 +14,13 @@ class CartStore {
 
         if (existingItem) {
             existingItem.quantity += 1;
+            alert(`Товар "${product.name}" добавлен в корзину! Теперь количество: ${existingItem.quantity}`);
         } else {
             this.items.push({
                 ...product,
                 quantity: 1
             });
+            alert(`Товар "${product.name}" добавлен в корзину!`);
         }
     }
 
