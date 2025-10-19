@@ -1,0 +1,182 @@
+/* Auth.css */
+.auth-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.auth-title {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.auth-form .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.auth-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    background: #fff;
+}
+
+.auth-form .form-control::placeholder {
+    color: #6c757d;
+    opacity: 0.7;
+}
+
+.auth-btn {
+    border: 2px solid #28a745;
+    border-radius: 12px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #28a745;
+}
+
+.auth-btn:hover:not(:disabled) {
+    background: #28a745;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.auth-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.auth-link {
+    color: #667eea;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+    color: #764ba2;
+    text-decoration: none;
+}
+
+.forgot-password-link {
+    color: #6c757d;
+    transition: color 0.3s ease;
+    font-size: 14px;
+}
+
+.forgot-password-link:hover {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.auth-alert {
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .auth-card {
+        margin: 10px;
+        padding: 20px;
+        width: 95% !important;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+    }
+
+    .auth-container .d-flex {
+        padding: 10px;
+    }
+}
+
+/* Стили для текста ссылок переключения */
+.auth-switch-text {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.auth-switch-link {
+    color: #667eea;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.auth-switch-link:hover {
+    color: #764ba2;
+    text-decoration: none;
+}
+
+/* Дополнительные стили для улучшения внешнего вида */
+.auth-form .form-control.mt-3,
+.auth-form .form-control.mt-2 {
+    margin-top: 1rem !important;
+}
+
+.auth-form .d-flex.justify-content-between {
+    margin-top: 2rem !important;
+}
+
+/* Стили для состояний полей ввода */
+.form-control:invalid {
+    border-color: #e9ecef;
+}
+
+.form-control:valid {
+    border-color: #e9ecef;
+}
+
+/* Улучшение отступов */
+.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+/* Стили для контейнера */
+.d-flex.justify-content-center.align-items-center {
+    padding: 20px;
+}

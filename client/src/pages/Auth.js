@@ -5,6 +5,7 @@ import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOM
 import { login, registration } from "../http/authApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
+import './Auth.css';
 
 const Auth = observer(() => {
     const { user } = useContext(Context);
@@ -17,7 +18,7 @@ const Auth = observer(() => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState(""); // Состояние для ошибок
+    const [error, setError] = useState("");
 
     const swapMethod = () => {
         setEmail("");
@@ -25,11 +26,10 @@ const Auth = observer(() => {
         setFirstName("");
         setLastName("");
         setPassword("");
-        setError(""); // Очищаем ошибки при смене формы
+        setError("");
     };
 
     const signIn = async () => {
-        // Проверка на пустые поля
         if (isLogin) {
             if (!username.trim() || !password.trim()) {
                 setError("Имя пользователя и пароль обязательны для заполнения");
@@ -42,7 +42,6 @@ const Auth = observer(() => {
             }
         }
 
-        // Для регистрации проверяем валидность email
         if (!isLogin) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
@@ -51,29 +50,26 @@ const Auth = observer(() => {
             }
         }
 
-        // Проверка длины пароля
         if (password.length < 6) {
             setError("Пароль должен содержать минимум 6 символов");
             return;
         }
 
-        // Проверка username
         if (username.length < 3) {
             setError("Имя пользователя должно содержать минимум 3 символа");
             return;
         }
 
         try {
-            setError(""); // Очищаем ошибки перед запросом
+            setError("");
 
             let data;
             if (isLogin) {
                 data = await login(username, password);
                 user.setUser(data);
                 user.setIsAuth(true);
-
                 swapMethod();
-                navigate(ECOMMERCE_ROUTE); // Изменено: перенаправляем на ECOMMERCE_ROUTE
+                navigate(ECOMMERCE_ROUTE);
             } else {
                 await registration(
                     email,
@@ -82,20 +78,17 @@ const Auth = observer(() => {
                     lastName,
                     password
                 );
-
                 localStorage.setItem('registeredEmail', email);
                 swapMethod();
-                navigate(SEND_MAIL); // Перенаправляем на страницу подтверждения
+                navigate(SEND_MAIL);
             }
 
         } catch (error) {
             console.log("Ошибка авторизации:", error);
-            // Просто используем message из ошибки, так как мы уже обработали её в API функциях
             setError(error.message);
         }
     };
 
-    // Функция для проверки, активна ли кнопка
     const isButtonDisabled = () => {
         if (isLogin) {
             return !username.trim() || !password.trim();
@@ -106,23 +99,21 @@ const Auth = observer(() => {
 
     return (
         <Container
-            className="d-flex justify-content-center align-items-center"
+            className="d-flex justify-content-center align-items-center auth-container"
             style={{ height: window.innerHeight - 54 }}
         >
-            <Card style={{ width: 700 }} className="p-5">
-                <h2 className="m-auto text-center">
+            <Card style={{ width: 700 }} className="p-5 auth-card">
+                <h2 className="m-auto text-center auth-title">
                     {isLogin ? "Авторизация" : "Регистрация"}
                 </h2>
 
-                {/* Отображение ошибок */}
                 {error && (
-                    <Alert variant="danger" className="mt-3">
+                    <Alert variant="danger" className="mt-3 auth-alert">
                         {error}
                     </Alert>
                 )}
 
-                <Form className="d-flex flex-column">
-                    {/* Для логина показываем поле username, для регистрации - оба поля */}
+                <Form className="d-flex flex-column auth-form">
                     {isLogin ? (
                         <Form.Control
                             className="mt-3"
@@ -130,7 +121,7 @@ const Auth = observer(() => {
                             value={username}
                             onChange={(e) => {
                                 setUsername(e.target.value);
-                                setError(""); // Очищаем ошибку при изменении поля
+                                setError("");
                             }}
                             required
                         />
@@ -159,7 +150,6 @@ const Auth = observer(() => {
                         </>
                     )}
 
-                    {/* Дополнительные поля только для регистрации */}
                     {!isLogin && (
                         <>
                             <Form.Control
@@ -191,22 +181,17 @@ const Auth = observer(() => {
                         value={password}
                         onChange={(e) => {
                             setPassword(e.target.value);
-                            setError(""); // Очищаем ошибку при изменении поля
+                            setError("");
                         }}
                         type="password"
                         required
                     />
 
-                    {/* Кнопка "Забыл пароль" только для страницы логина */}
                     {isLogin && (
                         <div className="mt-2 text-end">
                             <Link
                                 to={FORGOT_PASSWORD_ROUTE}
-                                style={{
-                                    textDecoration: "none",
-                                    fontSize: "14px",
-                                    color: "#6c757d"
-                                }}
+                                className="forgot-password-link"
                             >
                                 Забыли пароль?
                             </Link>
@@ -214,13 +199,13 @@ const Auth = observer(() => {
                     )}
 
                     <div className="d-flex justify-content-between mt-3 pl-3 pr-3 align-items-center">
-                        <div>
+                        <div className="auth-switch-text">
                             {isLogin ? (
                                 <>
                                     Нет аккаунта?
                                     <Link
                                         to={REGISTRATION_ROUTE}
-                                        style={{ textDecoration: "none" }}
+                                        className="auth-switch-link"
                                         onClick={() => swapMethod()}
                                     >
                                         {" "}
@@ -232,7 +217,7 @@ const Auth = observer(() => {
                                     Уже есть аккаунт?
                                     <Link
                                         to={LOGIN_ROUTE}
-                                        style={{ textDecoration: "none" }}
+                                        className="auth-switch-link"
                                         onClick={() => swapMethod()}
                                     >
                                         {" "}
@@ -244,7 +229,8 @@ const Auth = observer(() => {
                         <Button
                             variant="outline-success"
                             onClick={signIn}
-                            disabled={isButtonDisabled()} // Кнопка неактивна при пустых полях
+                            disabled={isButtonDisabled()}
+                            className="auth-btn"
                         >
                             {isLogin ? "Войти" : "Зарегистрироваться"}
                         </Button>
