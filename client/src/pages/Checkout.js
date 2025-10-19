@@ -28,9 +28,16 @@ const Checkout = observer(() => {
 
             const totalAmount = checkoutData.totalPrice;
 
-            // Создаем описание с именами товаров
-            const itemNames = checkoutData.cartItems.map(item => item.name).join(', ');
-            const orderDescription = `Заказ из ${checkoutData.cartItems.length} товаров: ${itemNames}`;
+            // Правильно считаем общее количество товаров
+            const totalItemsCount = checkoutData.cartItems.reduce((total, item) => total + item.quantity, 0);
+
+            // Создаем описание с учетом quantity
+            const itemDetails = checkoutData.cartItems.map(item =>
+                `${item.name}${item.quantity > 1 ? ` (${item.quantity} шт.)` : ''}`
+            ).join(', ');
+
+            const orderId = Date.now();
+            const orderDescription = `Заказ #${orderId} из ${totalItemsCount} товаров: ${itemDetails}`;
 
             const returnUrl = `${BASE_URL}${PAYMENT_SUCCESS_ROUTE}`;
 
