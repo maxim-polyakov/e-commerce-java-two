@@ -58,7 +58,7 @@ const ProductList = observer(() => {
                     <div key={product.id} className="product-card">
                         <div className="product-header">
                             <h3 className="product-name">{product.name}</h3>
-                            <span className="product-price">${product.price}</span>
+                            <span className="product-price">{product.price}₽</span>
                         </div>
 
                         <div className="product-badges">

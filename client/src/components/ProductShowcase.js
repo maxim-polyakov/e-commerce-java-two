@@ -123,7 +123,7 @@ const ProductShowcase = observer(() => {
                     </div>
 
                     <div className="filter-group">
-                        <label>Цена: до ${priceRange[1]}</label>
+                        <label>Цена: до {priceRange[1]}₽</label>
                         <input
                             type="range"
                             min="0"
@@ -154,7 +154,7 @@ const ProductShowcase = observer(() => {
                                 <h4>{product.name}</h4>
                                 <p className="product-description">{product.shortDescription}</p>
                                 <div className="product-meta">
-                                    <span className="price">${product.price}</span>
+                                    <span className="price">{product.price}₽</span>
                                     <span className="rating">⭐ {product.rating || '4.5'}</span>
                                 </div>
                                 <button
