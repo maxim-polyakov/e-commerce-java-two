@@ -4,6 +4,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Ecommerce from "./pages/Ecommerce";
+import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import {
     LOGIN_ROUTE,
     REGISTRATION_ROUTE,
@@ -11,13 +13,23 @@ import {
     VERIFY_EMAIL_ROUTE,
     FORGOT_PASSWORD_ROUTE,
     RESET_PASSWORD_ROUTE,
-    ECOMMERCE_ROUTE
+    ECOMMERCE_ROUTE,
+    CHECKOUT_ROUTE,
+    PAYMENT_SUCCESS_ROUTE
 } from "./utils/consts";
 
 export const authRoutes = [
     {
         path: ECOMMERCE_ROUTE,
         Component: Ecommerce
+    },
+    {
+        path: CHECKOUT_ROUTE,
+        Component: Checkout
+    },
+    {
+        path: PAYMENT_SUCCESS_ROUTE,
+        Component: PaymentSuccess
     }
 ];
 

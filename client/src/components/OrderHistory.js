@@ -83,7 +83,7 @@ const OrderHistory = observer(() => {
                                         </div>
                                         <div className="item-details">
                                             <span className="item-quantity">
-                                                {item.quantity} × ${item.product.price}
+                                                {item.quantity} × {item.product.price}₽
                                             </span>
                                             <span className="item-total">
                                                 ${(item.product.price * item.quantity).toFixed(2)}
@@ -96,10 +96,10 @@ const OrderHistory = observer(() => {
                             <div className="order-footer">
                                 <div className="order-total">
                                     <strong>
-                                        Общая сумма: $
+                                        Общая сумма:
                                         {order.quantities.reduce((total, item) =>
                                             total + (item.product.price * item.quantity), 0
-                                        ).toFixed(2)}
+                                        ).toFixed(2)}₽
                                     </strong>
                                 </div>
                             </div>

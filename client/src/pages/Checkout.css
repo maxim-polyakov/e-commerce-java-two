@@ -1,0 +1,345 @@
+/* Checkout.css */
+.checkout-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.checkout-page h2 {
+    text-align: center;
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.order-summary {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    animation: slideInUp 0.6s ease-out;
+}
+
+.order-summary h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+    font-weight: 600;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #ecf0f1;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item span:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+    flex: 2;
+}
+
+.order-item span:last-child {
+    color: #7f8c8d;
+    font-weight: 500;
+    flex: 1;
+    text-align: right;
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #bdc3c7;
+    font-size: 1.3rem;
+}
+
+.order-total strong {
+    color: #8e44ad;
+    font-weight: 700;
+}
+
+.delivery-address {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    animation: slideInUp 0.8s ease-out;
+}
+
+.delivery-address h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.delivery-address p {
+    color: #34495e;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #9b59b6;
+}
+
+.error-message {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+    animation: shake 0.5s ease-in-out;
+    backdrop-filter: blur(10px);
+}
+
+/* ФИОЛЕТОВАЯ КНОПКА */
+.payment-button {
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 15px 35px rgba(142, 68, 173, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(142, 68, 173, 0.6);
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+.payment-button:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.payment-button:disabled {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+}
+
+.payment-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.payment-button:hover::before {
+    left: 100%;
+}
+
+/* Стили для всей страницы */
+html, body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+/* Анимации */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Стили для пустого состояния */
+.checkout-page .error-message {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .checkout-page {
+        padding: 20px 15px;
+    }
+
+    .checkout-page h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    .order-summary,
+    .delivery-address {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .order-item span:last-child {
+        text-align: left;
+        width: 100%;
+    }
+
+    .order-total {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .payment-button {
+        padding: 18px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-page {
+        padding: 15px 10px;
+    }
+
+    .checkout-page h2 {
+        font-size: 1.8rem;
+    }
+
+    .order-summary h3,
+    .delivery-address h3 {
+        font-size: 1.3rem;
+    }
+
+    .order-item span {
+        font-size: 0.9rem;
+    }
+
+    .delivery-address p {
+        font-size: 1rem;
+        padding: 12px;
+    }
+
+    .payment-button {
+        padding: 16px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Дополнительные декоративные элементы */
+.checkout-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="%23ffffff" points="0,1000 1000,0 1000,1000"/></svg>');
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Стили для иконок */
+.order-summary h3::before {
+    content: '🛒';
+    margin-right: 10px;
+}
+
+.delivery-address h3::before {
+    content: '📍';
+    margin-right: 10px;
+}
+
+.payment-button::after {
+    content: '💳';
+    margin-left: 10px;
+}
+
+/* Loading state improvements */
+.payment-button:disabled::after {
+    content: '⏳';
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Улучшения для всей страницы */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}

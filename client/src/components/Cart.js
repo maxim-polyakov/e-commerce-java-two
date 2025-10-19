@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
 import cartStore from '../store/CartStore';
 import { createOrder } from '../http/orderApi';
 import { getUserAddresses } from '../http/userApi';
 import { getCurrentUser } from '../http/authApi';
+import { CHECKOUT_ROUTE } from '../utils/consts';
 import './Cart.css';
 
 const Cart = observer(() => {
@@ -13,6 +15,7 @@ const Cart = observer(() => {
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState('');
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+    const navigate = useNavigate();
 
     // Загружаем адреса при открытии корзины
     useEffect(() => {
@@ -48,7 +51,7 @@ const Cart = observer(() => {
         return addresses.find(addr => addr.id === selectedAddressId) || addresses[0];
     };
 
-    const handleCreateOrder = async () => {
+    const handleCheckout = async () => {
         if (items.length === 0) return;
         if (addresses.length === 0) {
             setOrderError("Необходимо добавить адрес доставки");
@@ -59,48 +62,24 @@ const Cart = observer(() => {
         setOrderError('');
 
         try {
+            // Сохраняем выбранный адрес и данные корзины для использования на странице оплаты
             const selectedAddress = getSelectedAddress();
 
-            const orderData = {
-                address: {
-                    id: selectedAddress.id,
-                    addressLine1: selectedAddress.addressLine1,
-                    addressLine2: selectedAddress.addressLine2 || "",
-                    city: selectedAddress.city,
-                    country: selectedAddress.country
-                },
-                quantities: items.map(item => ({
-                    id: item.id,
-                    product: {
-                        id: item.id,
-                        name: item.name,
-                        shortDescription: item.shortDescription || "",
-                        longDescription: item.longDescription || "",
-                        price: item.price,
-                        inventory: {
-                            id: item.inventory?.id || 1,
-                            quantity: item.inventory?.quantity || 0
-                        }
-                    },
-                    quantity: item.quantity
-                }))
+            // Можно сохранить данные в localStorage или в store для использования на странице оплаты
+            const checkoutData = {
+                address: selectedAddress,
+                cartItems: items,
+                totalPrice: totalPrice
             };
 
-            const result = await createOrder(orderData);
-            console.log("Заказ создан:", result);
+            localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
 
-            // Сначала сбрасываем состояния
-            setIsLoading(false);
-            setOrderError('');
-
-            // Затем очищаем корзину и закрываем
-            clearCart();
-            toggleCart();
-
-            alert('Заказ успешно создан!');
+            // Закрываем корзину и переходим на страницу оплаты
+            handleCloseCart();
+            navigate(CHECKOUT_ROUTE);
 
         } catch (error) {
-            console.error("Ошибка создания заказа:", error);
+            console.error("Ошибка при оформлении заказа:", error);
             setOrderError(error.message);
             setIsLoading(false);
         }
@@ -137,8 +116,8 @@ const Cart = observer(() => {
                                     <div key={item.id} className="cart-item">
                                         <div className="item-info">
                                             <h4 className="item-name">{item.name}</h4>
-                                            <p className="item-price">${item.price} × {item.quantity}</p>
-                                            <p className="item-total">${(item.price * item.quantity).toFixed(2)}</p>
+                                            <p className="item-price">{item.price}₽ × {item.quantity}</p>
+                                            <p className="item-total">{(item.price * item.quantity).toFixed(2)}₽</p>
                                         </div>
 
                                         <div className="item-controls">
@@ -220,7 +199,7 @@ const Cart = observer(() => {
                             <div className="cart-footer">
                                 <div className="cart-total">
                                     <span>Итого:</span>
-                                    <span className="total-price">${totalPrice.toFixed(2)}</span>
+                                    <span className="total-price">{totalPrice.toFixed(2)}₽</span>
                                 </div>
                                 <div className="cart-actions">
                                     <button
@@ -232,10 +211,10 @@ const Cart = observer(() => {
                                     </button>
                                     <button
                                         className="checkout-btn"
-                                        onClick={handleCreateOrder}
+                                        onClick={handleCheckout}
                                         disabled={isLoading || items.length === 0 || addresses.length === 0}
                                     >
-                                        {isLoading ? 'Оформление...' : 'Оформить заказ'}
+                                        {isLoading ? 'Переход...' : 'Перейти к оплате'}
                                     </button>
                                 </div>
                             </div>
