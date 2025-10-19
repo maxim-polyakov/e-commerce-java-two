@@ -27,7 +27,11 @@ const Checkout = observer(() => {
             }
 
             const totalAmount = checkoutData.totalPrice;
-            const orderDescription = `Заказ из ${checkoutData.cartItems.length} товаров`;
+
+            // Создаем описание с именами товаров
+            const itemNames = checkoutData.cartItems.map(item => item.name).join(', ');
+            const orderDescription = `Заказ из ${checkoutData.cartItems.length} товаров: ${itemNames}`;
+
             const returnUrl = `${BASE_URL}${PAYMENT_SUCCESS_ROUTE}`;
 
             const paymentResponse = await createPayment(totalAmount, orderDescription, returnUrl);
