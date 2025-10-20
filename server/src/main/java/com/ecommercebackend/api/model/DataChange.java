@@ -1,39 +1,24 @@
 package com.ecommercebackend.api.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Data model to outline data changes for websockets.
  * @param <T> The data type being changed.
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DataChange<T> {
 
-  private ChangeType changeType;
+    private ChangeType changeType;
+    private T data;
 
-  private T data;
-
-  public DataChange() {
-  }
-
-  public DataChange(ChangeType changeType, T data) {
-    this.changeType = changeType;
-    this.data = data;
-  }
-
-  public ChangeType getChangeType() {
-    return changeType;
-  }
-
-  public T getData() {
-    return data;
-  }
-
-  public void setData(T data) {
-    this.data = data;
-  }
-
-  public enum ChangeType {
-    INSERT,
-    UPDATE,
-    DELETE
-  }
-
+    public enum ChangeType {
+        INSERT,
+        UPDATE,
+        DELETE
+    }
 }
