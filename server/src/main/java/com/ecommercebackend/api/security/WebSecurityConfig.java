@@ -9,8 +9,9 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -23,12 +24,12 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .csrf().disable()
-        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Добавьте CORS конфигурацию
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/product", "/auth/register", "/auth/login",
                 "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
-                "/websocket", "/websocket/**").permitAll()
+                "/websocket", "/websocket/**", "/images/**").permitAll() // Добавлен доступ к images
             .anyRequest().authenticated()
         );
 
@@ -38,8 +39,6 @@ public class WebSecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-
-    // Максимально разрешающая конфигурация
     configuration.setAllowedOriginPatterns(List.of("*"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowedHeaders(List.of("*"));
