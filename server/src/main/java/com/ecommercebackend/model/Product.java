@@ -67,6 +67,10 @@ public class Product {
     return longDescription;
   }
 
+  public String getImage() { return image;}
+
+  public void setImage(String image) { this.image = image;}
+
   public void setLongDescription(String longDescription) {
     this.longDescription = longDescription;
   }
