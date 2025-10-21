@@ -16,6 +16,7 @@ const ProductShowcase = observer(() => {
         const fetchProducts = async () => {
             try {
                 const productsData = await getProducts();
+                console.log(productsData);
                 setProducts(productsData);
             } catch (err) {
                 setError('Не удалось загрузить продукты.');

@@ -34,8 +34,15 @@ public class Product {
   @Column(name = "price", nullable = false)
   private Double price;
 
+  @Column(name ="raiting", nullable = false)
+  private Double raiting;
+
   @OneToOne(mappedBy = "product", cascade = CascadeType.REMOVE, optional = false, orphanRemoval = true)
   private Inventory inventory;
+
+  public Double getRaiting() { return raiting;}
+
+  public void setRaiting(Double raiting) { this.raiting = raiting;}
 
   public Inventory getInventory() {
     return inventory;
