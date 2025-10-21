@@ -156,7 +156,7 @@ const ProductShowcase = observer(() => {
                                 <p className="product-description">{product.shortDescription}</p>
                                 <div className="product-meta">
                                     <span className="price">{product.price}₽</span>
-                                    <span className="rating">⭐ {product.rating || '4.5'}</span>
+                                    <span className="rating">⭐ {product.raiting || '4.5'}</span>
                                 </div>
                                 <button
                                     className="buy-now-btn"
