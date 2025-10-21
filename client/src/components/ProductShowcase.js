@@ -12,6 +12,10 @@ const ProductShowcase = observer(() => {
     const [sortBy, setSortBy] = useState('name');
     const [priceRange, setPriceRange] = useState([0, 1000]);
 
+    // Базовый URL для изображений
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
+    const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -28,6 +32,19 @@ const ProductShowcase = observer(() => {
 
         fetchProducts();
     }, []);
+
+    // Функция для получения полного URL изображения
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return null;
+
+        // Если уже полный URL, возвращаем как есть
+        if (imagePath.startsWith('http')) {
+            return imagePath;
+        }
+
+        // Если только имя файла, добавляем базовый путь
+        return `${IMAGES_BASE_URL}/${imagePath}`;
+    };
 
     // Категории (в реальном приложении получаем с сервера)
     const categories = useMemo(() => {
@@ -53,7 +70,7 @@ const ProductShowcase = observer(() => {
                 case 'name':
                     return a.name.localeCompare(b.name);
                 case 'popular':
-                    return (b.rating || 0) - (a.rating || 0);
+                    return (b.raiting || 0) - (a.rating || 0);
                 default:
                     return 0;
             }
@@ -141,32 +158,46 @@ const ProductShowcase = observer(() => {
             <section className="featured-products">
                 <h3>🔥 Рекомендуемые товары</h3>
                 <div className="featured-grid">
-                    {filteredAndSortedProducts.slice(0, 4).map(product => (
-                        <div key={product.id} className="featured-card">
-                            <div className="featured-badge">🔥 Хит</div>
-                            <div className="product-image">
-                                {product.image ? (
-                                    <img src={product.image} alt={product.name} />
-                                ) : (
-                                    <div className="image-placeholder">🛍️</div>
-                                )}
-                            </div>
-                            <div className="product-info">
-                                <h4>{product.name}</h4>
-                                <p className="product-description">{product.shortDescription}</p>
-                                <div className="product-meta">
-                                    <span className="price">{product.price}₽</span>
-                                    <span className="rating">⭐ {product.raiting || '4.5'}</span>
+                    {filteredAndSortedProducts.slice(0, 4).map(product => {
+                        const imageUrl = getImageUrl(product.image);
+                        return (
+                            <div key={product.id} className="featured-card">
+                                <div className="featured-badge">🔥 Хит</div>
+                                <div className="product-image">
+                                    {imageUrl ? (
+                                        <img
+                                            src={imageUrl}
+                                            alt={product.name}
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                            }}
+                                        />
+                                    ) : null}
+                                    <div
+                                        className="image-placeholder"
+                                        style={{ display: imageUrl ? 'none' : 'flex' }}
+                                    >
+                                        🛍️
+                                    </div>
                                 </div>
-                                <button
-                                    className="buy-now-btn"
-                                    onClick={() => handleAddToCart(product)}
-                                >
-                                    Купить сейчас
-                                </button>
+                                <div className="product-info">
+                                    <h4>{product.name}</h4>
+                                    <p className="product-description">{product.shortDescription}</p>
+                                    <div className="product-meta">
+                                        <span className="price">{product.price}₽</span>
+                                        <span className="rating">⭐ {product.raiting || '4.5'}</span>
+                                    </div>
+                                    <button
+                                        className="buy-now-btn"
+                                        onClick={() => handleAddToCart(product)}
+                                    >
+                                        Купить сейчас
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 

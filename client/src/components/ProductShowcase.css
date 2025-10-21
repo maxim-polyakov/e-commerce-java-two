@@ -1,3 +1,5 @@
+/* ProductShowcase.css - ТОЛЬКО ВИТРИНА */
+
 .product-showcase {
     max-width: 1400px;
     margin: 0 auto;
@@ -87,29 +89,32 @@
 
 .featured-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
 }
 
 .featured-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 0;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     position: relative;
-    overflow: hidden;
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
 }
 
 .featured-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .featured-badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 12px;
+    left: 12px;
     background: #ff6b6b;
     color: white;
     padding: 6px 12px;
@@ -119,51 +124,80 @@
     z-index: 2;
 }
 
+/* КОНТЕЙНЕР РАВЕН РАЗМЕРУ ИЗОБРАЖЕНИЯ */
 .product-image {
-    height: 200px;
     background: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 16px 16px 0 0;
+    /* Контейнер подстраивается под изображение */
+    width: 100%;
+    min-height: 200px;
 }
 
 .product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    /* Изображение в полном размере внутри контейнера */
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 250px;
+    display: block;
+    padding: 20px;
+    box-sizing: border-box;
+    object-fit: contain;
+}
+
+.featured-card:hover .product-image img {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
 }
 
 .image-placeholder {
-    font-size: 4rem;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    font-size: 3rem;
     opacity: 0.3;
+    border-radius: 16px 16px 0 0;
 }
 
 .product-info {
-    padding: 24px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-info h4 {
-    margin: 0 0 12px 0;
-    font-size: 1.3rem;
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
     color: #2c3e50;
+    line-height: 1.3;
 }
 
 .product-description {
     color: #7f8c8d;
-    margin-bottom: 16px;
-    line-height: 1.5;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    flex: 1;
 }
 
 .product-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .price {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #667eea;
 }
@@ -171,8 +205,9 @@
 .rating {
     background: #fff3cd;
     color: #856404;
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: 12px;
+    font-size: 0.8rem;
     font-weight: 600;
 }
 
@@ -181,11 +216,13 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    padding: 14px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin-top: auto;
 }
 
 .buy-now-btn:hover {
@@ -193,157 +230,23 @@
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* Все товары */
-.all-products {
-    margin-bottom: 60px;
-}
-
-.all-products h3 {
-    font-size: 2rem;
-    color: #2c3e50;
-    margin-bottom: 30px;
-}
-
-.products-showcase-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-}
-
-.showcase-product-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e1e5e9;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.showcase-product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-}
-
-.card-header h4 {
-    margin: 0;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    flex: 1;
-    margin-right: 10px;
-}
-
-.new-badge {
-    background: #28a745;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.product-details {
-    flex: 1;
-    margin-bottom: 20px;
-}
-
-.description {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-    line-height: 1.4;
-}
-
-.product-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.stat-label {
-    color: #7f8c8d;
-    font-size: 0.8rem;
-}
-
-.stat-value {
-    color: #2c3e50;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.card-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: auto;
-}
-
-.primary-btn {
-    flex: 1;
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.primary-btn:hover:not(:disabled) {
-    background: #5a6fd8;
-    transform: translateY(-1px);
-}
-
-.primary-btn:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-}
-
-.secondary-btn {
-    background: transparent;
-    border: 2px solid #e1e5e9;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.secondary-btn:hover {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
 /* Баннер акции */
 .promo-banner {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
     color: white;
-    padding: 50px 40px;
-    border-radius: 20px;
+    padding: 40px 30px;
+    border-radius: 16px;
     text-align: center;
     margin-bottom: 40px;
 }
 
 .banner-content h3 {
-    font-size: 2.2rem;
-    margin-bottom: 12px;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
 }
 
 .banner-content p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 20px;
     opacity: 0.9;
 }
@@ -352,8 +255,9 @@
     background: white;
     color: #ff6b6b;
     border: none;
-    padding: 14px 30px;
-    border-radius: 25px;
+    padding: 12px 25px;
+    border-radius: 20px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -361,28 +265,28 @@
 
 .promo-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
 /* Состояния загрузки и ошибки */
 .showcase-loading, .showcase-error {
     text-align: center;
-    padding: 80px 20px;
+    padding: 60px 20px;
 }
 
 .showcase-loading .loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
+    margin: 0 auto 15px;
 }
 
 .showcase-error .error-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
+    font-size: 3rem;
+    margin-bottom: 15px;
 }
 
 /* Адаптивность */
@@ -392,26 +296,34 @@
     }
 
     .showcase-hero {
-        padding: 40px 20px;
+        padding: 30px 20px;
     }
 
     .hero-content h2 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .controls-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
 
     .featured-grid {
         grid-template-columns: 1fr;
-    }
-
-    .products-showcase-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
     }
 
     .promo-banner {
         padding: 30px 20px;
     }
+
+    .product-image img {
+        max-height: 200px;
+        padding: 15px;
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
