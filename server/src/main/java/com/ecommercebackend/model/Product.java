@@ -37,6 +37,9 @@ public class Product {
   @Column(name ="raiting", nullable = false)
   private Double raiting;
 
+  @Column(name ="image", nullable = false)
+  private String image;
+
   @OneToOne(mappedBy = "product", cascade = CascadeType.REMOVE, optional = false, orphanRemoval = true)
   private Inventory inventory;
 
