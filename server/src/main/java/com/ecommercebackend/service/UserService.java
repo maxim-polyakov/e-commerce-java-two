@@ -70,28 +70,37 @@ public class UserService {
     return verificationToken;
   }
 
-  public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {
-    Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(loginBody.getUsername());
+public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {
+    String usernameOrEmail = loginBody.getUsernameoremail();
+
+    // Сначала пробуем найти по username
+    Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(usernameOrEmail);
+
+    // Если не нашли по username, пробуем найти по email
+    if (!opUser.isPresent()) {
+        opUser = localUserDAO.findByEmailIgnoreCase(usernameOrEmail);
+    }
+
     if (opUser.isPresent()) {
-      LocalUser user = opUser.get();
-      if (encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword())) {
-        if (user.isEmailVerified()) {
-          return jwtService.generateJWT(user);
-        } else {
-          List<VerificationToken> verificationTokens = user.getVerificationTokens();
-          boolean resend = verificationTokens.size() == 0 ||
-              verificationTokens.get(0).getCreatedTimestamp().before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000)));
-          if (resend) {
-            VerificationToken verificationToken = createVerificationToken(user);
-            verificationTokenDAO.save(verificationToken);
-            emailService.sendVerificationEmail(verificationToken);
-          }
-          throw new UserNotVerifiedException(resend);
+        LocalUser user = opUser.get();
+        if (encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword())) {
+            if (user.isEmailVerified()) {
+                return jwtService.generateJWT(user);
+            } else {
+                List<VerificationToken> verificationTokens = user.getVerificationTokens();
+                boolean resend = verificationTokens.size() == 0 ||
+                    verificationTokens.get(0).getCreatedTimestamp().before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000)));
+                if (resend) {
+                    VerificationToken verificationToken = createVerificationToken(user);
+                    verificationTokenDAO.save(verificationToken);
+                    emailService.sendVerificationEmail(verificationToken);
+                }
+                throw new UserNotVerifiedException(resend);
+            }
         }
-      }
     }
     return null;
-  }
+}
 
   /**
    * Verifies a user from the given token.
