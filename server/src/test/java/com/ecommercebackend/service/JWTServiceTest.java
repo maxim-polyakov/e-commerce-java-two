@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.service;
+package com.ecommercebackend.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.service;
+package com.ecommercebackend.service;
 
 import com.ecommercebackend.service.EncryptionService;
 import org.junit.jupiter.api.Assertions;

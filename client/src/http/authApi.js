@@ -38,10 +38,10 @@ export const registration = async (email, username, firstName, lastName, passwor
     }
 };
 
-export const login = async (username, password) => {
+export const login = async (usernameoremail, password) => {
     try {
         const { data } = await $host.post("/auth/login", {
-            username,
+            usernameoremail,
             password,
         });
         localStorage.setItem("token", data.jwt);

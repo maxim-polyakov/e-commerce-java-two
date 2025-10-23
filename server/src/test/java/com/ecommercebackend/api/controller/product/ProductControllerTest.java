@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.api.controller.product;
+package com.ecommercebackend.api.controller.product;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

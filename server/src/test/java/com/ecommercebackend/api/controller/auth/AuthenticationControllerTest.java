@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.api.controller.auth;
+package com.ecommercebackend.api.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;

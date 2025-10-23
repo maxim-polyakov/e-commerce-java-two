@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.service;
+package com.ecommercebackend.service;
 
 import com.ecommercebackend.service.EncryptionService;
 import com.ecommercebackend.service.JWTService;
@@ -92,14 +92,14 @@ public class UserServiceTest {
   @Transactional
   public void testLoginUser() throws UserNotVerifiedException, EmailFailureException {
     LoginBody body = new LoginBody();
-    body.setUsername("UserA-NotExists");
+    body.setUsernameoremail("UserA-NotExists");
     body.setPassword("PasswordA123-BadPassword");
     Assertions.assertNull(userService.loginUser(body), "The user should not exist.");
-    body.setUsername("UserA");
+    body.setUsernameoremail("UserA");
     Assertions.assertNull(userService.loginUser(body), "The password should be incorrect.");
     body.setPassword("PasswordA123");
     Assertions.assertNotNull(userService.loginUser(body), "The user should login successfully.");
-    body.setUsername("UserB");
+    body.setUsernameoremail("UserB");
     body.setPassword("PasswordB123");
     try {
       userService.loginUser(body);
@@ -126,7 +126,7 @@ public class UserServiceTest {
   public void testVerifyUser() throws EmailFailureException {
     Assertions.assertFalse(userService.verifyUser("Bad Token"), "Token that is bad or does not exist should return false.");
     LoginBody body = new LoginBody();
-    body.setUsername("UserB");
+    body.setUsernameoremail("UserB");
     body.setPassword("PasswordB123");
     try {
       userService.loginUser(body);

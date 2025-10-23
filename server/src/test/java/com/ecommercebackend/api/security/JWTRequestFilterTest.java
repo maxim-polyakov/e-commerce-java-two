@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.api.security;
+package com.ecommercebackend.api.security;
 
 import com.ecommercebackend.model.LocalUser;
 import com.ecommercebackend.model.dao.LocalUserDAO;

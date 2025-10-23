@@ -1,4 +1,4 @@
-package com.youtube.tutorial.ecommercebackend.api.controller.order;
+package com.ecommercebackend.api.controller.order;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
