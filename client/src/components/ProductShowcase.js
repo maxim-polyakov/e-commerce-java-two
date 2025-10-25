@@ -11,6 +11,7 @@ const ProductShowcase = observer(() => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [priceRange, setPriceRange] = useState([0, 1000]);
+    const [showAllFeatured, setShowAllFeatured] = useState(false);
 
     // Базовый URL для изображений
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
@@ -97,6 +98,11 @@ const ProductShowcase = observer(() => {
         return filtered;
     }, [products, selectedCategory, sortBy, priceRange]);
 
+    // Рекомендуемые товары (первые 3 или все)
+    const featuredProducts = useMemo(() => {
+        return showAllFeatured ? filteredAndSortedProducts : filteredAndSortedProducts.slice(0, 3);
+    }, [filteredAndSortedProducts, showAllFeatured]);
+
     const handleAddToCart = (product) => {
         cartStore.addToCart(product);
     };
@@ -118,6 +124,7 @@ const ProductShowcase = observer(() => {
 
     // Защита от не-массива для рендеринга
     const safeProducts = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
+    const safeFeaturedProducts = Array.isArray(featuredProducts) ? featuredProducts : [];
 
     return (
         <div className="product-showcase">
@@ -177,15 +184,27 @@ const ProductShowcase = observer(() => {
 
             {/* Рекомендуемые товары */}
             <section className="featured-products">
-                <h3>🔥 Рекомендуемые товары</h3>
-                {safeProducts.length > 0 ? (
+                <div className="featured-header">
+                    <h3>🔥 Рекомендуемые товары</h3>
+                    {safeProducts.length > 3 && (
+                        <button
+                            className="show-more-btn"
+                            onClick={() => setShowAllFeatured(!showAllFeatured)}
+                        >
+                            {showAllFeatured ? 'Скрыть' : `Показать все (${safeProducts.length})`}
+                        </button>
+                    )}
+                </div>
+
+                {safeFeaturedProducts.length > 0 ? (
                     <div className="featured-grid">
-                        {safeProducts.slice(0, 3).map(product => {
+                        {safeFeaturedProducts.map(product => {
                             const imageUrl = getImageUrl(product.image);
                             return (
                                 <div key={product.id} className="featured-card">
                                     <div className="featured-badge">🔥 Хит</div>
-                                    <div className="product-image">
+                                    {/* ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ДЛЯ ИЗОБРАЖЕНИЯ */}
+                                    <div className="showcase-image-container">
                                         {imageUrl ? (
                                             <img
                                                 src={imageUrl}
@@ -197,18 +216,18 @@ const ProductShowcase = observer(() => {
                                             />
                                         ) : null}
                                         <div
-                                            className="image-placeholder"
+                                            className="showcase-image-placeholder"
                                             style={{ display: imageUrl ? 'none' : 'flex' }}
                                         >
                                             🛍️
                                         </div>
                                     </div>
-                                    <div className="product-info">
+                                    <div className="showcase-product-info">
                                         <h4>{product.name}</h4>
-                                        <p className="product-description">{product.shortDescription}</p>
-                                        <div className="product-meta">
-                                            <span className="price">{product.price}₽</span>
-                                            <span className="rating">⭐ {product.raiting || '4.5'}</span>
+                                        <p className="showcase-product-description">{product.shortDescription}</p>
+                                        <div className="showcase-product-meta">
+                                            <span className="showcase-price">{product.price}₽</span>
+                                            <span className="showcase-rating">⭐ {product.raiting || '4.5'}</span>
                                         </div>
                                         <button
                                             className="buy-now-btn"
@@ -222,19 +241,12 @@ const ProductShowcase = observer(() => {
                         })}
                     </div>
                 ) : (
-                    <div className="no-products">
-                        <p>Нет товаров для отображения</p>
+                    <div className="showcase-no-products">
+                        <div className="showcase-no-products-icon">📦</div>
+                        <h3>Продукты не найдены</h3>
+                        <p>На данный момент нет доступных продуктов.</p>
                     </div>
                 )}
-            </section>
-
-            {/* Баннер акции */}
-            <section className="promo-banner">
-                <div className="banner-content">
-                    <h3>🎉 Специальное предложение!</h3>
-                    <p>Получите скидку 15% на первый заказ</p>
-                    <button className="promo-btn">Узнать больше</button>
-                </div>
             </section>
         </div>
     );

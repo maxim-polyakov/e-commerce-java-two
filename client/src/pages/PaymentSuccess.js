@@ -27,8 +27,7 @@ const PaymentSuccess = () => {
                 const orderData = {
                     address: {
                         id: address.id,
-                        addressLine1: address.addressLine1,
-                        addressLine2: address.addressLine2 || "",
+                        addressLine: address.addressLine,
                         city: address.city,
                         country: address.country
                     },
@@ -36,6 +35,8 @@ const PaymentSuccess = () => {
                         id: item.id,
                         product: {
                             id: item.id,
+                            image: item.image,
+                            raiting: item.raiting,
                             name: item.name,
                             shortDescription: item.shortDescription || "",
                             longDescription: item.longDescription || "",
