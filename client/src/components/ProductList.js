@@ -9,6 +9,11 @@ const ProductList = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Состояния для пагинации
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(8); // Количество продуктов на странице
+    const [totalPages, setTotalPages] = useState(0);
+
     // Базовый URL для изображений
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
@@ -18,6 +23,8 @@ const ProductList = observer(() => {
             try {
                 const productsData = await getProducts();
                 setProducts(productsData);
+                // Вычисляем общее количество страниц
+                setTotalPages(Math.ceil(productsData.length / itemsPerPage));
             } catch (err) {
                 setError('Не удалось загрузить продукты. Проверьте авторизацию.');
                 console.error(err);
@@ -27,7 +34,7 @@ const ProductList = observer(() => {
         };
 
         fetchProducts();
-    }, []);
+    }, [itemsPerPage]);
 
     // Функция для получения полного URL изображения
     const getImageUrl = (imagePath) => {
@@ -44,6 +51,54 @@ const ProductList = observer(() => {
 
     const handleAddToCart = (product) => {
         cartStore.addToCart(product);
+    };
+
+    // Получаем продукты для текущей страницы
+    const getCurrentProducts = () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return products.slice(startIndex, endIndex);
+    };
+
+    // Функции для навигации по страницам
+    const goToPage = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        // Прокрутка к верху страницы при смене страницы
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const goToPrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    // Генерация номеров страниц для отображения
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 5; // Максимальное количество видимых номеров страниц
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Корректируем startPage, если endPage достиг максимума
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+
+        return pageNumbers;
     };
 
     if (loading) return (
@@ -67,11 +122,21 @@ const ProductList = observer(() => {
         </div>
     );
 
+    const currentProducts = getCurrentProducts();
+    const pageNumbers = getPageNumbers();
+
     return (
         <div className="products-container">
-            <h2 className="products-title">Наши продукты</h2>
+            <div className="products-header">
+                <h2 className="products-title">Наши продукты</h2>
+                <div className="pagination-info">
+                    Страница {currentPage} из {totalPages}
+                    ({products.length} товаров)
+                </div>
+            </div>
+
             <div className="products-grid">
-                {products.map(product => {
+                {currentProducts.map(product => {
                     const imageUrl = getImageUrl(product.image);
 
                     return (
@@ -134,6 +199,44 @@ const ProductList = observer(() => {
                     );
                 })}
             </div>
+
+            {/* Пагинация */}
+            {totalPages > 1 && (
+                <div className="pagination-container">
+                    <div className="pagination">
+                        {/* Кнопка "Назад" */}
+                        <button
+                            className={`pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                            onClick={goToPrevPage}
+                            disabled={currentPage === 1}
+                        >
+                            ← Назад
+                        </button>
+
+                        {/* Номера страниц */}
+                        <div className="page-numbers">
+                            {pageNumbers.map(pageNumber => (
+                                <button
+                                    key={pageNumber}
+                                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                                    onClick={() => goToPage(pageNumber)}
+                                >
+                                    {pageNumber}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Кнопка "Вперед" */}
+                        <button
+                            className={`pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages}
+                        >
+                            Вперед →
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 });

@@ -23,10 +23,10 @@ public class ProductController {
   private ProductService productService;
 
   @GetMapping
-  public List<Product> getProducts(
+  public Page<Product> getProducts(
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size) {
-    return productService.getProducts(page, size).getContent();
+    return productService.getProducts(page, size)
   }
 
 

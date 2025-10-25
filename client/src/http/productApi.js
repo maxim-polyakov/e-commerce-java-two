@@ -1,8 +1,13 @@
 import { $authhost } from ".";
 
-export const getProducts = async () => {
+export const getProducts = async (page = 0, size = 10) => {
     try {
-        const { data } = await $authhost.get('/product');
+        const { data } = await $authhost.get('/product', {
+            params: {
+                page,
+                size
+            }
+        });
         return data;
     } catch (error) {
         console.log("Get products error:", error);
@@ -49,4 +54,3 @@ export const getProducts = async () => {
         throw new Error(errorMessage);
     }
 };
-
