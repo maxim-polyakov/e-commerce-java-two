@@ -103,7 +103,21 @@ const ProductShowcase = observer(() => {
         return showAllFeatured ? filteredAndSortedProducts : filteredAndSortedProducts.slice(0, 3);
     }, [filteredAndSortedProducts, showAllFeatured]);
 
+    // Проверка наличия товара
+    const isProductAvailable = (product) => {
+        const inventoryQuantity = product.inventory?.quantity || 0;
+        return inventoryQuantity > 0;
+    };
+
+    // Получение количества товара в наличии
+    const getProductQuantity = (product) => {
+        return product.inventory?.quantity || 0;
+    };
+
     const handleAddToCart = (product) => {
+        if (!isProductAvailable(product)) {
+            return; // Не добавляем в корзину если товара нет в наличии
+        }
         cartStore.addToCart(product);
     };
 
@@ -200,9 +214,20 @@ const ProductShowcase = observer(() => {
                     <div className="featured-grid">
                         {safeFeaturedProducts.map(product => {
                             const imageUrl = getImageUrl(product.image);
+                            const isAvailable = isProductAvailable(product);
+                            const availableQuantity = getProductQuantity(product);
+
                             return (
                                 <div key={product.id} className="featured-card">
                                     <div className="featured-badge">🔥 Хит</div>
+
+                                    {/* Бейдж отсутствия товара */}
+                                    {!isAvailable && (
+                                        <div className="out-of-stock-overlay">
+                                            Нет в наличии
+                                        </div>
+                                    )}
+
                                     {/* ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ДЛЯ ИЗОБРАЖЕНИЯ */}
                                     <div className="showcase-image-container">
                                         {imageUrl ? (
@@ -213,11 +238,18 @@ const ProductShowcase = observer(() => {
                                                     e.target.style.display = 'none';
                                                     e.target.nextSibling.style.display = 'flex';
                                                 }}
+                                                style={{
+                                                    opacity: isAvailable ? 1 : 0.6,
+                                                    filter: isAvailable ? 'none' : 'grayscale(50%)'
+                                                }}
                                             />
                                         ) : null}
                                         <div
                                             className="showcase-image-placeholder"
-                                            style={{ display: imageUrl ? 'none' : 'flex' }}
+                                            style={{
+                                                display: imageUrl ? 'none' : 'flex',
+                                                opacity: isAvailable ? 1 : 0.6
+                                            }}
                                         >
                                             🛍️
                                         </div>
@@ -225,15 +257,30 @@ const ProductShowcase = observer(() => {
                                     <div className="showcase-product-info">
                                         <h4>{product.name}</h4>
                                         <p className="showcase-product-description">{product.shortDescription}</p>
+
+                                        {/* Информация о наличии */}
+                                        <div className="availability-info">
+                                            {isAvailable ? (
+                                                <span className="in-stock">
+                                                    📦 В наличии: {availableQuantity} шт.
+                                                </span>
+                                            ) : (
+                                                <span className="out-of-stock">
+                                                    ❌ Нет в наличии
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <div className="showcase-product-meta">
                                             <span className="showcase-price">{product.price}₽</span>
                                             <span className="showcase-rating">⭐ {product.raiting || '4.5'}</span>
                                         </div>
                                         <button
-                                            className="buy-now-btn"
+                                            className={`buy-now-btn ${!isAvailable ? 'disabled' : ''}`}
                                             onClick={() => handleAddToCart(product)}
+                                            disabled={!isAvailable}
                                         >
-                                            Купить сейчас
+                                            {isAvailable ? 'Купить сейчас' : 'Нет в наличии'}
                                         </button>
                                     </div>
                                 </div>
