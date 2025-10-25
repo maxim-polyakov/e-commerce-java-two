@@ -19,8 +19,21 @@ const ProductShowcase = observer(() => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const productsData = await getProducts();
-                console.log(productsData);
+                const response = await getProducts();
+                console.log('API Response:', response);
+
+                // Извлекаем массив продуктов из объекта Page
+                let productsData = [];
+                if (response && response.content && Array.isArray(response.content)) {
+                    productsData = response.content;
+                } else if (Array.isArray(response)) {
+                    productsData = response;
+                } else {
+                    console.warn('Unexpected response format:', response);
+                    productsData = [];
+                }
+
+                console.log('Products data:', productsData);
                 setProducts(productsData);
             } catch (err) {
                 setError('Не удалось загрузить продукты.');
@@ -48,13 +61,18 @@ const ProductShowcase = observer(() => {
 
     // Категории (в реальном приложении получаем с сервера)
     const categories = useMemo(() => {
-        const uniqueCategories = [...new Set(products.map(p => p.category))].filter(Boolean);
+        // Защита от не-массива
+        const safeProducts = Array.isArray(products) ? products : [];
+        const uniqueCategories = [...new Set(safeProducts.map(p => p.category))].filter(Boolean);
         return ['all', ...uniqueCategories];
     }, [products]);
 
     // Фильтрация и сортировка товаров
     const filteredAndSortedProducts = useMemo(() => {
-        let filtered = products.filter(product => {
+        // Защита от не-массива
+        const safeProducts = Array.isArray(products) ? products : [];
+
+        let filtered = safeProducts.filter(product => {
             const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
             const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
             return matchesCategory && matchesPrice;
@@ -70,7 +88,7 @@ const ProductShowcase = observer(() => {
                 case 'name':
                     return a.name.localeCompare(b.name);
                 case 'popular':
-                    return (b.raiting || 0) - (a.rating || 0);
+                    return (b.raiting || 0) - (a.raiting || 0);
                 default:
                     return 0;
             }
@@ -97,6 +115,9 @@ const ProductShowcase = observer(() => {
             <p>{error}</p>
         </div>
     );
+
+    // Защита от не-массива для рендеринга
+    const safeProducts = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
 
     return (
         <div className="product-showcase">
@@ -157,48 +178,54 @@ const ProductShowcase = observer(() => {
             {/* Рекомендуемые товары */}
             <section className="featured-products">
                 <h3>🔥 Рекомендуемые товары</h3>
-                <div className="featured-grid">
-                    {filteredAndSortedProducts.slice(0, 4).map(product => {
-                        const imageUrl = getImageUrl(product.image);
-                        return (
-                            <div key={product.id} className="featured-card">
-                                <div className="featured-badge">🔥 Хит</div>
-                                <div className="product-image">
-                                    {imageUrl ? (
-                                        <img
-                                            src={imageUrl}
-                                            alt={product.name}
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.nextSibling.style.display = 'flex';
-                                            }}
-                                        />
-                                    ) : null}
-                                    <div
-                                        className="image-placeholder"
-                                        style={{ display: imageUrl ? 'none' : 'flex' }}
-                                    >
-                                        🛍️
+                {safeProducts.length > 0 ? (
+                    <div className="featured-grid">
+                        {safeProducts.slice(0, 3).map(product => {
+                            const imageUrl = getImageUrl(product.image);
+                            return (
+                                <div key={product.id} className="featured-card">
+                                    <div className="featured-badge">🔥 Хит</div>
+                                    <div className="product-image">
+                                        {imageUrl ? (
+                                            <img
+                                                src={imageUrl}
+                                                alt={product.name}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                    e.target.nextSibling.style.display = 'flex';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <div
+                                            className="image-placeholder"
+                                            style={{ display: imageUrl ? 'none' : 'flex' }}
+                                        >
+                                            🛍️
+                                        </div>
+                                    </div>
+                                    <div className="product-info">
+                                        <h4>{product.name}</h4>
+                                        <p className="product-description">{product.shortDescription}</p>
+                                        <div className="product-meta">
+                                            <span className="price">{product.price}₽</span>
+                                            <span className="rating">⭐ {product.raiting || '4.5'}</span>
+                                        </div>
+                                        <button
+                                            className="buy-now-btn"
+                                            onClick={() => handleAddToCart(product)}
+                                        >
+                                            Купить сейчас
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="product-info">
-                                    <h4>{product.name}</h4>
-                                    <p className="product-description">{product.shortDescription}</p>
-                                    <div className="product-meta">
-                                        <span className="price">{product.price}₽</span>
-                                        <span className="rating">⭐ {product.raiting || '4.5'}</span>
-                                    </div>
-                                    <button
-                                        className="buy-now-btn"
-                                        onClick={() => handleAddToCart(product)}
-                                    >
-                                        Купить сейчас
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="no-products">
+                        <p>Нет товаров для отображения</p>
+                    </div>
+                )}
             </section>
 
             {/* Баннер акции */}

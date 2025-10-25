@@ -8,6 +8,7 @@ export const getProducts = async (page = 0, size = 10) => {
                 size
             }
         });
+        console.log(data);
         return data;
     } catch (error) {
         console.log("Get products error:", error);

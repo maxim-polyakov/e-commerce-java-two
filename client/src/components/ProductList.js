@@ -10,9 +10,10 @@ const ProductList = observer(() => {
     const [error, setError] = useState(null);
 
     // Состояния для пагинации
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(8); // Количество продуктов на странице
+    const [currentPage, setCurrentPage] = useState(0);
+    const [itemsPerPage] = useState(8);
     const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
     // Базовый URL для изображений
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
@@ -21,20 +22,35 @@ const ProductList = observer(() => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const productsData = await getProducts();
-                setProducts(productsData);
-                // Вычисляем общее количество страниц
-                setTotalPages(Math.ceil(productsData.length / itemsPerPage));
+                setLoading(true);
+                // Получаем данные от бэкенда
+                const response = await getProducts(currentPage, itemsPerPage);
+
+                console.log('API Response:', response); // Для отладки
+
+                // Обрабатываем Spring Data Page объект
+                if (response && response.content && Array.isArray(response.content)) {
+                    setProducts(response.content);
+                    setTotalPages(response.totalPages || 0);
+                    setTotalElements(response.totalElements || 0);
+                } else {
+                    // Fallback на случай неожиданного формата
+                    console.warn('Unexpected response format:', response);
+                    setProducts([]);
+                    setTotalPages(0);
+                    setTotalElements(0);
+                }
+
             } catch (err) {
                 setError('Не удалось загрузить продукты. Проверьте авторизацию.');
-                console.error(err);
+                console.error('Fetch products error:', err);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProducts();
-    }, [itemsPerPage]);
+    }, [currentPage, itemsPerPage]);
 
     // Функция для получения полного URL изображения
     const getImageUrl = (imagePath) => {
@@ -53,13 +69,6 @@ const ProductList = observer(() => {
         cartStore.addToCart(product);
     };
 
-    // Получаем продукты для текущей страницы
-    const getCurrentProducts = () => {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return products.slice(startIndex, endIndex);
-    };
-
     // Функции для навигации по страницам
     const goToPage = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -68,14 +77,14 @@ const ProductList = observer(() => {
     };
 
     const goToNextPage = () => {
-        if (currentPage < totalPages) {
+        if (currentPage < totalPages - 1) {
             setCurrentPage(currentPage + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
     const goToPrevPage = () => {
-        if (currentPage > 1) {
+        if (currentPage > 0) {
             setCurrentPage(currentPage - 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -83,15 +92,17 @@ const ProductList = observer(() => {
 
     // Генерация номеров страниц для отображения
     const getPageNumbers = () => {
-        const pageNumbers = [];
-        const maxVisiblePages = 5; // Максимальное количество видимых номеров страниц
+        if (totalPages <= 1) return [];
 
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        const pageNumbers = [];
+        const maxVisiblePages = 5;
+
+        let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
 
         // Корректируем startPage, если endPage достиг максимума
         if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            startPage = Math.max(0, endPage - maxVisiblePages + 1);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -122,119 +133,134 @@ const ProductList = observer(() => {
         </div>
     );
 
-    const currentProducts = getCurrentProducts();
     const pageNumbers = getPageNumbers();
+    const displayPage = currentPage + 1; // Для отображения пользователю (1-based)
 
     return (
         <div className="products-container">
             <div className="products-header">
                 <h2 className="products-title">Наши продукты</h2>
-                <div className="pagination-info">
-                    Страница {currentPage} из {totalPages}
-                    ({products.length} товаров)
-                </div>
+                {totalElements > 0 && (
+                    <div className="pagination-info">
+                        Страница {displayPage} из {totalPages}
+                        {totalElements > 0 && ` (${totalElements} товаров всего)`}
+                    </div>
+                )}
             </div>
 
-            <div className="products-grid">
-                {currentProducts.map(product => {
-                    const imageUrl = getImageUrl(product.image);
+            {products.length > 0 ? (
+                <>
+                    <div className="products-grid">
+                        {products.map(product => {
+                            const imageUrl = getImageUrl(product.image);
+                            const inventoryQuantity = product.inventory?.quantity || 0;
+                            const isOutOfStock = inventoryQuantity === 0;
 
-                    return (
-                        <div key={product.id} className="product-card">
-                            {/* Блок с изображением */}
-                            <div className="product-image-section">
-                                <div className="product-image-container">
-                                    {imageUrl ? (
-                                        <img
-                                            src={imageUrl}
-                                            alt={product.name}
-                                            className="product-image"
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.nextSibling.style.display = 'flex';
-                                            }}
-                                        />
-                                    ) : null}
-                                    <div
-                                        className="image-placeholder"
-                                        style={{ display: imageUrl ? 'none' : 'flex' }}
-                                    >
-                                        🛍️
+                            return (
+                                <div key={product.id} className="product-card">
+                                    {/* Блок с изображением */}
+                                    <div className="product-image-section">
+                                        <div className="product-image-container">
+                                            {imageUrl ? (
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={product.name}
+                                                    className="product-image"
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'flex';
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <div
+                                                className="image-placeholder"
+                                                style={{ display: imageUrl ? 'none' : 'flex' }}
+                                            >
+                                                🛍️
+                                            </div>
+                                        </div>
+
+                                        {/* Бейджи поверх изображения */}
+                                        <div className="product-badges-overlay">
+                                            <span className="inventory-badge">
+                                                📦 {inventoryQuantity} в наличии
+                                            </span>
+                                            {isOutOfStock && (
+                                                <span className="out-of-stock-badge">Нет в наличии</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="product-content">
+                                        <div className="product-header">
+                                            <h3 className="product-name">{product.name}</h3>
+                                            <span className="product-price">{product.price}₽</span>
+                                        </div>
+
+                                        <div className="product-descriptions">
+                                            <p className="short-description">{product.shortDescription}</p>
+                                            <p className="long-description">{product.longDescription}</p>
+                                        </div>
+
+                                        <div className="product-actions">
+                                            <button
+                                                className="add-to-cart-btn"
+                                                onClick={() => handleAddToCart(product)}
+                                                disabled={isOutOfStock}
+                                            >
+                                                {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* Бейджи поверх изображения */}
-                                <div className="product-badges-overlay">
-                                    <span className="inventory-badge">
-                                        📦 {product.inventory.quantity} в наличии
-                                    </span>
-                                    {product.inventory.quantity === 0 && (
-                                        <span className="out-of-stock-badge">Нет в наличии</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="product-content">
-                                <div className="product-header">
-                                    <h3 className="product-name">{product.name}</h3>
-                                    <span className="product-price">{product.price}₽</span>
-                                </div>
-
-                                <div className="product-descriptions">
-                                    <p className="short-description">{product.shortDescription}</p>
-                                    <p className="long-description">{product.longDescription}</p>
-                                </div>
-
-                                <div className="product-actions">
-                                    <button
-                                        className="add-to-cart-btn"
-                                        onClick={() => handleAddToCart(product)}
-                                        disabled={product.inventory.quantity === 0}
-                                    >
-                                        {product.inventory.quantity === 0 ? 'Нет в наличии' : 'Добавить в корзину'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Пагинация */}
-            {totalPages > 1 && (
-                <div className="pagination-container">
-                    <div className="pagination">
-                        {/* Кнопка "Назад" */}
-                        <button
-                            className={`pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
-                            onClick={goToPrevPage}
-                            disabled={currentPage === 1}
-                        >
-                            ← Назад
-                        </button>
-
-                        {/* Номера страниц */}
-                        <div className="page-numbers">
-                            {pageNumbers.map(pageNumber => (
-                                <button
-                                    key={pageNumber}
-                                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
-                                    onClick={() => goToPage(pageNumber)}
-                                >
-                                    {pageNumber}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Кнопка "Вперед" */}
-                        <button
-                            className={`pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`}
-                            onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
-                        >
-                            Вперед →
-                        </button>
+                            );
+                        })}
                     </div>
+
+                    {/* Пагинация */}
+                    {totalPages > 1 && (
+                        <div className="pagination-container">
+                            <div className="pagination">
+                                {/* Кнопка "Назад" */}
+                                <button
+                                    className={`pagination-btn ${currentPage === 0 ? 'disabled' : ''}`}
+                                    onClick={goToPrevPage}
+                                    disabled={currentPage === 0}
+                                >
+                                    ← Назад
+                                </button>
+
+                                {/* Номера страниц */}
+                                <div className="page-numbers">
+                                    {pageNumbers.map(pageNumber => (
+                                        <button
+                                            key={pageNumber}
+                                            className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                                            onClick={() => goToPage(pageNumber)}
+                                        >
+                                            {pageNumber + 1} {/* Отображаем 1-based */}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Кнопка "Вперед" */}
+                                <button
+                                    className={`pagination-btn ${currentPage === totalPages - 1 ? 'disabled' : ''}`}
+                                    onClick={goToNextPage}
+                                    disabled={currentPage === totalPages - 1}
+                                >
+                                    Вперед →
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </>
+            ) : (
+                /* Сообщение, если нет продуктов */
+                <div className="no-products">
+                    <div className="no-products-icon">📦</div>
+                    <h3>Продукты не найдены</h3>
+                    <p>На данный момент нет доступных продуктов.</p>
                 </div>
             )}
         </div>
