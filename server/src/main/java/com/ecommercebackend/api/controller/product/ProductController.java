@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -21,8 +23,11 @@ public class ProductController {
   private ProductService productService;
 
   @GetMapping
-  public List<Product> getProducts() {
-    return productService.getProducts();
+  public Page<Product> getProducts(
+          @RequestParam(defaultValue = "1") int page,
+          @RequestParam(defaultValue = "10") int size) {
+    return productService.getProducts(page,size);
   }
+
 
 }
