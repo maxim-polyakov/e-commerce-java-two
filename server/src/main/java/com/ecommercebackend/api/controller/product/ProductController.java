@@ -26,7 +26,7 @@ public class ProductController {
   public Page<Product> getProducts(
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size) {
-    return productService.getProducts(page, size)
+    return productService.getProducts(page, size);
   }
 
 
