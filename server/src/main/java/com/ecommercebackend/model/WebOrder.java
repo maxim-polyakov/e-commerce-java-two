@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "web_order")
+@Getter
+@Setter
 public class WebOrder {
 
   @Id
@@ -36,37 +40,5 @@ public class WebOrder {
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<WebOrderQuantities> quantities = new ArrayList<>();
-
-  public List<WebOrderQuantities> getQuantities() {
-    return quantities;
-  }
-
-  public void setQuantities(List<WebOrderQuantities> quantities) {
-    this.quantities = quantities;
-  }
-
-  public Address getAddress() {
-    return address;
-  }
-
-  public void setAddress(Address address) {
-    this.address = address;
-  }
-
-  public LocalUser getUser() {
-    return user;
-  }
-
-  public void setUser(LocalUser user) {
-    this.user = user;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
 
 }

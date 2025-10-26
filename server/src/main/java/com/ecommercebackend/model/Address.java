@@ -9,12 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Address for the user to be billed/delivered to.
  */
 @Entity
 @Table(name = "address")
+@Getter
+@Setter
 public class Address {
 
   @Id
@@ -36,42 +40,4 @@ public class Address {
   @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", nullable = false)
   private LocalUser user;
-
-  public LocalUser getUser() {
-    return user;
-  }
-
-  public void setUser(LocalUser user) {
-    this.user = user;
-  }
-
-  public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
-  }
-
-  public String getCity() {
-    return city;
-  }
-
-  public void setCity(String city) {
-    this.city = city;
-  }
-
-  public String getAddressLine() {
-    return addressLine;
-  }
-
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
 }

@@ -8,12 +8,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A product available for purchasing.
  */
 @Entity
 @Table(name = "product")
+@Getter
+@Setter
 public class Product {
 
 
@@ -42,61 +46,4 @@ public class Product {
 
   @OneToOne(mappedBy = "product", cascade = CascadeType.REMOVE, optional = false, orphanRemoval = true)
   private Inventory inventory;
-
-  public Double getRaiting() { return raiting;}
-
-  public void setRaiting(Double raiting) { this.raiting = raiting;}
-
-  public Inventory getInventory() {
-    return inventory;
-  }
-
-  public void setInventory(Inventory inventory) {
-    this.inventory = inventory;
-  }
-
-  public Double getPrice() {
-    return price;
-  }
-
-  public void setPrice(Double price) {
-    this.price = price;
-  }
-
-  public String getLongDescription() {
-    return longDescription;
-  }
-
-  public String getImage() { return image;}
-
-  public void setImage(String image) { this.image = image;}
-
-  public void setLongDescription(String longDescription) {
-    this.longDescription = longDescription;
-  }
-
-  public String getShortDescription() {
-    return shortDescription;
-  }
-
-  public void setShortDescription(String shortDescription) {
-    this.shortDescription = shortDescription;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
 }

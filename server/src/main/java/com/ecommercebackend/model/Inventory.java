@@ -9,12 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Inventory of a product that available for purchase.
  */
 @Entity
 @Table(name = "inventory")
+@Getter
+@Setter
 public class Inventory {
 
   @Id
@@ -29,29 +33,4 @@ public class Inventory {
 
   @Column(name = "quantity", nullable = false)
   private Integer quantity;
-
-  public Integer getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(Integer quantity) {
-    this.quantity = quantity;
-  }
-
-  public Product getProduct() {
-    return product;
-  }
-
-  public void setProduct(Product product) {
-    this.product = product;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
 }

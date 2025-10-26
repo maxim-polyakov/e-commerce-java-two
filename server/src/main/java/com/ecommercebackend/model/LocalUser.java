@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,6 +24,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "local_user")
+@Getter
+@Setter
 public class LocalUser implements UserDetails {
 
   @Id
@@ -61,65 +65,10 @@ public class LocalUser implements UserDetails {
     return emailVerified;
   }
 
-  public void setEmailVerified(Boolean emailVerified) {
-    this.emailVerified = emailVerified;
-  }
-
-  public List<VerificationToken> getVerificationTokens() {
-    return verificationTokens;
-  }
-
-  public void setVerificationTokens(List<VerificationToken> verificationTokens) {
-    this.verificationTokens = verificationTokens;
-  }
-
-  public List<Address> getAddresses() {
-    return addresses;
-  }
-
-  public void setAddresses(List<Address> addresses) {
-    this.addresses = addresses;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
 
   @JsonIgnore
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of();
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getUsername() {
-    return username;
   }
 
   @JsonIgnore
@@ -141,17 +90,4 @@ public class LocalUser implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
 }
