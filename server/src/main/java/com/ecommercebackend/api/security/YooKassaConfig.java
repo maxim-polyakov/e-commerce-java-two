@@ -1,9 +1,11 @@
 package com.ecommercebackend.api.security;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Data
 public class YooKassaConfig {
 
     @Value("${yookassa.shop.id}")
@@ -14,16 +16,4 @@ public class YooKassaConfig {
 
     @Value("${yookassa.test.mode:true}")
     private boolean testMode;
-
-    public String getShopId() {
-        return shopId;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public boolean isTestMode() {
-        return testMode;
-    }
 }
