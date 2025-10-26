@@ -12,6 +12,7 @@ import com.ecommercebackend.model.VerificationToken;
 import com.ecommercebackend.model.dao.LocalUserDAO;
 import com.ecommercebackend.model.dao.VerificationTokenDAO;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,27 +24,18 @@ import java.util.Optional;
  * Service for handling user actions.
  */
 @Service
+@AllArgsConstructor
 public class UserService {
 
-  @Autowired
-  private LocalUserDAO localUserDAO;
-  @Autowired
-  private VerificationTokenDAO verificationTokenDAO;
-  @Autowired
-  private EncryptionService encryptionService;
-  @Autowired
-  private JWTService jwtService;
-  @Autowired
-  private EmailService emailService;
+  private final LocalUserDAO localUserDAO;
 
-  public UserService(LocalUserDAO localUserDAO, VerificationTokenDAO verificationTokenDAO, EncryptionService encryptionService,
-                     JWTService jwtService, EmailService emailService) {
-    this.localUserDAO = localUserDAO;
-    this.verificationTokenDAO = verificationTokenDAO;
-    this.encryptionService = encryptionService;
-    this.jwtService = jwtService;
-    this.emailService = emailService;
-  }
+  private final VerificationTokenDAO verificationTokenDAO;
+
+  private final EncryptionService encryptionService;
+
+  private final JWTService jwtService;
+
+  private final EmailService emailService;
 
   public LocalUser registerUser(RegistrationBody registrationBody) throws UserAlreadyExistsException, EmailFailureException {
     if (localUserDAO.findByEmailIgnoreCase(registrationBody.getEmail()).isPresent()
