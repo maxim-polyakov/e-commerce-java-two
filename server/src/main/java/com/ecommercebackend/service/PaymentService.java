@@ -16,8 +16,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
-    
-    private YooKassaConfig yooKassaConfig;
+
+    private final YooKassaConfig yooKassaConfig;
 
 
     public Payment createPayment(String amountValue, String description, String confirmationReturnUrl) {
