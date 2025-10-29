@@ -1,5 +1,6 @@
 package com.ecommercebackend.api.model;
 
+import com.ecommercebackend.model.enums.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -36,4 +37,6 @@ public class RegistrationBody {
   @NotNull
   @NotBlank
   private String lastName;
+
+  private Role role;
 }

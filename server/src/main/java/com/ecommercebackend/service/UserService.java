@@ -1,5 +1,6 @@
 package com.ecommercebackend.service;
 
+import com.ecommercebackend.model.enums.Role;
 import com.ecommercebackend.api.model.LoginBody;
 import com.ecommercebackend.api.model.PasswordResetBody;
 import com.ecommercebackend.api.model.RegistrationBody;
@@ -42,11 +43,14 @@ public class UserService {
         || localUserDAO.findByUsernameIgnoreCase(registrationBody.getUsername()).isPresent()) {
       throw new UserAlreadyExistsException();
     }
+    Role role = registrationBody.getRole() != null ? registrationBody.getRole() : Role.USER;
+
     LocalUser user = new LocalUser();
     user.setEmail(registrationBody.getEmail());
     user.setUsername(registrationBody.getUsername());
     user.setFirstName(registrationBody.getFirstName());
     user.setLastName(registrationBody.getLastName());
+    user.setRole(role);
     user.setPassword(encryptionService.encryptPassword(registrationBody.getPassword()));
     VerificationToken verificationToken = createVerificationToken(user);
     emailService.sendVerificationEmail(verificationToken);
