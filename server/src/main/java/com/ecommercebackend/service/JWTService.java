@@ -37,14 +37,14 @@ public class JWTService {
     algorithm = Algorithm.HMAC256(algorithmKey);
   }
 
-  public String generateJWT(LocalUser user) {
+public String generateJWT(LocalUser user) {
     return JWT.create()
         .withClaim(USERNAME_KEY, user.getUsername())
-            .withClaim(ROLE_KEY, user.getRole())
+        .withClaim(ROLE_KEY, user.getRole().getValue())
         .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds)))
         .withIssuer(issuer)
         .sign(algorithm);
-  }
+}
 
   public String generateVerificationJWT(LocalUser user) {
     return JWT.create()
