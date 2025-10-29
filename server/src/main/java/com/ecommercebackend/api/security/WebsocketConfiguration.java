@@ -34,11 +34,11 @@ import java.util.Map;
 public class WebsocketConfiguration
     implements WebSocketMessageBrokerConfigurer {
 
-  private ApplicationContext context;
+  private final ApplicationContext context;
 
-  private JWTRequestFilter jwtRequestFilter;
+  private final JWTRequestFilter jwtRequestFilter;
 
-  private UserService userService;
+  private final UserService userService;
 
   private static final AntPathMatcher MATCHER = new AntPathMatcher();
 

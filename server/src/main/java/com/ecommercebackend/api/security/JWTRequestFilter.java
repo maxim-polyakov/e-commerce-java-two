@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -30,13 +31,12 @@ import java.util.Optional;
  * object into the authentication context.
  */
 @Component
+@AllArgsConstructor
 public class JWTRequestFilter extends OncePerRequestFilter implements ChannelInterceptor {
 
-  @Autowired
-  private JWTService jwtService;
+  private final JWTService jwtService;
 
-  @Autowired
-  private LocalUserDAO localUserDAO;
+  private final LocalUserDAO localUserDAO;
 
 
   @Override

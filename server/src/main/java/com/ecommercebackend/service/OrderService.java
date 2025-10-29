@@ -8,6 +8,7 @@ import com.ecommercebackend.model.WebOrder;
 import com.ecommercebackend.model.dao.ProductDAO;
 import com.ecommercebackend.model.dao.WebOrderDAO;
 import com.ecommercebackend.model.dao.AddressDAO;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +20,14 @@ import java.util.List;
  * Service for handling order actions.
  */
 @Service
+@AllArgsConstructor
 public class OrderService {
 
-    @Autowired
-    private WebOrderDAO webOrderDAO;
-    @Autowired
-    private AddressDAO adressDAO;
+    private final WebOrderDAO webOrderDAO;
 
-    @Autowired
-    private ProductDAO productDAO;
+    private final AddressDAO adressDAO;
+
+    private final ProductDAO productDAO;
 
     public List<WebOrder> getOrders(LocalUser user) {
     return webOrderDAO.findByUser(user);

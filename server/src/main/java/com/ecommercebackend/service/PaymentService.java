@@ -1,6 +1,7 @@
 package com.ecommercebackend.service;
 
 import com.ecommercebackend.api.security.YooKassaConfig;
+import lombok.AllArgsConstructor;
 import ru.loolzaaa.youkassa.model.Payment;
 import ru.loolzaaa.youkassa.pojo.Amount;
 import ru.loolzaaa.youkassa.pojo.Confirmation;
@@ -15,10 +16,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class PaymentService {
 
-    @Autowired
-    private YooKassaConfig yooKassaConfig;
+    private final YooKassaConfig yooKassaConfig;
 
 
     public Payment createPayment(String amountValue, String description, String confirmationReturnUrl) {

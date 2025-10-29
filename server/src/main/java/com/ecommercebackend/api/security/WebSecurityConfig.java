@@ -1,5 +1,7 @@
 package com.ecommercebackend.api.security;
 
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
+@AllArgsConstructor
 public class WebSecurityConfig {
 
-  @Autowired
   private JWTRequestFilter jwtRequestFilter;
 
   @Bean
