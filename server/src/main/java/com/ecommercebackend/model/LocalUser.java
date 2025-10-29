@@ -1,5 +1,6 @@
 package com.ecommercebackend.model;
 
+import com.ecommercebackend.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -60,6 +61,9 @@ public class LocalUser implements UserDetails {
 
   @Column(name = "email_verified", nullable = false)
   private Boolean emailVerified = false;
+
+  @Column(name = "role", nullable = false)
+  private Role role;
 
   public Boolean isEmailVerified() {
     return emailVerified;

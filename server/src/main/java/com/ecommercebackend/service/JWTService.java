@@ -28,6 +28,7 @@ public class JWTService {
   private Algorithm algorithm;
 
   private static final String USERNAME_KEY = "USERNAME";
+  private static final String ROLE_KEY = "ROLE";
   private static final String VERIFICATION_EMAIL_KEY = "VERIFICATION_EMAIL";
   private static final String RESET_PASSWORD_EMAIL_KEY = "RESET_PASSWORD_EMAIL";
 
@@ -39,6 +40,7 @@ public class JWTService {
   public String generateJWT(LocalUser user) {
     return JWT.create()
         .withClaim(USERNAME_KEY, user.getUsername())
+            .withClaim(ROLE_KEY, user.getRole())
         .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds)))
         .withIssuer(issuer)
         .sign(algorithm);
