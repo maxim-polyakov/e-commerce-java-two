@@ -16,8 +16,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
-
-    @Autowired
+    
     private YooKassaConfig yooKassaConfig;
 
 
