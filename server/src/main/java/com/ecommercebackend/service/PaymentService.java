@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentService {
 
-    private final YooKassaConfig yooKassaConfig;
+    private YooKassaConfig yooKassaConfig;
 
 
     public Payment createPayment(String amountValue, String description, String confirmationReturnUrl) {
