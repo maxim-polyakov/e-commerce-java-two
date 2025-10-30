@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 @Data
 public class UploadConfig {
 
-    @Value("${app.upload.dir:src/main/resources/static/images}")
+    @Value("${app.upload.dir}")
     private String uploadDir;
 
     @Value("${app.upload.web-path:/images/}")
