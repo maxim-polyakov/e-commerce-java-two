@@ -11,7 +11,6 @@ const ProductShowcase = observer(() => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [priceRange, setPriceRange] = useState([0, 1000]);
-    const [showAllFeatured, setShowAllFeatured] = useState(false);
 
     // Базовый URL для изображений
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
@@ -24,7 +23,7 @@ const ProductShowcase = observer(() => {
             let hasMore = true;
 
             while (hasMore) {
-                const response = await getProducts(currentPage, 10); // По 50 товаров за раз
+                const response = await getProducts(currentPage, 10);
 
                 if (response && response.content && Array.isArray(response.content)) {
                     allProducts = [...allProducts, ...response.content];
@@ -46,7 +45,6 @@ const ProductShowcase = observer(() => {
         }
     };
 
-// И измените useEffect:
     useEffect(() => {
         const loadProducts = async () => {
             try {
@@ -80,7 +78,6 @@ const ProductShowcase = observer(() => {
 
     // Категории (в реальном приложении получаем с сервера)
     const categories = useMemo(() => {
-        // Защита от не-массива
         const safeProducts = Array.isArray(products) ? products : [];
         const uniqueCategories = [...new Set(safeProducts.map(p => p.category))].filter(Boolean);
         return ['all', ...uniqueCategories];
@@ -88,7 +85,6 @@ const ProductShowcase = observer(() => {
 
     // Фильтрация и сортировка товаров
     const filteredAndSortedProducts = useMemo(() => {
-        // Защита от не-массива
         const safeProducts = Array.isArray(products) ? products : [];
 
         let filtered = safeProducts.filter(product => {
@@ -116,33 +112,26 @@ const ProductShowcase = observer(() => {
         return filtered;
     }, [products, selectedCategory, sortBy, priceRange]);
 
-    // Рекомендуемые товары - товары с наибольшим рейтингом из ВСЕХ товаров
-    const featuredProducts = useMemo(() => {
-        // Защита от не-массива
+    // Топ-3 товара по рейтингу
+    const topRatedProducts = useMemo(() => {
         const safeProducts = Array.isArray(products) ? products : [];
 
-        // Копируем массив и сортируем по рейтингу
-        const topRatedProducts = [...safeProducts]
-            .filter(product => {
-                // Фильтруем только товары с рейтингом (можно установить минимальный порог)
-                const rating = parseFloat(product.raiting) || 0;
-                return rating > 0; // Показываем только товары с рейтингом больше 0
-            })
-            .sort((a, b) => {
-                // Сортируем по рейтингу по убыванию
-                const ratingA = parseFloat(a.raiting) || 0;
-                const ratingB = parseFloat(b.raiting) || 0;
-                return ratingB - ratingA;
-            });
+        // Сортируем все товары по рейтингу (по убыванию) и берем первые 3
+        const sortedByRating = [...safeProducts].sort((a, b) => {
+            const ratingA = parseFloat(a.raiting) || 0;
+            const ratingB = parseFloat(b.raiting) || 0;
+            return ratingB - ratingA;
+        });
 
-        // Если нет товаров с рейтингом, показываем первые товары из общего списка
-        if (topRatedProducts.length === 0) {
-            return showAllFeatured ? safeProducts : safeProducts.slice(0, 3);
-        }
+        const topThree = sortedByRating.slice(0, 3);
 
-        // Возвращаем топ-3 или все товары с высоким рейтингом
-        return showAllFeatured ? topRatedProducts : topRatedProducts.slice(0, 3);
-    }, [products, showAllFeatured]);
+        console.log('Топ-3 товара по рейтингу:');
+        topThree.forEach((product, index) => {
+            console.log(`${index + 1}. ${product.name} - рейтинг: ${product.raiting}`);
+        });
+
+        return topThree;
+    }, [products]);
 
     // Проверка наличия товара
     const isProductAvailable = (product) => {
@@ -157,7 +146,7 @@ const ProductShowcase = observer(() => {
 
     const handleAddToCart = (product) => {
         if (!isProductAvailable(product)) {
-            return; // Не добавляем в корзину если товара нет в наличии
+            return;
         }
         cartStore.addToCart(product);
     };
@@ -177,9 +166,8 @@ const ProductShowcase = observer(() => {
         </div>
     );
 
-    // Защита от не-массива для рендеринга
     const safeProducts = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
-    const safeFeaturedProducts = Array.isArray(featuredProducts) ? featuredProducts : [];
+    const safeTopRatedProducts = Array.isArray(topRatedProducts) ? topRatedProducts : [];
 
     return (
         <div className="product-showcase">
@@ -237,23 +225,15 @@ const ProductShowcase = observer(() => {
                 </div>
             </section>
 
-            {/* Рекомендуемые товары - топ по рейтингу */}
+            {/* Топ-3 товара по рейтингу */}
             <section className="featured-products">
                 <div className="featured-header">
-                    <h3>⭐ Топ товары по рейтингу</h3>
-                    {featuredProducts.length > 3 && (
-                        <button
-                            className="show-more-btn"
-                            onClick={() => setShowAllFeatured(!showAllFeatured)}
-                        >
-                            {showAllFeatured ? 'Скрыть' : `Показать все (${featuredProducts.length})`}
-                        </button>
-                    )}
+                    <h3>⭐ Топ-3 товара по рейтингу</h3>
                 </div>
 
-                {safeFeaturedProducts.length > 0 ? (
+                {safeTopRatedProducts.length > 0 ? (
                     <div className="featured-grid">
-                        {safeFeaturedProducts.map(product => {
+                        {safeTopRatedProducts.map((product, index) => {
                             const imageUrl = getImageUrl(product.image);
                             const isAvailable = isProductAvailable(product);
                             const availableQuantity = getProductQuantity(product);
@@ -261,9 +241,9 @@ const ProductShowcase = observer(() => {
 
                             return (
                                 <div key={product.id} className="featured-card">
-                                    {/* Бейдж с рейтингом вместо "Хит" */}
+                                    {/* Бейдж с позицией в топе */}
                                     <div className="featured-badge">
-                                        ⭐ {rating.toFixed(1)}
+                                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} Топ {index + 1}
                                     </div>
 
                                     {/* Бейдж отсутствия товара */}
@@ -335,8 +315,8 @@ const ProductShowcase = observer(() => {
                 ) : (
                     <div className="showcase-no-products">
                         <div className="showcase-no-products-icon">📦</div>
-                        <h3>Продукты не найдены</h3>
-                        <p>На данный момент нет доступных продуктов с рейтингом.</p>
+                        <h3>Топ товары не найдены</h3>
+                        <p>Не удалось определить товары с наивысшим рейтингом.</p>
                     </div>
                 )}
             </section>
