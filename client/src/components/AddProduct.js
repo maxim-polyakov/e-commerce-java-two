@@ -81,7 +81,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                 image: base64Image,
                 imageName: imageFile.name,
                 price: parseFloat(formData.price),
-                rating: formData.rating ? parseFloat(formData.rating) : 0,
+                raiting: formData.raiting ? parseFloat(formData.raiting) : 0,
                 quantity: parseInt(formData.quantity) || 0
             };
 
@@ -107,7 +107,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
             shortDescription: '',
             longDescription: '',
             price: '',
-            rating: '',
+            raiting: '',
             quantity: ''
         });
         setImageFile(null);
@@ -231,7 +231,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                                             type="number"
                                             id="rating"
                                             name="rating"
-                                            value={formData.rating}
+                                            value={formData.raiting}
                                             onChange={handleInputChange}
                                             min="0"
                                             max="5"
