@@ -85,8 +85,6 @@ public class ProductService {
             // 5. Сохраняем продукт (инвентарь сохранится каскадно)
             return productDAO.save(product);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка сохранения изображения: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
         }
