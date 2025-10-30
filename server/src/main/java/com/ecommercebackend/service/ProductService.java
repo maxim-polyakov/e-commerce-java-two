@@ -54,7 +54,7 @@ public class ProductService {
             Files.write(filePath, imageBytes);
 
             // Возвращаем web-путь
-            return uploadConfig.getWebPath() + safeFileName;
+            return safeFileName;
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка сохранения изображения: " + e.getMessage(), e);
@@ -70,35 +70,40 @@ public class ProductService {
     }
 
 @Transactional
-    public Product createProduct(ProductBody productBody) {
-        try {
-            // 1. Сохраняем изображение
-            String imageUrl = this.saveBase64Image(productBody.getImage(), productBody.getImageName());
-
-            // 2. Создаем продукт
-            Product product = new Product();
-            product.setName(productBody.getName());
-            product.setShortDescription(productBody.getShortDescription());
-            product.setLongDescription(productBody.getLongDescription());
-            product.setPrice(productBody.getPrice());
-            product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
-            product.setImage(productBody.getImageName());
-
-            // 3. Создаем инвентарь
-            Inventory inventory = new Inventory();
-            inventory.setProduct(product);
-            inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
-
-            // 4. Устанавливаем связь
-            product.setInventory(inventory);
-
-            // 5. Сохраняем продукт (инвентарь сохранится каскадно)
-            return productDAO.save(product);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
+public Product createProduct(ProductBody productBody) {
+    try {
+        // 1. Проверяем, существует ли продукт с таким именем
+        if (productDAO.existsByName(productBody.getName())) {
+            throw new RuntimeException("Продукт с именем '" + productBody.getName() + "' уже существует");
         }
+
+        // 2. Сохраняем изображение
+        String imageUrl = this.saveBase64Image(productBody.getImage(), productBody.getImageName());
+
+        // 3. Создаем продукт
+        Product product = new Product();
+        product.setName(productBody.getName());
+        product.setShortDescription(productBody.getShortDescription());
+        product.setLongDescription(productBody.getLongDescription());
+        product.setPrice(productBody.getPrice());
+        product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
+        product.setImage(imageUrl); // Используйте imageUrl, а не productBody.getImageName()
+
+        // 4. Создаем инвентарь
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
+
+        // 5. Устанавливаем связь
+        product.setInventory(inventory);
+
+        // 6. Сохраняем продукт
+        return productDAO.save(product);
+
+    } catch (Exception e) {
+        throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
     }
+}
 
     public Page<Product> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
