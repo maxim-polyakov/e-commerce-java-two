@@ -9,7 +9,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
         shortDescription: '',
         longDescription: '',
         price: '',
-        raiting: '',
+        raiting: '', // исправлено с rating на raiting
         quantity: ''
     });
 
@@ -81,7 +81,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                 image: base64Image,
                 imageName: imageFile.name,
                 price: parseFloat(formData.price),
-                raiting: formData.raiting ? parseFloat(formData.raiting) : 0,
+                raiting: formData.raiting ? parseFloat(formData.raiting) : 0, // исправлено
                 quantity: parseInt(formData.quantity) || 0
             };
 
@@ -107,7 +107,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
             shortDescription: '',
             longDescription: '',
             price: '',
-            raiting: '',
+            raiting: '', // исправлено
             quantity: ''
         });
         setImageFile(null);
@@ -226,11 +226,11 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
 
                                 <div className="form-row-small">
                                     <div className="form-group">
-                                        <label htmlFor="rating">Рейтинг</label>
+                                        <label htmlFor="raiting">Рейтинг</label> {/* исправлено id и name */}
                                         <input
                                             type="number"
-                                            id="rating"
-                                            name="rating"
+                                            id="raiting"
+                                            name="raiting"
                                             value={formData.raiting}
                                             onChange={handleInputChange}
                                             min="0"
@@ -323,4 +323,4 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
     );
 });
 
-export default AddProduct
+export default AddProduct;
