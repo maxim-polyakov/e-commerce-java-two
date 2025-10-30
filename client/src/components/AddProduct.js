@@ -9,7 +9,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
         shortDescription: '',
         longDescription: '',
         price: '',
-        rating: '',
+        raiting: '',
         quantity: ''
     });
 
