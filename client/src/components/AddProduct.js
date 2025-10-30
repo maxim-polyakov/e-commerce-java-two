@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { createProduct, fileToBase64 } from '../http/productApi';
+import { createProduct } from '../http/productApi'; // fileToBase64 больше не импортируем
 import './AddProduct.css';
 
 const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
@@ -9,7 +9,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
         shortDescription: '',
         longDescription: '',
         price: '',
-        raiting: '', // исправлено с rating на raiting
+        raiting: '',
         quantity: ''
     });
 
@@ -72,21 +72,22 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                 throw new Error('Цена должна быть положительным числом');
             }
 
-            // Используем fileToBase64 из productApi
-            const base64Image = await fileToBase64(imageFile);
+            // Создаем FormData вместо JSON
+            const formDataToSend = new FormData();
 
-            // Подготавливаем данные для отправки
-            const productData = {
-                ...formData,
-                image: base64Image,
-                imageName: imageFile.name,
-                price: parseFloat(formData.price),
-                raiting: formData.raiting ? parseFloat(formData.raiting) : 0, // исправлено
-                quantity: parseInt(formData.quantity) || 0
-            };
+            // Добавляем текстовые поля
+            formDataToSend.append('name', formData.name);
+            formDataToSend.append('shortDescription', formData.shortDescription);
+            formDataToSend.append('longDescription', formData.longDescription);
+            formDataToSend.append('price', parseFloat(formData.price));
+            formDataToSend.append('raiting', formData.raiting ? parseFloat(formData.raiting) : 0);
+            formDataToSend.append('quantity', parseInt(formData.quantity) || 0);
 
-            // Отправляем запрос
-            await createProduct(productData);
+            // Добавляем файл
+            formDataToSend.append('image', imageFile);
+
+            // Отправляем запрос с FormData
+            await createProduct(formDataToSend);
 
             // Успех - закрываем модальное окно и обновляем список
             onProductAdded();
@@ -107,7 +108,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
             shortDescription: '',
             longDescription: '',
             price: '',
-            raiting: '', // исправлено
+            raiting: '',
             quantity: ''
         });
         setImageFile(null);
@@ -152,7 +153,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="product-form">
+                <form onSubmit={handleSubmit} className="product-form" encType="multipart/form-data">
                     <div className="form-scrollable">
                         <div className="form-row">
                             {/* Поле загрузки изображения */}
@@ -162,6 +163,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
                                     <input
                                         type="file"
                                         id="image"
+                                        name="image"
                                         accept="image/*"
                                         onChange={handleImageChange}
                                         className="image-input"
@@ -226,7 +228,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
 
                                 <div className="form-row-small">
                                     <div className="form-group">
-                                        <label htmlFor="raiting">Рейтинг</label> {/* исправлено id и name */}
+                                        <label htmlFor="raiting">Рейтинг</label>
                                         <input
                                             type="number"
                                             id="raiting"

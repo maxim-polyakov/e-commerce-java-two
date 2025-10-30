@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,8 +31,10 @@ public class ProductController {
     return productService.getProducts(page, size);
   }
 
-  @PostMapping
-  public Product createProduct(@AuthenticationPrincipal LocalUser user, @RequestBody ProductBody product) {
-    return productService.createProduct(product);
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public Product createProduct(
+    @AuthenticationPrincipal LocalUser user,
+    @ModelAttribute ProductBody productData) {
+    return productService.createProduct(productData);
   }
 }
