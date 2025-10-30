@@ -9,6 +9,10 @@ RUN mvn clean package -DskipTests
 
 # Финальная стадия
 FROM openjdk:17-jdk-alpine
+
+# Создаем директорию для загрузок
+RUN mkdir -p /app/uploads/images && chmod 755 /app/uploads/images
+
 WORKDIR /app
 
 # Копируем JAR из стадии сборки

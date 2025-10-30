@@ -28,7 +28,7 @@ public class WebSecurityConfig {
             .requestMatchers("/product", "/auth/register", "/auth/login",
                 "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
                 "/websocket", "/websocket/**",
-                "/uploads/images/**", "/images/**").permitAll() // Разрешаем оба пути
+                "/images/**").permitAll() // Разрешаем оба пути
             .anyRequest().authenticated()
         );
 
