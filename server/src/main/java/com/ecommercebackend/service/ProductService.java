@@ -11,10 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-
+import java.util.UUID;
 import java.util.Base64;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,8 +32,14 @@ public class ProductService {
         try {
             Path uploadPath = Paths.get(uploadConfig.getUploadDir());
 
-            // Убедимся, что имя файла безопасное
-            String safeFileName = fileName.replaceAll("[^a-zA-Z0-9.-]", "_");
+            // Создаем директорию, если не существует
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Генерируем уникальное безопасное имя файла
+            String fileExtension = getFileExtension(fileName);
+            String safeFileName = UUID.randomUUID().toString() + "." + fileExtension;
 
             // Декодируем base64
             String imageData = base64Image;
@@ -57,10 +61,19 @@ public class ProductService {
         }
     }
 
-    @Transactional
+    private String getFileExtension(String filename) {
+        int lastDotIndex = filename.lastIndexOf(".");
+        if (lastDotIndex > 0) {
+            return filename.substring(lastDotIndex + 1);
+        }
+        return "png"; // расширение по умолчанию
+    }
+
+@Transactional
     public Product createProduct(ProductBody productBody) {
         try {
-            this.saveBase64Image(productBody.getImage(), productBody.getImageName());
+            // 1. Сохраняем изображение
+            String imageUrl = this.saveBase64Image(productBody.getImage(), productBody.getImageName());
 
             // 2. Создаем продукт
             Product product = new Product();

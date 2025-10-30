@@ -1,8 +1,6 @@
 package com.ecommercebackend.api.security;
 
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,8 +9,6 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -31,7 +27,8 @@ public class WebSecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/product", "/auth/register", "/auth/login",
                 "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
-                "/websocket", "/websocket/**", "/images/**").permitAll() // Добавлен доступ к images
+                "/websocket", "/websocket/**",
+                "/uploads/images/**", "/images/**").permitAll() // Разрешаем оба пути
             .anyRequest().authenticated()
         );
 
