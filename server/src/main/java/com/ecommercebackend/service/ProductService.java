@@ -1,5 +1,6 @@
 package com.ecommercebackend.service;
 
+import com.ecommercebackend.config.UploadConfig;
 import com.ecommercebackend.api.model.ProductBody;
 import com.ecommercebackend.model.Inventory;
 import com.ecommercebackend.model.Product;
@@ -27,15 +28,11 @@ public class ProductService {
 
     private final ProductDAO productDAO;
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
-
-    @Value("${app.upload.web-path}")
-    private String webPath;
+    private final UploadConfig uploadConfig;
 
     public String saveBase64Image(String base64Image, String fileName) {
         try {
-            Path uploadPath = Paths.get(uploadDir);
+            Path uploadPath = Paths.get(uploadConfig.getUploadDir());
 
             // Убедимся, что имя файла безопасное
             String safeFileName = fileName.replaceAll("[^a-zA-Z0-9.-]", "_");
@@ -53,7 +50,7 @@ public class ProductService {
             Files.write(filePath, imageBytes);
 
             // Возвращаем web-путь
-            return webPath + safeFileName;
+            return uploadConfig.getWebPath() + safeFileName;
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка сохранения изображения: " + e.getMessage(), e);
