@@ -10,9 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Base64;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,30 +27,37 @@ public class ProductService {
 
     private final ProductDAO productDAO;
 
-    private String saveBase64Image(String base64String, String fileName) throws IOException {
-        // Получаем путь к корню проекта
-        String projectRoot = System.getProperty("user.dir");
-        Path resourcesPath = Paths.get(projectRoot, "src", "main", "resources", "static", "images");
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
-        // Создаем директорию, если она не существует
-        Files.createDirectories(resourcesPath);
+    @Value("${app.upload.web-path}")
+    private String webPath;
 
-        Path outputPath = resourcesPath.resolve(fileName);
+    public String saveBase64Image(String base64Image, String fileName) {
+        try {
+            Path uploadPath = Paths.get(uploadDir);
 
-        // Обрабатываем Base64 строку
-        String base64Data = base64String;
-        if (base64String.contains(",")) {
-            base64Data = base64String.split(",")[1];
+            // Убедимся, что имя файла безопасное
+            String safeFileName = fileName.replaceAll("[^a-zA-Z0-9.-]", "_");
+
+            // Декодируем base64
+            String imageData = base64Image;
+            if (base64Image.contains(",")) {
+                imageData = base64Image.split(",")[1];
+            }
+
+            byte[] imageBytes = Base64.getDecoder().decode(imageData);
+
+            // Сохраняем файл
+            Path filePath = uploadPath.resolve(safeFileName);
+            Files.write(filePath, imageBytes);
+
+            // Возвращаем web-путь
+            return webPath + safeFileName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка сохранения изображения: " + e.getMessage(), e);
         }
-
-        // Декодируем и сохраняем
-        byte[] imageBytes = Base64.getDecoder().decode(base64Data);
-
-        try (FileOutputStream fos = new FileOutputStream(outputPath.toFile())) {
-            fos.write(imageBytes);
-        }
-
-        return "/images/" + fileName; // Возвращаем путь для сохранения в БД
     }
 
     @Transactional

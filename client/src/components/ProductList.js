@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { getProducts } from '../http/productApi';
 import cartStore from '../store/CartStore';
+import { Context } from '../index';
+import AddProduct from './AddProduct'; // Импортируем компонент AddProduct
 import './ProductList.css';
 
 const ProductList = observer(() => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+
+    // Получаем user из контекста
+    const { user } = useContext(Context);
 
     // Состояния для пагинации
     const [currentPage, setCurrentPage] = useState(0);
@@ -19,36 +25,36 @@ const ProductList = observer(() => {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                setLoading(true);
-                // Получаем данные от бэкенда
-                const response = await getProducts(currentPage, itemsPerPage);
+    const fetchProducts = async () => {
+        try {
+            setLoading(true);
+            // Получаем данные от бэкенда
+            const response = await getProducts(currentPage, itemsPerPage);
 
-                console.log('API Response:', response); // Для отладки
+            console.log('API Response:', response); // Для отладки
 
-                // Обрабатываем Spring Data Page объект
-                if (response && response.content && Array.isArray(response.content)) {
-                    setProducts(response.content);
-                    setTotalPages(response.totalPages || 0);
-                    setTotalElements(response.totalElements || 0);
-                } else {
-                    // Fallback на случай неожиданного формата
-                    console.warn('Unexpected response format:', response);
-                    setProducts([]);
-                    setTotalPages(0);
-                    setTotalElements(0);
-                }
-
-            } catch (err) {
-                setError('Не удалось загрузить продукты. Проверьте авторизацию.');
-                console.error('Fetch products error:', err);
-            } finally {
-                setLoading(false);
+            // Обрабатываем Spring Data Page объект
+            if (response && response.content && Array.isArray(response.content)) {
+                setProducts(response.content);
+                setTotalPages(response.totalPages || 0);
+                setTotalElements(response.totalElements || 0);
+            } else {
+                // Fallback на случай неожиданного формата
+                console.warn('Unexpected response format:', response);
+                setProducts([]);
+                setTotalPages(0);
+                setTotalElements(0);
             }
-        };
 
+        } catch (err) {
+            setError('Не удалось загрузить продукты. Проверьте авторизацию.');
+            console.error('Fetch products error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchProducts();
     }, [currentPage, itemsPerPage]);
 
@@ -67,6 +73,19 @@ const ProductList = observer(() => {
 
     const handleAddToCart = (product) => {
         cartStore.addToCart(product);
+    };
+
+    // Функция для открытия модального окна добавления продукта
+    const handleAddProduct = () => {
+        setIsAddProductOpen(true);
+    };
+
+    // Функция, которая вызывается после успешного добавления продукта
+    const handleProductAdded = () => {
+        // Обновляем список продуктов
+        fetchProducts();
+        // Возвращаем на первую страницу чтобы увидеть новый продукт
+        setCurrentPage(0);
     };
 
     // Функции для навигации по страницам
@@ -112,6 +131,10 @@ const ProductList = observer(() => {
         return pageNumbers;
     };
 
+    // Проверка, является ли пользователь ADMIN
+    console.log(user?.user)
+    const isAdmin = user?.user?.ROLE === 'ADMIN';
+
     if (loading) return (
         <div className="loading-container">
             <div className="loading-spinner"></div>
@@ -138,8 +161,28 @@ const ProductList = observer(() => {
 
     return (
         <div className="products-container">
+            {/* Компонент AddProduct */}
+            <AddProduct
+                isOpen={isAddProductOpen}
+                onClose={() => setIsAddProductOpen(false)}
+                onProductAdded={handleProductAdded}
+            />
+
             <div className="products-header">
-                <h2 className="products-title">Наши продукты</h2>
+                <div className="products-title-section">
+                    <h2 className="products-title">Наши продукты</h2>
+                    {/* Кнопка добавления продукта - только для ADMIN */}
+                    {isAdmin && (
+                        <button
+                            className="add-product-btn"
+                            onClick={handleAddProduct}
+                            title="Добавить новый продукт"
+                        >
+                            <span className="add-product-icon">+</span>
+                            Добавить продукт
+                        </button>
+                    )}
+                </div>
                 {totalElements > 0 && (
                     <div className="pagination-info">
                         Страница {displayPage} из {totalPages}
@@ -261,6 +304,16 @@ const ProductList = observer(() => {
                     <div className="no-products-icon">📦</div>
                     <h3>Продукты не найдены</h3>
                     <p>На данный момент нет доступных продуктов.</p>
+                    {/* Кнопка добавления продукта в пустом состоянии - только для ADMIN */}
+                    {isAdmin && (
+                        <button
+                            className="add-product-btn empty-state-btn"
+                            onClick={handleAddProduct}
+                        >
+                            <span className="add-product-icon">+</span>
+                            Добавить первый продукт
+                        </button>
+                    )}
                 </div>
             )}
         </div>
