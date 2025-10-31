@@ -23,6 +23,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
+      - uploads_volume:/app/uploads
     networks:
       - ecomerce_net
     depends_on:
@@ -57,4 +58,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads_volume:
     driver: local
