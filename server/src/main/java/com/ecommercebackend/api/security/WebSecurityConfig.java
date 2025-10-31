@@ -11,6 +11,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import com.ecommercebackend.config.UploadConfig;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ import java.util.List;
 public class WebSecurityConfig implements WebMvcConfigurer {
 
   private JWTRequestFilter jwtRequestFilter;
+
+  private final UploadConfig uploadConfig;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,18 +54,14 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
-
   // Добавляем конфигурацию для раздачи статических файлов
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    String uploadPath;
+    String uploadPath = uploadConfig.getUploadDir();
 
-    // Обрабатываем разные форматы пути
-    if (tmpDir.endsWith("/")) {
-        uploadPath = tmpDir + "uploads/images/";
-    } else {
-        uploadPath = tmpDir + "/uploads/images/";
+    // Добавляем слеш в конец пути, если его нет
+    if (!uploadPath.endsWith("/")) {
+      uploadPath += "/";
     }
 
     System.out.println("🔧 Configuring static resources from: " + uploadPath);
@@ -71,5 +70,5 @@ public class WebSecurityConfig implements WebMvcConfigurer {
             .addResourceLocations("file:" + uploadPath)
             .setCachePeriod(3600)
             .resourceChain(true);
-  }
+    }
 }
