@@ -19,6 +19,7 @@ services:
       # Настройки для подключения к SMTP-серверу
       - SPRING_MAIL_HOST=smtp-service  # Имя сервиса из docker-compose
       - SPRING_MAIL_PORT=1025
+      - UPLOAD_DIR=/tmp/uploads/images
       # Аутентификация не требуется
     volumes:
       - ./src:/app/src
