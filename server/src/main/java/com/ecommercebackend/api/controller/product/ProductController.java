@@ -35,6 +35,6 @@ public class ProductController {
   public Product createProduct(
     @AuthenticationPrincipal LocalUser user,
     @ModelAttribute ProductBody productData) {
-    return productService.createProduct(productData);
+    return productService.createProduct(user,productData);
   }
 }
