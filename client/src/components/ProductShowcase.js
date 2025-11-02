@@ -83,18 +83,22 @@ const ProductShowcase = observer(() => {
         return ['all', ...uniqueCategories];
     }, [products]);
 
-    // Фильтрация и сортировка товаров
-    const filteredAndSortedProducts = useMemo(() => {
-        const safeProducts = Array.isArray(products) ? products : [];
+    // Функция для фильтрации товаров (общая для основного списка и топа)
+    const filterProducts = (productsList) => {
+        const safeProducts = Array.isArray(productsList) ? productsList : [];
 
-        let filtered = safeProducts.filter(product => {
+        return safeProducts.filter(product => {
             const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
             const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
             return matchesCategory && matchesPrice;
         });
+    };
 
-        // Сортировка
-        filtered.sort((a, b) => {
+    // Функция для сортировки товаров
+    const sortProducts = (productsList) => {
+        const sortedProducts = [...productsList];
+
+        sortedProducts.sort((a, b) => {
             switch (sortBy) {
                 case 'price-asc':
                     return a.price - b.price;
@@ -109,29 +113,33 @@ const ProductShowcase = observer(() => {
             }
         });
 
-        return filtered;
+        return sortedProducts;
+    };
+
+    // Основной список товаров с фильтрацией и сортировкой
+    const filteredAndSortedProducts = useMemo(() => {
+        const filtered = filterProducts(products);
+        return sortProducts(filtered);
     }, [products, selectedCategory, sortBy, priceRange]);
 
-    // Топ-3 товара по рейтингу
+    // Топ-3 товара по рейтингу с учетом фильтров И сортировки
     const topRatedProducts = useMemo(() => {
-        const safeProducts = Array.isArray(products) ? products : [];
+        // Сначала применяем фильтры ко всем товарам
+        const filteredProducts = filterProducts(products);
 
-        // Сортируем все товары по рейтингу (по убыванию) и берем первые 3
-        const sortedByRating = [...safeProducts].sort((a, b) => {
-            const ratingA = parseFloat(a.raiting) || 0;
-            const ratingB = parseFloat(b.raiting) || 0;
-            return ratingB - ratingA;
-        });
+        // Затем сортируем отфильтрованные товары по ВЫБРАННОМУ КРИТЕРИЮ
+        const sortedProducts = sortProducts(filteredProducts);
 
-        const topThree = sortedByRating.slice(0, 3);
+        // Берем первые 3 товара из отсортированного списка
+        const topThree = sortedProducts.slice(0, 3);
 
-        console.log('Топ-3 товара по рейтингу:');
+        console.log('Топ-3 товара (с учетом фильтров и сортировки):', sortBy);
         topThree.forEach((product, index) => {
-            console.log(`${index + 1}. ${product.name} - рейтинг: ${product.raiting}`);
+            console.log(`${index + 1}. ${product.name} - рейтинг: ${product.raiting}, цена: ${product.price}₽`);
         });
 
         return topThree;
-    }, [products]);
+    }, [products, selectedCategory, priceRange, sortBy]); // Добавляем sortBy в зависимости
 
     // Проверка наличия товара
     const isProductAvailable = (product) => {
@@ -168,6 +176,17 @@ const ProductShowcase = observer(() => {
 
     const safeProducts = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
     const safeTopRatedProducts = Array.isArray(topRatedProducts) ? topRatedProducts : [];
+
+    // Функция для получения текста сортировки
+    const getSortText = () => {
+        switch (sortBy) {
+            case 'price-asc': return 'цене (возрастание)';
+            case 'price-desc': return 'цене (убывание)';
+            case 'name': return 'названию';
+            case 'popular': return 'рейтингу';
+            default: return 'названию';
+        }
+    };
 
     return (
         <div className="product-showcase">
@@ -228,7 +247,13 @@ const ProductShowcase = observer(() => {
             {/* Топ-3 товара по рейтингу */}
             <section className="featured-products">
                 <div className="featured-header">
-                    <h3>⭐ Топ-3 товара по рейтингу</h3>
+                    <h3>⭐ Топ-3 товара</h3>
+                    <p className="featured-subtitle">
+                        {safeTopRatedProducts.length > 0
+                            ? `(отсортировано по: ${getSortText()})`
+                            : '(с учетом выбранных фильтров)'
+                        }
+                    </p>
                 </div>
 
                 {safeTopRatedProducts.length > 0 ? (
@@ -314,9 +339,9 @@ const ProductShowcase = observer(() => {
                     </div>
                 ) : (
                     <div className="showcase-no-products">
-                        <div className="showcase-no-products-icon">📦</div>
+                        <div className="showcase-no-products-icon">🔍</div>
                         <h3>Топ товары не найдены</h3>
-                        <p>Не удалось определить товары с наивысшим рейтингом.</p>
+                        <p>Попробуйте изменить параметры фильтров для отображения топовых товаров.</p>
                     </div>
                 )}
             </section>
