@@ -119,4 +119,41 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size);
         return productDAO.findAll(pageable);
     }
+
+    @Transactional
+    public void deleteProduct(LocalUser user, Long productId) {
+        // Проверяем права доступа (только ADMIN может удалять продукты)
+        if (!user.getRole().getValue().equals("ADMIN")) {
+            throw new RuntimeException("Недостаточно прав для удаления продукта");
+        }
+
+        // Находим продукт
+        Product product = productDAO.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Продукт с ID " + productId + " не найден"));
+
+        try {
+            // Удаляем связанное изображение, если оно существует
+            if (product.getImage() != null && !product.getImage().isEmpty()) {
+                deleteProductImage(product.getImage());
+            }
+
+            // Удаляем продукт (благодаря каскадной операции удалится и инвентарь)
+            productDAO.delete(product);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при удалении продукта: " + e.getMessage(), e);
+        }
+    }
+
+    private void deleteProductImage(String imageFileName) {
+        try {
+            Path imagePath = Paths.get(uploadConfig.getUploadDir()).resolve(imageFileName);
+            if (Files.exists(imagePath)) {
+                Files.delete(imagePath);
+            }
+        } catch (IOException e) {
+            // Логируем ошибку, но не прерываем удаление продукта
+            System.err.println("Ошибка при удалении файла изображения: " + imageFileName + " - " + e.getMessage());
+        }
+    }
 }

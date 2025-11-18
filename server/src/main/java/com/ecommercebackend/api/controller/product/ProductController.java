@@ -37,4 +37,12 @@ public class ProductController {
     @ModelAttribute ProductBody productData) {
     return productService.createProduct(user,productData);
   }
+
+  @DeleteMapping("/{id}")
+  public String deleteProduct(
+        @AuthenticationPrincipal LocalUser user,
+        @PathVariable Long id) {
+    productService.deleteProduct(user, id);
+    return "Product deleted successfully";
+  }
 }
