@@ -8,7 +8,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Финальная стадия
-FROM eclipse-temurin:17
+FROM alpine:3.20
+RUN apk add --no-cache openjdk17-jdk
 
 # Создаем директорию для загрузок
 RUN mkdir -p /app/uploads/images && chmod 755 /app/uploads/images
@@ -19,5 +20,8 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 # Создаем непривилегированного пользователя
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
