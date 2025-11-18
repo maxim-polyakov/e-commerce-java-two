@@ -539,3 +539,66 @@
         justify-content: center;
     }
 }
+
+/* Стили для кнопки удаления */
+.delete-product-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 59, 48, 0.9);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.delete-product-btn:hover:not(:disabled) {
+    background: #ff3b30;
+    transform: scale(1.1);
+}
+
+.delete-product-btn:disabled {
+    background: rgba(255, 59, 48, 0.5);
+    cursor: not-allowed;
+}
+
+/* Спиннер для процесса удаления */
+.deleting-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Состояние удаления для карточки */
+.product-card.deleting {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Адаптивность для кнопки удаления */
+@media (max-width: 768px) {
+    .delete-product-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        top: 8px;
+        right: 8px;
+    }
+}

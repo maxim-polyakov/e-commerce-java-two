@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { getProducts } from '../http/productApi';
+import { getProducts, deleteProduct } from '../http/productApi'; // Добавляем deleteProduct
 import cartStore from '../store/CartStore';
 import { Context } from '../index';
-import AddProduct from './AddProduct'; // Импортируем компонент AddProduct
+import AddProduct from './AddProduct';
 import './ProductList.css';
 
 const ProductList = observer(() => {
@@ -11,6 +11,7 @@ const ProductList = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+    const [deletingProductId, setDeletingProductId] = useState(null); // Состояние для отслеживания удаления
 
     // Получаем user из контекста
     const { user } = useContext(Context);
@@ -88,6 +89,37 @@ const ProductList = observer(() => {
         setCurrentPage(0);
     };
 
+    // Функция для удаления продукта
+    const handleDeleteProduct = async (productId, productName) => {
+        // Подтверждение удаления
+        if (!window.confirm(`Вы уверены, что хотите удалить продукт "${productName}"?`)) {
+            return;
+        }
+
+        try {
+            setDeletingProductId(productId);
+            await deleteProduct(productId);
+
+            // Показываем сообщение об успехе
+            alert('Продукт успешно удален');
+
+            // Обновляем список продуктов
+            await fetchProducts();
+
+            // Если на текущей странице не осталось продуктов и это не первая страница,
+            // переходим на предыдущую страницу
+            if (products.length === 1 && currentPage > 0) {
+                setCurrentPage(currentPage - 1);
+            }
+
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Ошибка при удалении продукта: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setDeletingProductId(null);
+        }
+    };
+
     // Функции для навигации по страницам
     const goToPage = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -132,7 +164,6 @@ const ProductList = observer(() => {
     };
 
     // Проверка, является ли пользователь ADMIN
-    console.log(user?.user)
     const isAdmin = user?.user?.ROLE === 'ADMIN';
 
     if (loading) return (
@@ -198,9 +229,26 @@ const ProductList = observer(() => {
                             const imageUrl = getImageUrl(product.image);
                             const inventoryQuantity = product.inventory?.quantity || 0;
                             const isOutOfStock = inventoryQuantity === 0;
+                            const isDeleting = deletingProductId === product.id;
 
                             return (
-                                <div key={product.id} className="product-card">
+                                <div key={product.id} className={`product-card ${isDeleting ? 'deleting' : ''}`}>
+                                    {/* Кнопка удаления - только для ADMIN */}
+                                    {isAdmin && (
+                                        <button
+                                            className="delete-product-btn"
+                                            onClick={() => handleDeleteProduct(product.id, product.name)}
+                                            disabled={isDeleting}
+                                            title="Удалить продукт"
+                                        >
+                                            {isDeleting ? (
+                                                <span className="deleting-spinner"></span>
+                                            ) : (
+                                                '×'
+                                            )}
+                                        </button>
+                                    )}
+
                                     {/* Блок с изображением */}
                                     <div className="product-image-section">
                                         <div className="product-image-container">
@@ -249,7 +297,7 @@ const ProductList = observer(() => {
                                             <button
                                                 className="add-to-cart-btn"
                                                 onClick={() => handleAddToCart(product)}
-                                                disabled={isOutOfStock}
+                                                disabled={isOutOfStock || isDeleting}
                                             >
                                                 {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
                                             </button>
