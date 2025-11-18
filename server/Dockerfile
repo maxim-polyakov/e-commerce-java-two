@@ -8,7 +8,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Финальная стадия
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17
 
 # Создаем директорию для загрузок
 RUN mkdir -p /app/uploads/images && chmod 755 /app/uploads/images
