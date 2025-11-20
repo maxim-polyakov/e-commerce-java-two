@@ -3,6 +3,7 @@ package com.ecommercebackend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A product available for purchasing.
@@ -41,5 +42,6 @@ public class Product {
 
     // Новая связь с Description
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Description description;
 }

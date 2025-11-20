@@ -3,6 +3,7 @@ package com.ecommercebackend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Technical specifications and detailed description of a product.
@@ -57,5 +58,6 @@ public class Description {
     // Связь с Product (владелец связи)
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JsonIgnore
     private Product product;
 }
