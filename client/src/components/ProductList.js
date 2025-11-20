@@ -33,16 +33,13 @@ const ProductList = observer(() => {
     // Функция для загрузки описания товара
     const fetchDescription = async (productId) => {
         try {
-            console.log(`🔄 Загружаем описание для товара ${productId}`);
             const description = await getDescriptionByProductId(productId);
-            console.log(`✅ Описание загружено:`, description);
             return description;
         } catch (error) {
             if (error.response?.status === 404) {
-                console.log(`❌ Описание для товара ${productId} не найдено`);
                 return null;
             }
-            console.error(`❌ Ошибка загрузки описания для товара ${productId}:`, error);
+            console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
             return null;
         }
     };
@@ -72,10 +69,8 @@ const ProductList = observer(() => {
                 setTotalElements(response.totalElements || 0);
 
                 // Загружаем описания после загрузки товаров
-                console.log('🔄 Начинаем загрузку описаний...');
                 const descriptionsData = await fetchAllDescriptions(response.content);
                 setDescriptions(descriptionsData);
-                console.log('✅ Все описания загружены:', descriptionsData);
 
             } else {
                 console.warn('Unexpected response format:', response);
@@ -133,15 +128,11 @@ const ProductList = observer(() => {
 
     // Функции для тултипа
     const handleMouseEnter = async (product) => {
-        console.log(`🖱️ Наведение на товар: ${product.name} (ID: ${product.id})`);
-
         const hasDescription = descriptions[product.id];
-        console.log(`📋 Описание в кэше:`, hasDescription);
 
         if (hasDescription) {
             setHoveredProduct(product);
         } else {
-            console.log(`🔄 Описания нет в кэше, проверяем API...`);
             // Если описания нет в кэше, проверяем API
             try {
                 const description = await fetchDescription(product.id);
@@ -154,13 +145,12 @@ const ProductList = observer(() => {
                     setHoveredProduct(product);
                 }
             } catch (error) {
-                console.log(`❌ Описание не найдено для товара ${product.id}`);
+                // Описание не найдено, ничего не делаем
             }
         }
     };
 
     const handleMouseLeave = () => {
-        console.log('🖱️ Убрали курсор');
         setHoveredProduct(null);
     };
 
@@ -263,22 +253,6 @@ const ProductList = observer(() => {
                         {totalElements > 0 && ` (${totalElements} товаров всего)`}
                     </div>
                 )}
-            </div>
-
-            {/* Отладочная информация */}
-            <div style={{
-                background: '#f8f9fa',
-                padding: '10px',
-                margin: '10px 0',
-                border: '1px solid #ddd',
-                fontSize: '12px'
-            }}>
-                <strong>Отладка:</strong> Загружено {Object.keys(descriptions).length} описаний
-                {Object.entries(descriptions).map(([productId, desc]) => (
-                    <div key={productId}>
-                        ID {productId}: {desc ? `ЕСТЬ (${desc.model})` : 'НЕТ'}
-                    </div>
-                ))}
             </div>
 
             {products.length > 0 ? (
