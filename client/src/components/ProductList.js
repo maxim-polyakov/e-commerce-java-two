@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { getProducts, deleteProduct } from '../http/productApi'; // Добавляем deleteProduct
+import { getProducts, deleteProduct } from '../http/productApi';
+import { getDescriptionByProductId } from '../http/descriptionApi'; // Импортируем API описаний
 import cartStore from '../store/CartStore';
 import { Context } from '../index';
 import AddProduct from './AddProduct';
+import ProductDescription from './ProductDescription';
+import ProductTooltip from './ProductTooltip';
 import './ProductList.css';
 
 const ProductList = observer(() => {
@@ -11,40 +14,75 @@ const ProductList = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAddProductOpen, setIsAddProductOpen] = useState(false);
-    const [deletingProductId, setDeletingProductId] = useState(null); // Состояние для отслеживания удаления
+    const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [deletingProductId, setDeletingProductId] = useState(null);
+    const [hoveredProduct, setHoveredProduct] = useState(null);
+    const [descriptions, setDescriptions] = useState({}); // Храним описания отдельно
 
-    // Получаем user из контекста
     const { user } = useContext(Context);
 
-    // Состояния для пагинации
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage] = useState(8);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 
-    // Базовый URL для изображений
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
+
+    // Функция для загрузки описания товара
+    const fetchDescription = async (productId) => {
+        try {
+            console.log(`🔄 Загружаем описание для товара ${productId}`);
+            const description = await getDescriptionByProductId(productId);
+            console.log(`✅ Описание загружено:`, description);
+            return description;
+        } catch (error) {
+            if (error.response?.status === 404) {
+                console.log(`❌ Описание для товара ${productId} не найдено`);
+                return null;
+            }
+            console.error(`❌ Ошибка загрузки описания для товара ${productId}:`, error);
+            return null;
+        }
+    };
+
+    // Загружаем описания для всех товаров
+    const fetchAllDescriptions = async (productsList) => {
+        const descriptionsMap = {};
+
+        // Создаем массив промисов для параллельной загрузки
+        const descriptionPromises = productsList.map(async (product) => {
+            const description = await fetchDescription(product.id);
+            descriptionsMap[product.id] = description;
+        });
+
+        await Promise.all(descriptionPromises);
+        return descriptionsMap;
+    };
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            // Получаем данные от бэкенда
             const response = await getProducts(currentPage, itemsPerPage);
 
-            console.log('API Response:', response); // Для отладки
-
-            // Обрабатываем Spring Data Page объект
             if (response && response.content && Array.isArray(response.content)) {
                 setProducts(response.content);
                 setTotalPages(response.totalPages || 0);
                 setTotalElements(response.totalElements || 0);
+
+                // Загружаем описания после загрузки товаров
+                console.log('🔄 Начинаем загрузку описаний...');
+                const descriptionsData = await fetchAllDescriptions(response.content);
+                setDescriptions(descriptionsData);
+                console.log('✅ Все описания загружены:', descriptionsData);
+
             } else {
-                // Fallback на случай неожиданного формата
                 console.warn('Unexpected response format:', response);
                 setProducts([]);
                 setTotalPages(0);
                 setTotalElements(0);
+                setDescriptions({});
             }
 
         } catch (err) {
@@ -59,16 +97,9 @@ const ProductList = observer(() => {
         fetchProducts();
     }, [currentPage, itemsPerPage]);
 
-    // Функция для получения полного URL изображения
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;
-
-        // Если уже полный URL, возвращаем как есть
-        if (imagePath.startsWith('http')) {
-            return imagePath;
-        }
-
-        // Если только имя файла, добавляем базовый путь
+        if (imagePath.startsWith('http')) return imagePath;
         return `${IMAGES_BASE_URL}/${imagePath}`;
     };
 
@@ -76,22 +107,64 @@ const ProductList = observer(() => {
         cartStore.addToCart(product);
     };
 
-    // Функция для открытия модального окна добавления продукта
     const handleAddProduct = () => {
         setIsAddProductOpen(true);
     };
 
-    // Функция, которая вызывается после успешного добавления продукта
     const handleProductAdded = () => {
-        // Обновляем список продуктов
         fetchProducts();
-        // Возвращаем на первую страницу чтобы увидеть новый продукт
         setCurrentPage(0);
     };
 
-    // Функция для удаления продукта
+    const handleOpenDescription = (product) => {
+        setSelectedProduct(product);
+        setIsDescriptionOpen(true);
+    };
+
+    const handleCloseDescription = () => {
+        setIsDescriptionOpen(false);
+        setSelectedProduct(null);
+    };
+
+    const handleDescriptionUpdated = () => {
+        // Перезагружаем описания после обновления
+        fetchProducts();
+    };
+
+    // Функции для тултипа
+    const handleMouseEnter = async (product) => {
+        console.log(`🖱️ Наведение на товар: ${product.name} (ID: ${product.id})`);
+
+        const hasDescription = descriptions[product.id];
+        console.log(`📋 Описание в кэше:`, hasDescription);
+
+        if (hasDescription) {
+            setHoveredProduct(product);
+        } else {
+            console.log(`🔄 Описания нет в кэше, проверяем API...`);
+            // Если описания нет в кэше, проверяем API
+            try {
+                const description = await fetchDescription(product.id);
+                if (description) {
+                    // Обновляем кэш описаний
+                    setDescriptions(prev => ({
+                        ...prev,
+                        [product.id]: description
+                    }));
+                    setHoveredProduct(product);
+                }
+            } catch (error) {
+                console.log(`❌ Описание не найдено для товара ${product.id}`);
+            }
+        }
+    };
+
+    const handleMouseLeave = () => {
+        console.log('🖱️ Убрали курсор');
+        setHoveredProduct(null);
+    };
+
     const handleDeleteProduct = async (productId, productName) => {
-        // Подтверждение удаления
         if (!window.confirm(`Вы уверены, что хотите удалить продукт "${productName}"?`)) {
             return;
         }
@@ -99,19 +172,11 @@ const ProductList = observer(() => {
         try {
             setDeletingProductId(productId);
             await deleteProduct(productId);
-
-            // Показываем сообщение об успехе
             alert('Продукт успешно удален');
-
-            // Обновляем список продуктов
             await fetchProducts();
-
-            // Если на текущей странице не осталось продуктов и это не первая страница,
-            // переходим на предыдущую страницу
             if (products.length === 1 && currentPage > 0) {
                 setCurrentPage(currentPage - 1);
             }
-
         } catch (error) {
             console.error('Error deleting product:', error);
             alert('Ошибка при удалении продукта: ' + (error.response?.data?.message || error.message));
@@ -120,10 +185,8 @@ const ProductList = observer(() => {
         }
     };
 
-    // Функции для навигации по страницам
     const goToPage = (pageNumber) => {
         setCurrentPage(pageNumber);
-        // Прокрутка к верху страницы при смене страницы
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -141,17 +204,14 @@ const ProductList = observer(() => {
         }
     };
 
-    // Генерация номеров страниц для отображения
     const getPageNumbers = () => {
         if (totalPages <= 1) return [];
-
         const pageNumbers = [];
         const maxVisiblePages = 5;
 
         let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
         let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
 
-        // Корректируем startPage, если endPage достиг максимума
         if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(0, endPage - maxVisiblePages + 1);
         }
@@ -163,52 +223,35 @@ const ProductList = observer(() => {
         return pageNumbers;
     };
 
-    // Проверка, является ли пользователь ADMIN
     const isAdmin = user?.user?.ROLE === 'ADMIN';
 
-    if (loading) return (
-        <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Загружаем продукты...</p>
-        </div>
-    );
-
-    if (error) return (
-        <div className="error-container">
-            <div className="error-icon">⚠️</div>
-            <h3>Произошла ошибка</h3>
-            <p>{error}</p>
-            <button
-                className="retry-button"
-                onClick={() => window.location.reload()}
-            >
-                Попробовать снова
-            </button>
-        </div>
-    );
+    if (loading) return <div className="loading-container">Загружаем продукты...</div>;
+    if (error) return <div className="error-container">{error}</div>;
 
     const pageNumbers = getPageNumbers();
-    const displayPage = currentPage + 1; // Для отображения пользователю (1-based)
+    const displayPage = currentPage + 1;
 
     return (
         <div className="products-container">
-            {/* Компонент AddProduct */}
             <AddProduct
                 isOpen={isAddProductOpen}
                 onClose={() => setIsAddProductOpen(false)}
                 onProductAdded={handleProductAdded}
             />
 
+            <ProductDescription
+                productId={selectedProduct?.id}
+                productName={selectedProduct?.name}
+                isOpen={isDescriptionOpen}
+                onClose={handleCloseDescription}
+                onDescriptionUpdated={handleDescriptionUpdated}
+            />
+
             <div className="products-header">
                 <div className="products-title-section">
                     <h2 className="products-title">Наши продукты</h2>
-                    {/* Кнопка добавления продукта - только для ADMIN */}
                     {isAdmin && (
-                        <button
-                            className="add-product-btn"
-                            onClick={handleAddProduct}
-                            title="Добавить новый продукт"
-                        >
+                        <button className="add-product-btn" onClick={handleAddProduct}>
                             <span className="add-product-icon">+</span>
                             Добавить продукт
                         </button>
@@ -222,6 +265,22 @@ const ProductList = observer(() => {
                 )}
             </div>
 
+            {/* Отладочная информация */}
+            <div style={{
+                background: '#f8f9fa',
+                padding: '10px',
+                margin: '10px 0',
+                border: '1px solid #ddd',
+                fontSize: '12px'
+            }}>
+                <strong>Отладка:</strong> Загружено {Object.keys(descriptions).length} описаний
+                {Object.entries(descriptions).map(([productId, desc]) => (
+                    <div key={productId}>
+                        ID {productId}: {desc ? `ЕСТЬ (${desc.model})` : 'НЕТ'}
+                    </div>
+                ))}
+            </div>
+
             {products.length > 0 ? (
                 <>
                     <div className="products-grid">
@@ -230,52 +289,44 @@ const ProductList = observer(() => {
                             const inventoryQuantity = product.inventory?.quantity || 0;
                             const isOutOfStock = inventoryQuantity === 0;
                             const isDeleting = deletingProductId === product.id;
+                            const hasDescription = !!descriptions[product.id];
+                            const isHovered = hoveredProduct?.id === product.id;
 
                             return (
-                                <div key={product.id} className={`product-card ${isDeleting ? 'deleting' : ''}`}>
-                                    {/* Кнопка удаления - только для ADMIN */}
+                                <div
+                                    key={product.id}
+                                    className={`product-card ${isDeleting ? 'deleting' : ''} ${hasDescription ? 'has-description' : ''}`}
+                                    onMouseEnter={() => handleMouseEnter(product)}
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     {isAdmin && (
                                         <button
                                             className="delete-product-btn"
                                             onClick={() => handleDeleteProduct(product.id, product.name)}
                                             disabled={isDeleting}
-                                            title="Удалить продукт"
                                         >
-                                            {isDeleting ? (
-                                                <span className="deleting-spinner"></span>
-                                            ) : (
-                                                '×'
-                                            )}
+                                            {isDeleting ? '⌛' : '×'}
                                         </button>
                                     )}
 
-                                    {/* Блок с изображением */}
                                     <div className="product-image-section">
                                         <div className="product-image-container">
                                             {imageUrl ? (
-                                                <img
-                                                    src={imageUrl}
-                                                    alt={product.name}
-                                                    className="product-image"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.nextSibling.style.display = 'flex';
-                                                    }}
-                                                />
-                                            ) : null}
-                                            <div
-                                                className="image-placeholder"
-                                                style={{ display: imageUrl ? 'none' : 'flex' }}
-                                            >
-                                                🛍️
-                                            </div>
+                                                <img src={imageUrl} alt={product.name} className="product-image" />
+                                            ) : (
+                                                <div className="image-placeholder">🛍️</div>
+                                            )}
                                         </div>
 
-                                        {/* Бейджи поверх изображения */}
                                         <div className="product-badges-overlay">
                                             <span className="inventory-badge">
-                                                📦 {inventoryQuantity} в наличии
+                                                📦 {inventoryQuantity}
                                             </span>
+                                            {hasDescription && (
+                                                <span className="description-badge" title="Есть подробное описание">
+                                                    📋
+                                                </span>
+                                            )}
                                             {isOutOfStock && (
                                                 <span className="out-of-stock-badge">Нет в наличии</span>
                                             )}
@@ -299,20 +350,37 @@ const ProductList = observer(() => {
                                                 onClick={() => handleAddToCart(product)}
                                                 disabled={isOutOfStock || isDeleting}
                                             >
-                                                {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
+                                                {isOutOfStock ? 'Нет в наличии' : 'В корзину'}
                                             </button>
+
+                                            {isAdmin && (
+                                                <button
+                                                    className="description-btn"
+                                                    onClick={() => handleOpenDescription(product)}
+                                                >
+                                                    {hasDescription ? '✏️ Описание' : '📝 Добавить описание'}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Всплывающее описание для ВСЕХ пользователей */}
+                                    {isHovered && hasDescription && descriptions[product.id] && (
+                                        <ProductTooltip
+                                            product={{
+                                                ...product,
+                                                description: descriptions[product.id]
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* Пагинация */}
                     {totalPages > 1 && (
                         <div className="pagination-container">
                             <div className="pagination">
-                                {/* Кнопка "Назад" */}
                                 <button
                                     className={`pagination-btn ${currentPage === 0 ? 'disabled' : ''}`}
                                     onClick={goToPrevPage}
@@ -321,7 +389,6 @@ const ProductList = observer(() => {
                                     ← Назад
                                 </button>
 
-                                {/* Номера страниц */}
                                 <div className="page-numbers">
                                     {pageNumbers.map(pageNumber => (
                                         <button
@@ -329,12 +396,11 @@ const ProductList = observer(() => {
                                             className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
                                             onClick={() => goToPage(pageNumber)}
                                         >
-                                            {pageNumber + 1} {/* Отображаем 1-based */}
+                                            {pageNumber + 1}
                                         </button>
                                     ))}
                                 </div>
 
-                                {/* Кнопка "Вперед" */}
                                 <button
                                     className={`pagination-btn ${currentPage === totalPages - 1 ? 'disabled' : ''}`}
                                     onClick={goToNextPage}
@@ -347,17 +413,12 @@ const ProductList = observer(() => {
                     )}
                 </>
             ) : (
-                /* Сообщение, если нет продуктов */
                 <div className="no-products">
                     <div className="no-products-icon">📦</div>
                     <h3>Продукты не найдены</h3>
                     <p>На данный момент нет доступных продуктов.</p>
-                    {/* Кнопка добавления продукта в пустом состоянии - только для ADMIN */}
                     {isAdmin && (
-                        <button
-                            className="add-product-btn empty-state-btn"
-                            onClick={handleAddProduct}
-                        >
+                        <button className="add-product-btn empty-state-btn" onClick={handleAddProduct}>
                             <span className="add-product-icon">+</span>
                             Добавить первый продукт
                         </button>

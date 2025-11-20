@@ -1,0 +1,166 @@
+/* ТУЛТИП С ОЧЕНЬ ВЫСОКИМ Z-INDEX */
+.product-tooltip {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 20px);
+    width: 350px;
+    height: 100%;
+    z-index: 1000; /* ОЧЕНЬ ВЫСОКИЙ - выше всех карточек */
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    animation: tooltipFadeIn 0.3s ease-out;
+    overflow-y: auto;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.tooltip-content {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tooltip-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.tooltip-header h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.tooltip-header .product-name {
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tooltip-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Стили для скроллбара */
+.tooltip-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tooltip-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.tooltip-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.tooltip-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.tooltip-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.tooltip-section:last-child {
+    margin-bottom: 0;
+}
+
+.tooltip-section strong {
+    display: block;
+    margin-bottom: 12px;
+    color: #495057;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tooltip-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tooltip-spec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tooltip-spec:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 13px;
+    min-width: 100px;
+    margin-right: 15px;
+}
+
+.spec-value {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 13px;
+    text-align: right;
+    flex: 1;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .product-tooltip {
+        width: 320px;
+        left: calc(100% + 15px);
+    }
+}
+
+@media (max-width: 768px) {
+    .product-tooltip {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+        max-height: 80vh;
+        z-index: 1001; /* Еще выше на мобильных */
+    }
+}
+
+@media (max-width: 480px) {
+    .tooltip-content {
+        padding: 15px;
+    }
+
+    .tooltip-section {
+        padding: 12px;
+    }
+}

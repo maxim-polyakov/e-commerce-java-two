@@ -1,7 +1,9 @@
 .products-container {
     max-width: 1200px;
     margin: 0 auto;
+    position: relative;
     padding: 20px;
+    z-index: 1; /* Низкий z-index для контейнера */
 }
 
 .products-header {
@@ -31,6 +33,8 @@
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 25px;
     padding: 20px 0;
+    position: relative;
+    z-index: 1; /* Низкий z-index для grid */
 }
 
 .product-card {
@@ -41,18 +45,21 @@
     border: 1px solid #e1e5e9;
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible !important;
+    z-index: 10; /* Базовый z-index для карточек */
 }
 
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    z-index: 50; /* Поднимаем при наведении, но ниже тултипа */
 }
 
 /* Стили для изображений */
 .product-image-section {
     position: relative;
     margin-bottom: 20px;
+    z-index: 1; /* Низкий z-index для содержимого */
 }
 
 .product-image-container {
@@ -65,6 +72,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1;
 }
 
 .product-image {
@@ -97,6 +105,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    z-index: 20; /* Выше карточки */
 }
 
 .inventory-badge {
@@ -108,6 +117,7 @@
     font-weight: 600;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(39, 174, 96, 0.2);
+    z-index: 25;
 }
 
 .out-of-stock-badge {
@@ -118,12 +128,40 @@
     font-size: 0.85rem;
     font-weight: 600;
     backdrop-filter: blur(10px);
+    z-index: 25;
+}
+
+.description-badge {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 5px;
+    cursor: help;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+    animation: pulse 2s infinite;
+    z-index: 25;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 5px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
 }
 
 .product-content {
     display: flex;
     flex-direction: column;
     height: calc(100% - 270px);
+    z-index: 1; /* Низкий z-index для содержимого */
 }
 
 .product-header {
@@ -179,6 +217,7 @@
 
 .product-actions {
     margin-top: auto;
+    z-index: 1; /* Низкий z-index для действий */
 }
 
 .add-to-cart-btn {
@@ -201,6 +240,45 @@
 
 .add-to-cart-btn:disabled {
     background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Стили для кнопки управления описанием */
+.description-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 1; /* Низкий z-index */
+}
+
+.description-btn:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.description-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.description-btn:disabled {
+    background: #ccc;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -384,7 +462,114 @@
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* Responsive design */
+/* Стили для заголовка с кнопкой */
+.products-title-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Стили для кнопки добавления продукта */
+.add-product-btn {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.add-product-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+}
+
+.add-product-btn:active {
+    transform: translateY(0);
+}
+
+.add-product-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Стиль для кнопки в пустом состоянии */
+.add-product-btn.empty-state-btn {
+    margin-top: 20px;
+    padding: 14px 28px;
+    font-size: 1.1rem;
+}
+
+/* Стили для кнопки удаления */
+.delete-product-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 59, 48, 0.9);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100; /* Высокий z-index для кнопки удаления */
+    transition: all 0.3s ease;
+}
+
+.delete-product-btn:hover:not(:disabled) {
+    background: #ff3b30;
+    transform: scale(1.1);
+}
+
+.delete-product-btn:disabled {
+    background: rgba(255, 59, 48, 0.5);
+    cursor: not-allowed;
+}
+
+/* Спиннер для процесса удаления */
+.deleting-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Состояние удаления для карточки */
+.product-card.deleting {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Стили для карточек с описанием */
+.product-card.has-description {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.product-card.has-description:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+    z-index: 50; /* Поднимаем при наведении */
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
     .products-grid {
         grid-template-columns: 1fr;
@@ -437,6 +622,19 @@
         height: 40px;
         font-size: 0.9rem;
     }
+
+    .description-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .delete-product-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        top: 8px;
+        right: 8px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -468,137 +666,21 @@
         width: 100%;
         justify-content: center;
     }
-}
 
-/* Стили для заголовка с кнопкой */
-.products-title-section {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-/* Стили для кнопки добавления продукта */
-.add-product-btn {
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
-}
-
-.add-product-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
-    background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
-}
-
-.add-product-btn:active {
-    transform: translateY(0);
-}
-
-.add-product-icon {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-/* Стиль для кнопки в пустом состоянии */
-.add-product-btn.empty-state-btn {
-    margin-top: 20px;
-    padding: 14px 28px;
-    font-size: 1.1rem;
-}
-
-/* Адаптивность для заголовка */
-@media (max-width: 768px) {
-    .products-title-section {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
+    .description-btn {
+        font-size: 12px;
+        padding: 8px 10px;
     }
 
-    .add-product-btn {
-        align-self: flex-start;
+    .product-actions {
+        gap: 6px;
     }
-}
 
-@media (max-width: 480px) {
     .products-title-section {
         align-items: stretch;
     }
 
     .add-product-btn {
         justify-content: center;
-    }
-}
-
-/* Стили для кнопки удаления */
-.delete-product-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 59, 48, 0.9);
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    transition: all 0.3s ease;
-}
-
-.delete-product-btn:hover:not(:disabled) {
-    background: #ff3b30;
-    transform: scale(1.1);
-}
-
-.delete-product-btn:disabled {
-    background: rgba(255, 59, 48, 0.5);
-    cursor: not-allowed;
-}
-
-/* Спиннер для процесса удаления */
-.deleting-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid transparent;
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Состояние удаления для карточки */
-.product-card.deleting {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-/* Адаптивность для кнопки удаления */
-@media (max-width: 768px) {
-    .delete-product-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 18px;
-        top: 8px;
-        right: 8px;
     }
 }
