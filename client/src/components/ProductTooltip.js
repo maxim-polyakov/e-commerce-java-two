@@ -16,7 +16,7 @@ const ProductTooltip = ({ product }) => {
         <div className="product-tooltip">
             <div className="tooltip-content">
                 <div className="tooltip-header">
-                    <h4>Технические характеристики</h4>
+                    <h4>Ключевые характеристики</h4>
                     <div className="product-name">{product.name}</div>
                 </div>
 
@@ -30,10 +30,10 @@ const ProductTooltip = ({ product }) => {
                                     <span className="spec-value">{description.model}</span>
                                 </div>
                             )}
-                            {description.articleSku && (
+                            {description.countryOfOrigin && (
                                 <div className="tooltip-spec">
-                                    <span className="spec-label">Артикул:</span>
-                                    <span className="spec-value">{description.articleSku}</span>
+                                    <span className="spec-label">Страна производства:</span>
+                                    <span className="spec-value">{description.countryOfOrigin}</span>
                                 </div>
                             )}
                             {description.dimensions && (
@@ -90,10 +90,10 @@ const ProductTooltip = ({ product }) => {
                                     <span className="spec-value">{description.warranty}</span>
                                 </div>
                             )}
-                            {description.countryOfOrigin && (
+                            {description.articleSku && (
                                 <div className="tooltip-spec">
-                                    <span className="spec-label">Страна:</span>
-                                    <span className="spec-value">{description.countryOfOrigin}</span>
+                                    <span className="spec-label">Артикул:</span>
+                                    <span className="spec-value">{description.articleSku}</span>
                                 </div>
                             )}
                         </div>
