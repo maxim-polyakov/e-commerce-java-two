@@ -30,32 +30,18 @@ const ProductList = observer(() => {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
 
-// Функция для загрузки описания товара
+    // Функция для загрузки описания товара
     const fetchDescription = async (productId) => {
         try {
             const description = await getDescriptionByProductId(productId);
             return description;
         } catch (error) {
-            // Проверяем статус 500 И специфическую структуру ошибки "описание не найдено"
-            if (error.response?.status === 500) {
-                // Добавьте здесь проверку специфических полей из error.response.data
-                // Например, если в data есть код ошибки или сообщение
-                const errorData = error.response?.data;
-
-                // Примеры проверок (настройте под вашу спецификацию API):
-                if (errorData?.code === 'ERR_' ||
-                    errorData?.message?.includes('не найдено') ||
-                    errorData?.message?.includes('описание') ||
-                    errorData?.error?.includes('Description')) {
-                    return null; // Это ожидаемая ситуация - описание не найдено
-                }
-
-                // Если это какая-то другая 500 ошибка - логируем
-                console.error(`Серверная ошибка при загрузке описания для товара ${productId}:`, error);
-                return null;
+            // Только для ошибки 404 (не найдено) не логируем в консоль
+            if (error.response?.status === 404) {
+                return null; // Описание не найдено - это нормальная ситуация
             }
-
-            // Для всех других ошибок тоже возвращаем null без логирования
+            // Для всех других ошибок логируем
+            console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
             return null;
         }
     };
