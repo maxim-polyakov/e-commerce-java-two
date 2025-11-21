@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { getProducts, deleteProduct } from '../http/productApi';
-import { getDescriptionByProductId } from '../http/descriptionApi'; // Импортируем API описаний
+import { getDescriptionByProductId } from '../http/descriptionApi';
 import cartStore from '../store/CartStore';
 import { Context } from '../index';
 import AddProduct from './AddProduct';
@@ -18,7 +18,7 @@ const ProductList = observer(() => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [deletingProductId, setDeletingProductId] = useState(null);
     const [hoveredProduct, setHoveredProduct] = useState(null);
-    const [descriptions, setDescriptions] = useState({}); // Храним описания отдельно
+    const [descriptions, setDescriptions] = useState({});
 
     const { user } = useContext(Context);
 
@@ -30,16 +30,32 @@ const ProductList = observer(() => {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
 
-    // Функция для загрузки описания товара
+// Функция для загрузки описания товара
     const fetchDescription = async (productId) => {
         try {
             const description = await getDescriptionByProductId(productId);
             return description;
         } catch (error) {
-            if (error.response?.status === 404) {
+            // Проверяем статус 500 И специфическую структуру ошибки "описание не найдено"
+            if (error.response?.status === 500) {
+                // Добавьте здесь проверку специфических полей из error.response.data
+                // Например, если в data есть код ошибки или сообщение
+                const errorData = error.response?.data;
+
+                // Примеры проверок (настройте под вашу спецификацию API):
+                if (errorData?.code === 'ERR_' ||
+                    errorData?.message?.includes('не найдено') ||
+                    errorData?.message?.includes('описание') ||
+                    errorData?.error?.includes('Description')) {
+                    return null; // Это ожидаемая ситуация - описание не найдено
+                }
+
+                // Если это какая-то другая 500 ошибка - логируем
+                console.error(`Серверная ошибка при загрузке описания для товара ${productId}:`, error);
                 return null;
             }
-            console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
+
+            // Для всех других ошибок тоже возвращаем null без логирования
             return null;
         }
     };
@@ -48,10 +64,12 @@ const ProductList = observer(() => {
     const fetchAllDescriptions = async (productsList) => {
         const descriptionsMap = {};
 
-        // Создаем массив промисов для параллельной загрузки
         const descriptionPromises = productsList.map(async (product) => {
             const description = await fetchDescription(product.id);
-            descriptionsMap[product.id] = description;
+            // Сохраняем только если описание существует
+            if (description) {
+                descriptionsMap[product.id] = description;
+            }
         });
 
         await Promise.all(descriptionPromises);
@@ -122,12 +140,12 @@ const ProductList = observer(() => {
     };
 
     const handleDescriptionUpdated = () => {
-        // Перезагружаем описания после обновления
         fetchProducts();
     };
 
     // Функции для тултипа
     const handleMouseEnter = async (product) => {
+        // Проверяем, есть ли описание в кэше
         const hasDescription = descriptions[product.id];
 
         if (hasDescription) {
@@ -144,8 +162,10 @@ const ProductList = observer(() => {
                     }));
                     setHoveredProduct(product);
                 }
+                // Если описание не найдено (description === null), ничего не делаем
             } catch (error) {
-                // Описание не найдено, ничего не делаем
+                // Ошибка при загрузке, ничего не делаем
+                console.error('Error fetching description for tooltip:', error);
             }
         }
     };
@@ -338,7 +358,7 @@ const ProductList = observer(() => {
                                         </div>
                                     </div>
 
-                                    {/* Всплывающее описание для ВСЕХ пользователей */}
+                                    {/* Всплывающее описание показываем только если есть описание */}
                                     {isHovered && hasDescription && descriptions[product.id] && (
                                         <ProductTooltip
                                             product={{
