@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { getDescriptionByProductId, createDescription, updateDescription } from '../http/descriptionApi';
 import './ProductDescription.css';
 
@@ -63,7 +64,6 @@ const ProductDescription = ({ productId, productName, isOpen, onClose, onDescrip
             }
         } catch (err) {
             if (err.response?.status === 404) {
-                // Описание не найдено - это нормально
                 setDescription(null);
                 setFormData({
                     model: '',
@@ -147,7 +147,8 @@ const ProductDescription = ({ productId, productName, isOpen, onClose, onDescrip
 
     if (!isOpen) return null;
 
-    return (
+    // Создаем портал для рендера вне основного DOM дерева
+    return createPortal(
         <div className="modal-overlay" onClick={handleClose}>
             <div className="description-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
@@ -330,7 +331,8 @@ const ProductDescription = ({ productId, productName, isOpen, onClose, onDescrip
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
