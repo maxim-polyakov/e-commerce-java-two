@@ -290,11 +290,6 @@ const Product = observer(() => {
                         <span className={`stock-badge ${isOutOfStock ? 'out-of-stock' : 'in-stock'}`}>
                             {isOutOfStock ? 'Нет в наличии' : `В наличии: ${inventoryQuantity} шт.`}
                         </span>
-                        {hasDescription && (
-                            <span className="description-badge" title="Есть подробное описание">
-                                📋 Подробное описание
-                            </span>
-                        )}
                     </div>
                 </div>
 
