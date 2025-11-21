@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from "mobx-react-lite";
+import { useLocation } from 'react-router-dom';
 import ProductList from '../components/ProductList';
 import Cart from '../components/Cart';
 import CartButton from '../components/CartButton';
 import ProductShowcase from '../components/ProductShowcase';
 import OrderHistory from '../components/OrderHistory';
-import UserProfile from '../components/UserProfile'; // Импортируем компонент профиля
+import UserProfile from '../components/UserProfile';
 import './Ecommerce.css';
 
 const Ecommerce = observer(() => {
     const [activeSection, setActiveSection] = useState('showcase'); // 'showcase', 'catalog', 'orders', 'profile'
+    const location = useLocation();
+
+    // ОБРАБОТКА СОСТОЯНИЯ ПРИ ПЕРЕХОДЕ ИЗ СТРАНИЦЫ ТОВАРА
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveSection(location.state.activeTab);
+        }
+    }, [location.state]);
 
     return (
         <div className="ecommerce">

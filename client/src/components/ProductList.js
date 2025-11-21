@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
 import { getProducts, deleteProduct } from '../http/productApi';
 import { getDescriptionByProductId } from '../http/descriptionApi';
 import cartStore from '../store/CartStore';
@@ -7,6 +8,7 @@ import { Context } from '../index';
 import AddProduct from './AddProduct';
 import ProductDescription from './ProductDescription';
 import ProductTooltip from './ProductTooltip';
+import { getProductRoute } from '../utils/consts'; // Импортируйте функцию
 import './ProductList.css';
 
 const ProductList = observer(() => {
@@ -21,6 +23,7 @@ const ProductList = observer(() => {
     const [descriptions, setDescriptions] = useState({});
 
     const { user } = useContext(Context);
+    const navigate = useNavigate();
 
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage] = useState(8);
@@ -108,6 +111,11 @@ const ProductList = observer(() => {
 
     const handleAddToCart = (product) => {
         cartStore.addToCart(product);
+    };
+
+    // ИСПОЛЬЗУЕМ ВАШУ ФУНКЦИЮ ДЛЯ ПЕРЕХОДА
+    const handleProductClick = (product) => {
+        navigate(getProductRoute(product.id));
     };
 
     const handleAddProduct = () => {
@@ -313,11 +321,15 @@ const ProductList = observer(() => {
                                     className={`product-card ${isDeleting ? 'deleting' : ''} ${hasDescription ? 'has-description' : ''}`}
                                     onMouseEnter={() => handleMouseEnter(product)}
                                     onMouseLeave={handleMouseLeave}
+                                    onClick={() => handleProductClick(product)}
                                 >
                                     {isAdmin && (
                                         <button
                                             className="delete-product-btn"
-                                            onClick={() => handleDeleteProduct(product.id, product.name)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteProduct(product.id, product.name);
+                                            }}
                                             disabled={isDeleting}
                                         >
                                             {isDeleting ? '⌛' : '×'}
@@ -362,7 +374,10 @@ const ProductList = observer(() => {
                                         <div className="product-actions">
                                             <button
                                                 className="add-to-cart-btn"
-                                                onClick={() => handleAddToCart(product)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleAddToCart(product);
+                                                }}
                                                 disabled={isOutOfStock || isDeleting}
                                             >
                                                 {isOutOfStock ? 'Нет в наличии' : 'В корзину'}
@@ -371,7 +386,10 @@ const ProductList = observer(() => {
                                             {isAdmin && (
                                                 <button
                                                     className="description-btn"
-                                                    onClick={() => handleOpenDescription(product)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOpenDescription(product);
+                                                    }}
                                                 >
                                                     {hasDescription ? '✏️ Описание' : '📝 Добавить описание'}
                                                 </button>

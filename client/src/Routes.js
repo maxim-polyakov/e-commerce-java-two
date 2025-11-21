@@ -4,6 +4,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Ecommerce from "./pages/Ecommerce";
+import Product from "./pages/Product";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import {
@@ -15,10 +16,15 @@ import {
     RESET_PASSWORD_ROUTE,
     ECOMMERCE_ROUTE,
     CHECKOUT_ROUTE,
-    PAYMENT_SUCCESS_ROUTE
+    PAYMENT_SUCCESS_ROUTE,
+    PRODUCT_ROUTE
 } from "./utils/consts";
 
 export const authRoutes = [
+    {
+        path: `${PRODUCT_ROUTE}/:id`,
+        Component: Product
+    },
     {
         path: ECOMMERCE_ROUTE,
         Component: Ecommerce
