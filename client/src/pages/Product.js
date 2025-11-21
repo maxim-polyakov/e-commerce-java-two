@@ -7,7 +7,7 @@ import cartStore from '../store/CartStore';
 import { Context } from '../index';
 import ProductTooltip from '../components/ProductTooltip';
 import CartButton from '../components/CartButton';
-import Cart from '../components/Cart'; // Добавьте импорт корзины
+import Cart from '../components/Cart';
 import { ECOMMERCE_ROUTE } from '../utils/consts';
 import './Product.css';
 
@@ -92,6 +92,108 @@ const Product = observer(() => {
         });
     };
 
+    // Функция для отображения характеристик
+    const renderSpecifications = () => {
+        if (!description) return null;
+
+        const specs = [];
+
+        // Основные параметры
+        if (description.model || description.articleSku || description.dimensions || description.weight) {
+            specs.push(
+                <div key="basic" className="specs-group">
+                    <h4 className="specs-group-title">Основные параметры</h4>
+                    <div className="specs-list">
+                        {description.model && (
+                            <div className="spec-item">
+                                <span className="spec-label">Модель:</span>
+                                <span className="spec-value">{description.model}</span>
+                            </div>
+                        )}
+                        {description.articleSku && (
+                            <div className="spec-item">
+                                <span className="spec-label">Артикул:</span>
+                                <span className="spec-value">{description.articleSku}</span>
+                            </div>
+                        )}
+                        {description.dimensions && (
+                            <div className="spec-item">
+                                <span className="spec-label">Габариты:</span>
+                                <span className="spec-value">{description.dimensions}</span>
+                            </div>
+                        )}
+                        {description.weight && (
+                            <div className="spec-item">
+                                <span className="spec-label">Вес:</span>
+                                <span className="spec-value">{description.weight}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Технические характеристики
+        if (description.powerConsumption || description.capacity || description.colorFinish) {
+            specs.push(
+                <div key="technical" className="specs-group">
+                    <h4 className="specs-group-title">Технические характеристики</h4>
+                    <div className="specs-list">
+                        {description.powerConsumption && (
+                            <div className="spec-item">
+                                <span className="spec-label">Потребление:</span>
+                                <span className="spec-value">{description.powerConsumption}</span>
+                            </div>
+                        )}
+                        {description.capacity && (
+                            <div className="spec-item">
+                                <span className="spec-label">Емкость:</span>
+                                <span className="spec-value">{description.capacity}</span>
+                            </div>
+                        )}
+                        {description.colorFinish && (
+                            <div className="spec-item">
+                                <span className="spec-label">Цвет/отделка:</span>
+                                <span className="spec-value">{description.colorFinish}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Дополнительные характеристики
+        if (description.materials || description.warranty || description.countryOfOrigin) {
+            specs.push(
+                <div key="additional" className="specs-group">
+                    <h4 className="specs-group-title">Дополнительно</h4>
+                    <div className="specs-list">
+                        {description.materials && (
+                            <div className="spec-item">
+                                <span className="spec-label">Материалы:</span>
+                                <span className="spec-value">{description.materials}</span>
+                            </div>
+                        )}
+                        {description.warranty && (
+                            <div className="spec-item">
+                                <span className="spec-label">Гарантия:</span>
+                                <span className="spec-value">{description.warranty}</span>
+                            </div>
+                        )}
+                        {description.countryOfOrigin && (
+                            <div className="spec-item">
+                                <span className="spec-label">Страна производства:</span>
+                                <span className="spec-value">{description.countryOfOrigin}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        return specs;
+    };
+
     if (loading) {
         return (
             <div className="product-detail-loading">
@@ -130,7 +232,7 @@ const Product = observer(() => {
 
     return (
         <div className="product-detail-page">
-            {/* ДОБАВЛЕНА КОРЗИНА */}
+            {/* КОРЗИНА */}
             <Cart />
 
             {/* ХЕДЕР С КНОПКОЙ КОРЗИНЫ */}
@@ -158,6 +260,7 @@ const Product = observer(() => {
                 <span className="breadcrumb-current">{product.name}</span>
             </nav>
 
+            {/* ОСНОВНОЙ КОНТЕЙНЕР С ТОВАРОМ */}
             <div className="product-detail-container">
                 <div className="product-image-column">
                     <div className="product-image-main">
@@ -232,21 +335,31 @@ const Product = observer(() => {
                             {isOutOfStock ? 'Нет в наличии' : 'Добавить в корзину'}
                         </button>
                     </div>
-
-                    {/* Блок с характеристиками, если есть описание */}
-                    {hasDescription && description && (
-                        <div className="product-specifications">
-                            <h3>Характеристики</h3>
-                            <ProductTooltip
-                                product={{
-                                    ...product,
-                                    description: description
-                                }}
-                            />
-                        </div>
-                    )}
                 </div>
             </div>
+
+            {/* ОТДЕЛЬНЫЙ КОНТЕЙНЕР С ХАРАКТЕРИСТИКАМИ */}
+            {hasDescription && description && (
+                <div className="product-specifications">
+                    <h3>Характеристики</h3>
+                    <div className="specifications-content">
+                        {renderSpecifications()}
+                    </div>
+                </div>
+            )}
+
+            {/* Всплывающее описание (можно оставить или убрать) */}
+            {hasDescription && description && (
+                <div className="product-tooltip-section">
+                    <h3>Быстрый просмотр характеристик</h3>
+                    <ProductTooltip
+                        product={{
+                            ...product,
+                            description: description
+                        }}
+                    />
+                </div>
+            )}
 
             <div className="product-additional-info">
                 <div className="info-section">
