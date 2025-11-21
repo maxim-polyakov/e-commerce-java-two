@@ -9,15 +9,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.ecommercebackend.model.LocalUser;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,6 +33,15 @@ public class ProductService {
     private final ProductDAO productDAO;
 
     private final UploadConfig uploadConfig;
+
+    // ДОБАВЬТЕ ЭТОТ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ТОВАРА ПО ID
+    public Product getProductById(Long id) {
+        Optional<Product> product = productDAO.findById(id);
+        if (product.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+        }
+        return product.get();
+    }
 
     public String saveMultipartImage(MultipartFile imageFile) {
         if (imageFile == null || imageFile.isEmpty()) {

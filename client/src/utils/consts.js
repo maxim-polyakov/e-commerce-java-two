@@ -7,4 +7,8 @@ export const RESET_PASSWORD_ROUTE = '/auth/reset';
 export const ECOMMERCE_ROUTE = '/shop';
 export const CHECKOUT_ROUTE = '/checkout';
 export const PAYMENT_SUCCESS_ROUTE = '/payment/success';
+export const PRODUCT_ROUTE = '/product'; // Базовый путь для товаров
 export const BASE_URL = window.location.origin;
+
+// Функция для генерации пути к конкретному товару
+export const getProductRoute = (productId) => `${PRODUCT_ROUTE}/${productId}`;

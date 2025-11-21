@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller to handle the creation, updating & viewing of products.
@@ -29,6 +30,12 @@ public class ProductController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size) {
     return productService.getProducts(page, size);
+  }
+
+  // ДОБАВЬТЕ ЭТОТ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ТОВАРА ПО ID
+  @GetMapping("/{id}")
+  public Product getProductById(@PathVariable Long id) {
+    return productService.getProductById(id);
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
