@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { getProducts, deleteProduct } from '../http/productApi';
 import { getDescriptionByProductId } from '../http/descriptionApi';
@@ -29,6 +29,10 @@ const ProductList = observer(() => {
 
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
+
+    // Добавляем рефы для управления задержкой закрытия
+    const tooltipTimeoutRef = useRef(null);
+    const isMouseOnTooltipRef = useRef(false);
 
     // Функция для загрузки описания товара
     const fetchDescription = async (productId) => {
@@ -131,6 +135,12 @@ const ProductList = observer(() => {
 
     // Функции для тултипа
     const handleMouseEnter = async (product) => {
+        // Очищаем предыдущий таймаут
+        if (tooltipTimeoutRef.current) {
+            clearTimeout(tooltipTimeoutRef.current);
+            tooltipTimeoutRef.current = null;
+        }
+
         // Проверяем, есть ли описание в кэше
         const hasDescription = descriptions[product.id];
 
@@ -157,7 +167,32 @@ const ProductList = observer(() => {
     };
 
     const handleMouseLeave = () => {
-        setHoveredProduct(null);
+        // Если курсор перешел на тултип, не закрываем его
+        if (isMouseOnTooltipRef.current) {
+            return;
+        }
+
+        // Устанавливаем задержку перед закрытием
+        tooltipTimeoutRef.current = setTimeout(() => {
+            setHoveredProduct(null);
+        }, 100); // Небольшая задержка для плавного перехода
+    };
+
+    const handleTooltipMouseEnter = () => {
+        // Очищаем таймаут закрытия
+        if (tooltipTimeoutRef.current) {
+            clearTimeout(tooltipTimeoutRef.current);
+            tooltipTimeoutRef.current = null;
+        }
+        isMouseOnTooltipRef.current = true;
+    };
+
+    const handleTooltipMouseLeave = () => {
+        isMouseOnTooltipRef.current = false;
+        // Закрываем тултип с небольшой задержкой
+        tooltipTimeoutRef.current = setTimeout(() => {
+            setHoveredProduct(null);
+        }, 100);
     };
 
     const handleDeleteProduct = async (productId, productName) => {
@@ -346,12 +381,17 @@ const ProductList = observer(() => {
 
                                     {/* Всплывающее описание показываем только если есть описание */}
                                     {isHovered && hasDescription && descriptions[product.id] && (
-                                        <ProductTooltip
-                                            product={{
-                                                ...product,
-                                                description: descriptions[product.id]
-                                            }}
-                                        />
+                                        <div
+                                            onMouseEnter={handleTooltipMouseEnter}
+                                            onMouseLeave={handleTooltipMouseLeave}
+                                        >
+                                            <ProductTooltip
+                                                product={{
+                                                    ...product,
+                                                    description: descriptions[product.id]
+                                                }}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             );
