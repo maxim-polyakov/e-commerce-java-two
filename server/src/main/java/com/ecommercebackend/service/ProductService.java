@@ -4,6 +4,7 @@ import com.ecommercebackend.config.UploadConfig;
 import com.ecommercebackend.api.model.ProductBody;
 import com.ecommercebackend.model.Inventory;
 import com.ecommercebackend.model.Product;
+import com.ecommercebackend.model.Description;
 import com.ecommercebackend.model.dao.ProductDAO;
 import com.ecommercebackend.model.dao.WebOrderQuantitiesDAO;
 import lombok.AllArgsConstructor;
@@ -95,47 +96,53 @@ public class ProductService {
         return "png"; // расширение по умолчанию
     }
 
-@Transactional
-public Product createProduct(LocalUser user, ProductBody productBody) {
-    try {
-        if (!user.getRole().getValue().equals("ADMIN")) {
-            throw new RuntimeException("Недостаточно прав для создания продукта");
+    @Transactional
+    public Product createProduct(LocalUser user, ProductBody productBody) {
+        try {
+            if (!user.getRole().getValue().equals("ADMIN")) {
+                throw new RuntimeException("Недостаточно прав для создания продукта");
+            }
+
+            if (productDAO.existsByNameAndDeletedFalse(productBody.getName())) {
+                throw new RuntimeException("Активный продукт с именем '" + productBody.getName() + "' уже существует");
+            }
+
+            String imageFileName = null;
+            if (productBody.getImage() != null && !productBody.getImage().isEmpty()) {
+                imageFileName = this.saveMultipartImage(productBody.getImage());
+            }
+
+            // Создаем продукт
+            Product product = new Product();
+            product.setName(productBody.getName());
+            product.setShortDescription(productBody.getShortDescription());
+            product.setLongDescription(productBody.getLongDescription());
+            product.setPrice(productBody.getPrice());
+            product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
+            product.setImage(imageFileName);
+            product.setDeleted(false);
+
+            // Создаем инвентарь
+            Inventory inventory = new Inventory();
+            inventory.setProduct(product);
+            inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
+            inventory.setDeleted(false);
+
+            // Создаем описание (если нужно)
+            Description description = new Description();
+            description.setProduct(product);
+            description.setDeleted(false);
+
+            // Устанавливаем связи
+            product.setInventory(inventory);
+            product.setDescription(description);
+
+            return productDAO.save(product);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
         }
-
-        // Проверяем существование АКТИВНОГО продукта с таким именем
-        if (productDAO.existsByNameAndDeletedFalse(productBody.getName())) {
-            throw new RuntimeException("Активный продукт с именем '" + productBody.getName() + "' уже существует");
-        }
-
-        // Остальной код без изменений...
-        String imageFileName = null;
-        if (productBody.getImage() != null && !productBody.getImage().isEmpty()) {
-            imageFileName = this.saveMultipartImage(productBody.getImage());
-        }
-
-        Product product = new Product();
-        product.setName(productBody.getName());
-        product.setShortDescription(productBody.getShortDescription());
-        product.setLongDescription(productBody.getLongDescription());
-        product.setPrice(productBody.getPrice());
-        product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
-        product.setImage(imageFileName);
-        product.setDeleted(false); // Убедитесь, что новый продукт не помечен как удаленный
-
-        Inventory inventory = new Inventory();
-        inventory.setProduct(product);
-        inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
-
-        product.setInventory(inventory);
-
-        Product savedProduct = productDAO.save(product);
-
-        return savedProduct;
-
-    } catch (Exception e) {
-        throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
     }
-}
 
     public Page<Product> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -177,10 +184,8 @@ public Product createProduct(LocalUser user, ProductBody productBody) {
         long ordersCount = orderQuantitiesDAO.countByProductId(productId);
 
         if (ordersCount > 0) {
-
             // Обнуляем ссылки на продукт в заказах
             orderQuantitiesDAO.nullifyProductReference(productId);
-
         }
 
         try {
@@ -189,10 +194,19 @@ public Product createProduct(LocalUser user, ProductBody productBody) {
                 deleteProductImage(product.getImage());
             }
 
+            // Помечаем инвентарь как удаленный
+            if (product.getInventory() != null) {
+                product.getInventory().setDeleted(true);
+            }
+
+            // Помечаем описание как удаленное
+            if (product.getDescription() != null) {
+                product.getDescription().setDeleted(true);
+            }
+
             // Архивируем продукт (Soft Delete)
             product.softDelete(reason != null ? reason : "Удалено администратором");
             productDAO.save(product);
-
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при удалении продукта: " + e.getMessage(), e);

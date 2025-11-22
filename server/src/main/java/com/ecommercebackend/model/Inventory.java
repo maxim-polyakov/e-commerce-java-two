@@ -33,4 +33,7 @@ public class Inventory {
 
   @Column(name = "quantity", nullable = false)
   private Integer quantity;
+
+  @Column(name = "deleted", nullable = true)
+  private boolean deleted = false;
 }

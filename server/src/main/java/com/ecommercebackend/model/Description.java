@@ -20,10 +20,10 @@ public class Description {
     private Long id;
 
     // Основные идентификаторы
-    @Column(name = "model", nullable = false)
+    @Column(name = "model", nullable = true)
     private String model;
 
-    @Column(name = "article_sku", nullable = false, unique = true)
+    @Column(name = "article_sku", nullable = true, unique = true)
     private String articleSku;
 
     // Габариты и вес
@@ -57,7 +57,10 @@ public class Description {
 
     // Связь с Product (владелец связи)
     @OneToOne
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JoinColumn(name = "product_id", nullable = true, unique = true)
     @JsonIgnore
     private Product product;
+
+    @Column(name = "deleted", nullable = true)
+    private boolean deleted = false;
 }
