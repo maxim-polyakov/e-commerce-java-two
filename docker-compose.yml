@@ -14,29 +14,24 @@ services:
     ports:
       - "5654:8080"
     restart: unless-stopped
-    user: root
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      # Настройки для подключения к SMTP-серверу
-      - SPRING_MAIL_HOST=smtp-service  # Имя сервиса из docker-compose
+      - SPRING_MAIL_HOST=smtp-service
       - SPRING_MAIL_PORT=1025
       - UPLOAD_DIR=/app/uploads/images
-      # Аутентификация не требуется
     entrypoint: >
       sh -c "
         mkdir -p /app/uploads/images &&
         chown -R 1000:1000 /app/uploads &&
         chmod -R 755 /app/uploads &&
-        java -jar /app/app.jar
+        su-exec 1000:1000 java -jar /app/app.jar
       "
     volumes:
-      - ./src:/app/src
-      - ./pom.xml:/app/pom.xml
-      - uploads_volume:/app/uploads/images
+      - uploads_volume:/app/uploads
     networks:
       - ecomerce_net
     depends_on:
-      - smtp-service  # Указываем зависимость от SMTP-сервиса
+      - smtp-service
 
   # Добавляем новый сервис для отправки почты
   smtp-service:
