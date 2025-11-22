@@ -232,7 +232,6 @@ const Product = observer(() => {
 
     return (
         <div className="product-detail-page">
-            {/* КОРЗИНА */}
             <Cart />
 
             <header className="product-detail-header">
@@ -241,7 +240,9 @@ const Product = observer(() => {
                         ← Назад к товарам
                     </button>
                     <h1 className="product-page-title">Интернет-магазин</h1>
-                    <CartButton />
+                    <div className="cart-button-wrapper">
+                        <CartButton />
+                    </div>
                 </div>
             </header>
 
@@ -338,7 +339,7 @@ const Product = observer(() => {
                     </div>
                 </div>
             )}
-            
+
             <div className="product-additional-info">
                 <div className="info-section">
                     <h3>🚚 Доставка</h3>

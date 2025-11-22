@@ -820,3 +820,75 @@
         width: calc(100% - 30px);
     }
 }
+
+/* Обертка для кнопки корзины - позиционирование справа */
+.cart-button-wrapper {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .cart-button-wrapper {
+        right: 20px;
+        top: 20px;
+        transform: none;
+    }
+
+    .product-detail-header .cart-button {
+        padding: 10px 16px;
+        gap: 10px;
+    }
+
+    .product-detail-header .items-count {
+        font-size: 0.8rem;
+    }
+
+    .product-detail-header .total-price {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-button-wrapper {
+        right: 15px;
+        top: 15px;
+    }
+
+    .product-detail-header .cart-button {
+        padding: 10px 14px;
+        gap: 6px;
+    }
+
+    .product-detail-header .cart-icon {
+        font-size: 1.1rem;
+    }
+
+    .product-detail-header .items-count {
+        font-size: 0.75rem;
+    }
+
+    .product-detail-header .total-price {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .cart-button-wrapper {
+        right: 10px;
+    }
+
+    .product-detail-header .cart-button {
+        padding: 8px 12px;
+    }
+
+    .product-detail-header .cart-info {
+        display: none;
+    }
+
+    .product-detail-header .cart-icon {
+        font-size: 1.3rem;
+    }
+}
