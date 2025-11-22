@@ -7,7 +7,7 @@
     box-sizing: border-box;
 }
 
-/* Хлебные крошки */
+/* Хлебные крошки - на всю ширину */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -15,9 +15,8 @@
     font-size: 14px;
     color: #666;
     flex-wrap: wrap;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .breadcrumb-link {
@@ -48,7 +47,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Основной контейнер товара */
+/* Основной контейнер товара - на всю ширину с отступами */
 .product-detail-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -58,11 +57,10 @@
     border-radius: 16px;
     padding: 40px;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-    width: 100%;
+    width: calc(100% - 40px);
     box-sizing: border-box;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 /* Колонка с изображением */
@@ -297,7 +295,7 @@
     box-shadow: none;
 }
 
-/* ХАРАКТЕРИСТИКИ - НА ВСЮ ШИРИНУ КОНТЕЙНЕРА */
+/* ХАРАКТЕРИСТИКИ - НА ВСЮ ШИРИНУ */
 .product-specifications {
     margin-top: 0;
     margin-bottom: 40px;
@@ -305,8 +303,10 @@
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
-    width: 100%;
+    width: calc(100% - 40px);
     box-sizing: border-box;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .product-specifications h3 {
@@ -399,8 +399,10 @@
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     margin-bottom: 40px;
-    width: 100%;
+    width: calc(100% - 40px);
     box-sizing: border-box;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .product-tooltip-section h3 {
@@ -419,8 +421,10 @@
     gap: 30px;
     padding-top: 40px;
     border-top: 2px solid #e9ecef;
-    width: 100%;
+    width: calc(100% - 40px);
     box-sizing: border-box;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .info-section {
@@ -565,8 +569,6 @@
 }
 
 .product-header-content {
-    max-width: 1200px;
-    margin: 0 auto;
     padding: 0 20px;
     display: flex;
     align-items: center;
@@ -587,7 +589,7 @@
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     position: absolute;
-    left: 20px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     white-space: nowrap;
@@ -615,10 +617,18 @@
         padding: 15px;
     }
 
+    .breadcrumb {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
     .product-detail-container {
         grid-template-columns: 1fr;
         gap: 30px;
         padding: 25px;
+        width: calc(100% - 30px);
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .product-header-detail {
@@ -642,6 +652,9 @@
     .product-specifications {
         padding: 25px;
         margin-bottom: 30px;
+        width: calc(100% - 30px);
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .product-specifications h3 {
@@ -683,6 +696,9 @@
     .product-additional-info {
         grid-template-columns: 1fr;
         gap: 20px;
+        width: calc(100% - 30px);
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .error-actions {
@@ -700,7 +716,7 @@
 
     .back-button {
         position: absolute;
-        left: 20px;
+        left: 15px;
         top: 20px;
         transform: none;
         align-self: flex-start;
@@ -729,12 +745,16 @@
 
     .product-tooltip-section {
         padding: 25px;
+        width: calc(100% - 30px);
+        margin-left: 15px;
+        margin-right: 15px;
     }
 }
 
 @media (max-width: 480px) {
     .product-detail-container {
         padding: 20px;
+        width: calc(100% - 30px);
     }
 
     .product-title {
@@ -752,6 +772,7 @@
 
     .product-specifications {
         padding: 20px;
+        width: calc(100% - 30px);
     }
 
     .product-specifications h3 {
@@ -780,10 +801,11 @@
 
     .product-tooltip-section {
         padding: 20px;
+        width: calc(100% - 30px);
     }
 
     .back-button {
-        left: 15px;
+        left: 10px;
         top: 15px;
         padding: 10px 18px;
         font-size: 14px;
@@ -792,5 +814,9 @@
     .product-header-content {
         padding-top: 60px;
         padding-bottom: 15px;
+    }
+
+    .product-additional-info {
+        width: calc(100% - 30px);
     }
 }

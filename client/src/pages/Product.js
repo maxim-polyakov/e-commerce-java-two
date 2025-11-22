@@ -235,7 +235,6 @@ const Product = observer(() => {
             {/* КОРЗИНА */}
             <Cart />
 
-            {/* ХЕДЕР С КНОПКОЙ КОРЗИНЫ */}
             <header className="product-detail-header">
                 <div className="product-header-content">
                     <button onClick={handleBackClick} className="back-button">
@@ -260,7 +259,6 @@ const Product = observer(() => {
                 <span className="breadcrumb-current">{product.name}</span>
             </nav>
 
-            {/* ОСНОВНОЙ КОНТЕЙНЕР С ТОВАРОМ */}
             <div className="product-detail-container">
                 <div className="product-image-column">
                     <div className="product-image-main">
