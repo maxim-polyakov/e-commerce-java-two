@@ -332,8 +332,6 @@ const Product = observer(() => {
                     </div>
                 </div>
             </div>
-
-            {/* ОТДЕЛЬНЫЙ КОНТЕЙНЕР С ХАРАКТЕРИСТИКАМИ */}
             {hasDescription && description && (
                 <div className="product-specifications">
                     <h3>Характеристики</h3>
@@ -342,20 +340,7 @@ const Product = observer(() => {
                     </div>
                 </div>
             )}
-
-            {/* Всплывающее описание (можно оставить или убрать) */}
-            {hasDescription && description && (
-                <div className="product-tooltip-section">
-                    <h3>Быстрый просмотр характеристик</h3>
-                    <ProductTooltip
-                        product={{
-                            ...product,
-                            description: description
-                        }}
-                    />
-                </div>
-            )}
-
+            
             <div className="product-additional-info">
                 <div className="info-section">
                     <h3>🚚 Доставка</h3>
