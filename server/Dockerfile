@@ -22,8 +22,9 @@ RUN addgroup -S spring && adduser -S spring -G spring
 RUN mkdir -p /app/uploads/images
 
 # 3. Даем права пользователю spring
-RUN chown -R spring:spring /app && \
-    chmod -R 755 /app/uploads
+RUN addgroup -g 1000 spring && \
+    adduser -D -u 1000 -G spring spring && \
+    chown spring:spring /app
 
 # 4. Переключаемся на пользователя spring
 USER spring:spring
