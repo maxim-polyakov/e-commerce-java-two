@@ -7,19 +7,16 @@ RUN mvn clean package -DskipTests
 
 # Финальная стадия
 FROM alpine:3.20
-RUN apk add --no-cache openjdk17-jdk bash su-exec
+RUN apk add --no-cache openjdk17-jdk bash
 
 WORKDIR /app
 
 # Копируем JAR из стадии сборки
 COPY --from=builder /app/target/*.jar app.jar
 
-# Создаем пользователя spring с UID 1000
-RUN addgroup -g 1000 spring && \
-    adduser -D -u 1000 -G spring spring && \
-    chown spring:spring /app
+# Создаем директорию с полными правами
+RUN mkdir -p /app/uploads/images && chmod -R 777 /app/uploads
 
+# Запускаем от root (по умолчанию)
 EXPOSE 8080
-
-# Entrypoint будет переопределен в docker-compose
 ENTRYPOINT ["java", "-jar", "app.jar"]
