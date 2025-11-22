@@ -95,50 +95,47 @@ public class ProductService {
         return "png"; // расширение по умолчанию
     }
 
-    @Transactional
-    public Product createProduct(LocalUser user, ProductBody productBody) {
-        try {
-            if (!user.getRole().getValue().equals("ADMIN")) {
-                throw new RuntimeException("Недостаточно прав для создания продукта");
-            }
-
-            // Проверяем существование продукта
-            if (productDAO.existsByName(productBody.getName())) {
-                throw new RuntimeException("Продукт с именем '" + productBody.getName() + "' уже существует");
-            }
-
-            // Сохраняем изображение
-            String imageFileName = null;
-            if (productBody.getImage() != null && !productBody.getImage().isEmpty()) {
-                imageFileName = this.saveMultipartImage(productBody.getImage());
-            }
-
-            // Создаем продукт
-            Product product = new Product();
-            product.setName(productBody.getName());
-            product.setShortDescription(productBody.getShortDescription());
-            product.setLongDescription(productBody.getLongDescription());
-            product.setPrice(productBody.getPrice());
-            product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
-            product.setImage(imageFileName);
-
-            // Создаем инвентарь
-            Inventory inventory = new Inventory();
-            inventory.setProduct(product);
-            inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
-
-            // Устанавливаем связь
-            product.setInventory(inventory);
-
-            // Сохраняем продукт
-            Product savedProduct = productDAO.save(product);
-
-            return savedProduct;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
+@Transactional
+public Product createProduct(LocalUser user, ProductBody productBody) {
+    try {
+        if (!user.getRole().getValue().equals("ADMIN")) {
+            throw new RuntimeException("Недостаточно прав для создания продукта");
         }
+
+        // Проверяем существование АКТИВНОГО продукта с таким именем
+        if (productDAO.existsByNameAndDeletedFalse(productBody.getName())) {
+            throw new RuntimeException("Активный продукт с именем '" + productBody.getName() + "' уже существует");
+        }
+
+        // Остальной код без изменений...
+        String imageFileName = null;
+        if (productBody.getImage() != null && !productBody.getImage().isEmpty()) {
+            imageFileName = this.saveMultipartImage(productBody.getImage());
+        }
+
+        Product product = new Product();
+        product.setName(productBody.getName());
+        product.setShortDescription(productBody.getShortDescription());
+        product.setLongDescription(productBody.getLongDescription());
+        product.setPrice(productBody.getPrice());
+        product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
+        product.setImage(imageFileName);
+        product.setDeleted(false); // Убедитесь, что новый продукт не помечен как удаленный
+
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setQuantity(productBody.getQuantity() != null ? productBody.getQuantity() : 0);
+
+        product.setInventory(inventory);
+
+        Product savedProduct = productDAO.save(product);
+
+        return savedProduct;
+
+    } catch (Exception e) {
+        throw new RuntimeException("Ошибка создания продукта: " + e.getMessage(), e);
     }
+}
 
     public Page<Product> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

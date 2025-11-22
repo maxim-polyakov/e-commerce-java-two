@@ -19,7 +19,7 @@ import java.util.Optional;
 @Repository
 public interface ProductDAO extends JpaRepository<Product, Long> {
 
-    boolean existsByName(String name);
+    boolean existsByNameAndDeletedFalse(String name);
 
     @Query("SELECT p FROM Product p WHERE p.deleted = true")
     Page<Product> findAllDeleted(Pageable pageable);
