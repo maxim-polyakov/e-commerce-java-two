@@ -397,19 +397,15 @@ const ProductList = observer(() => {
                                         </div>
                                     </div>
 
-                                    {/* Всплывающее описание показываем только если есть описание */}
-                                    {isHovered && hasDescription && descriptions[product.id] && (
-                                        <div
-                                            onMouseEnter={handleTooltipMouseEnter}
-                                            onMouseLeave={handleTooltipMouseLeave}
-                                        >
-                                            <ProductTooltip
-                                                product={{
-                                                    ...product,
-                                                    description: descriptions[product.id]
-                                                }}
-                                            />
-                                        </div>
+                                    {/* Постоянно отображаемый тултип для товаров с описанием */}
+                                    {hasDescription && descriptions[product.id] && (
+                                        <ProductTooltip
+                                            product={{
+                                                ...product,
+                                                description: descriptions[product.id]
+                                            }}
+                                            showOnProductsPage={true} // Всегда показываем на странице товаров
+                                        />
                                     )}
                                 </div>
                             );

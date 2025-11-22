@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './ProductTooltip.css';
 
-const ProductTooltip = ({ product }) => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    // Автоматически закрываем тултип при монтировании
-    useEffect(() => {
-        console.log('🚫 Закрываем тултип при загрузке страницы товара');
-        setIsVisible(false);
-    }, []);
+const ProductTooltip = ({ product, showOnProductsPage = false }) => {
+    // Показываем только на странице всех товаров
+    const isVisible = showOnProductsPage && product && product.description;
 
     console.log('🔧 ProductTooltip рендерится для:', product?.name);
     console.log('📋 Данные описания:', product?.description);
     console.log('👀 Видимость тултипа:', isVisible);
+    console.log('📄 Режим страницы товаров:', showOnProductsPage);
 
-    if (!product || !product.description || !isVisible) {
-        console.log('❌ Нет продукта, описания или тултип скрыт');
+    if (!isVisible) {
+        console.log('❌ Тултип скрыт (не страница товаров или нет данных)');
         return null;
     }
 
