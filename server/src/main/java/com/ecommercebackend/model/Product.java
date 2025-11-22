@@ -54,7 +54,7 @@ public class Product {
     private Description description;
 
     // Поля для Soft Delete
-    @Column(name = "deleted", nullable = false)
+    @Column(name = "deleted", nullable = true)
     private Boolean deleted = false;
 
     @Column(name = "deleted_at")
