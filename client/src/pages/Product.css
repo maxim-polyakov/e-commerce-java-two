@@ -1,10 +1,9 @@
 .product-detail-page {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 20px;
     background: #f8f9fa;
     min-height: 100vh;
-    width: 100%;
     box-sizing: border-box;
 }
 
@@ -16,6 +15,9 @@
     font-size: 14px;
     color: #666;
     flex-wrap: wrap;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .breadcrumb-link {
@@ -51,13 +53,16 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 50px;
-    margin-bottom: 40px; /* Уменьшен отступ снизу */
+    margin-bottom: 40px;
     background: white;
     border-radius: 16px;
     padding: 40px;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
     width: 100%;
     box-sizing: border-box;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Колонка с изображением */
@@ -292,16 +297,19 @@
     box-shadow: none;
 }
 
-/* ХАРАКТЕРИСТИКИ - ОТДЕЛЬНЫЙ БЛОК ПОД ОСНОВНЫМ КОНТЕЙНЕРОМ */
+/* ХАРАКТЕРИСТИКИ - ОТДЕЛЬНЫЙ БЛОК */
 .product-specifications {
-    margin-top: 0; /* Убран верхний отступ */
-    margin-bottom: 40px; /* Добавлен нижний отступ */
+    margin-top: 0;
+    margin-bottom: 40px;
     background: white;
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
     width: 100%;
     box-sizing: border-box;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .product-specifications h3 {
@@ -396,6 +404,9 @@
     margin-bottom: 40px;
     width: 100%;
     box-sizing: border-box;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .product-tooltip-section h3 {
@@ -414,6 +425,9 @@
     gap: 30px;
     padding-top: 40px;
     border-top: 2px solid #e9ecef;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .info-section {
@@ -458,6 +472,9 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .loading-spinner {
@@ -481,6 +498,9 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .error-icon {
@@ -549,6 +569,7 @@
     margin-bottom: 30px;
     border-radius: 16px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+    width: 100%;
 }
 
 .product-header-content {
@@ -748,7 +769,12 @@
 
 /* Для очень широких экранов */
 @media (min-width: 1400px) {
-    .product-detail-page {
+    .product-detail-container,
+    .product-specifications,
+    .product-tooltip-section,
+    .product-additional-info,
+    .product-detail-loading,
+    .product-detail-error {
         max-width: 1300px;
     }
 
