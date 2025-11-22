@@ -19,9 +19,5 @@ WORKDIR /app
 # Копируем JAR из стадии сборки
 COPY --from=builder /app/target/*.jar app.jar
 
-# Создаем непривилегированного пользователя
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
-
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
