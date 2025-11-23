@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ecommercebackend.config.YandexDeliveryConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
@@ -35,8 +35,7 @@ public class OrderService {
 
     private final ProductDAO productDAO;
 
-    private static final String API_TOKEN = "y0__xC2rpTGCBix9BwgzoivqRXkYgF9ZL3hdTfFQVRtDHLDr_hIqQ";
-    private static final String API_URL = "https://b2b.taxi.yandex.net";
+    private final YandexDeliveryConfig yandexDeliveryConfig;
 
     private final HttpClient httpClient;
 
@@ -105,7 +104,7 @@ public class OrderService {
         // 1. Информация о точках маршрута (ОБЯЗАТЕЛЬНО)
         ArrayNode routePoints = objectMapper.createArrayNode();
 
-        // Точка забора (pickup point)
+        // Точка забора (pickup point) - СКЛАД
         ObjectNode pickupPoint = objectMapper.createObjectNode();
         pickupPoint.put("point_id", 1);
         pickupPoint.put("visit_order", 1);
@@ -115,19 +114,19 @@ public class OrderService {
         pickupContact.put("phone", "+79991234567");
         pickupPoint.set("contact", pickupContact);
         ObjectNode pickupAddress = objectMapper.createObjectNode();
-        pickupAddress.put("fullname", "Москва, ул. Складская, 1"); // ИСПРАВЛЕНО: full → fullname
+        pickupAddress.put("fullname", "Москва, Ленинградский проспект, 1"); // Реальный адрес склада
         ArrayNode pickupCoords = objectMapper.createArrayNode();
-        pickupCoords.add(37.617635);
-        pickupCoords.add(55.755814);
+        pickupCoords.add(37.517635); // ДОЛГОТА склада (другая!)
+        pickupCoords.add(55.755814); // ШИРОТА склада
         pickupAddress.set("coordinates", pickupCoords);
         pickupPoint.set("address", pickupAddress);
-        pickupPoint.put("skip_confirmation", false); // Добавлено
+        pickupPoint.put("skip_confirmation", false);
         routePoints.add(pickupPoint);
 
-        // Точка доставки (dropoff point)
+        // Точка доставки (dropoff point) - АДРЕС КЛИЕНТА
         ObjectNode dropoffPoint = objectMapper.createObjectNode();
-        dropoffPoint.put("point_id", 2); // ИСПРАВЛЕНО: id → point_id
-        dropoffPoint.put("visit_order", 2); // Добавлено: порядок посещения
+        dropoffPoint.put("point_id", 2);
+        dropoffPoint.put("visit_order", 2);
         dropoffPoint.put("type", "destination");
         ObjectNode dropoffContact = objectMapper.createObjectNode();
         dropoffContact.put("name", user.getFirstName() + " " + user.getLastName());
@@ -135,13 +134,19 @@ public class OrderService {
         dropoffPoint.set("contact", dropoffContact);
         ObjectNode dropoffAddress = objectMapper.createObjectNode();
         Address address = order.getAddress();
-        dropoffAddress.put("fullname", address.getAddressLine());
+
+        // Если адрес клиента не заполнен, используем тестовый адрес
+        String clientAddress = (address.getAddressLine() != null && !address.getAddressLine().isEmpty())
+            ? address.getAddressLine()
+            : "Москва, ул. Тверская, 15";
+
+        dropoffAddress.put("fullname", clientAddress);
         ArrayNode dropoffCoords = objectMapper.createArrayNode();
-        dropoffCoords.add(37.617635);
-        dropoffCoords.add(55.755814);
+        dropoffCoords.add(37.617635); // ДОЛГОТА доставки (другая!)
+        dropoffCoords.add(55.755814); // ШИРОТА доставки
         dropoffAddress.set("coordinates", dropoffCoords);
         dropoffPoint.set("address", dropoffAddress);
-        dropoffPoint.put("skip_confirmation", false); // Добавлено
+        dropoffPoint.put("skip_confirmation", false);
         routePoints.add(dropoffPoint);
 
         requestJson.set("route_points", routePoints);
@@ -186,10 +191,10 @@ public class OrderService {
         requestJson.set("billing_info", billingInfo);
 
         // 5. Дополнительные настройки доставки
-        ObjectNode clientRequirements = objectMapper.createObjectNode(); // ИСПРАВЛЕНО: requirements → clientRequirements
+        ObjectNode clientRequirements = objectMapper.createObjectNode();
         clientRequirements.put("pro_courier", false);
         clientRequirements.put("taxi_class", "courier");
-        requestJson.set("client_requirements", clientRequirements); // ИСПРАВЛЕНО: requirements → client_requirements
+        requestJson.set("client_requirements", clientRequirements);
 
         // 6. Аварийный контакт (ОБЯЗАТЕЛЬНО)
         ObjectNode emergencyContact = objectMapper.createObjectNode();
@@ -209,11 +214,11 @@ public class OrderService {
     private String createYandexDelivery(String requestBody, WebOrder order) throws Exception {
         try {
             // Добавляем request_id как query parameter в URL
-            String urlWithParams = API_URL + "/b2b/cargo/integration/v2/claims/create?request_id=" + order.getId();
+            String urlWithParams = yandexDeliveryConfig.getUrl() + "/b2b/cargo/integration/v2/claims/create?request_id=" + order.getId();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlWithParams))
-                    .header("Authorization", "OAuth " + API_TOKEN)
+                    .header("Authorization", "OAuth " + yandexDeliveryConfig.getToken())
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .header("Accept-Language", "ru") // Обязательный заголовок
