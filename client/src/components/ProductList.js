@@ -8,7 +8,7 @@ import { Context } from '../index';
 import AddProduct from './AddProduct';
 import ProductDescription from './ProductDescription';
 import ProductTooltip from './ProductTooltip';
-import { getProductRoute } from '../utils/consts'; // Импортируйте функцию
+import { getProductRoute } from '../utils/consts';
 import './ProductList.css';
 
 const ProductList = observer(() => {
@@ -19,7 +19,7 @@ const ProductList = observer(() => {
     const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [deletingProductId, setDeletingProductId] = useState(null);
-    const [hoveredProduct, setHoveredProduct] = useState(null);
+    const [hoveredProduct, setHoveredProduct] = useState(null); // КЛЮЧЕВОЕ СОСТОЯНИЕ
     const [descriptions, setDescriptions] = useState({});
 
     const { user } = useContext(Context);
@@ -33,38 +33,39 @@ const ProductList = observer(() => {
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
 
-    // Добавляем рефы для управления задержкой закрытия
     const tooltipTimeoutRef = useRef(null);
     const isMouseOnTooltipRef = useRef(false);
 
-    // Функция для загрузки описания товара
+    // Очистка таймаута при размонтировании
+    useEffect(() => {
+        return () => {
+            if (tooltipTimeoutRef.current) {
+                clearTimeout(tooltipTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const fetchDescription = async (productId) => {
         try {
             const description = await getDescriptionByProductId(productId);
             return description;
         } catch (error) {
-            // Только для ошибки 404 (не найдено) не логируем в консоль
             if (error.response?.status === 404) {
-                return null; // Описание не найдено - это нормальная ситуация
+                return null;
             }
-            // Для всех других ошибок логируем
             console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
             return null;
         }
     };
 
-    // Загружаем описания для всех товаров
     const fetchAllDescriptions = async (productsList) => {
         const descriptionsMap = {};
-
         const descriptionPromises = productsList.map(async (product) => {
             const description = await fetchDescription(product.id);
-            // Сохраняем только если описание существует
             if (description) {
                 descriptionsMap[product.id] = description;
             }
         });
-
         await Promise.all(descriptionPromises);
         return descriptionsMap;
     };
@@ -79,10 +80,8 @@ const ProductList = observer(() => {
                 setTotalPages(response.totalPages || 0);
                 setTotalElements(response.totalElements || 0);
 
-                // Загружаем описания после загрузки товаров
                 const descriptionsData = await fetchAllDescriptions(response.content);
                 setDescriptions(descriptionsData);
-
             } else {
                 console.warn('Unexpected response format:', response);
                 setProducts([]);
@@ -90,7 +89,6 @@ const ProductList = observer(() => {
                 setTotalElements(0);
                 setDescriptions({});
             }
-
         } catch (err) {
             setError('Не удалось загрузить продукты. Проверьте авторизацию.');
             console.error('Fetch products error:', err);
@@ -113,7 +111,6 @@ const ProductList = observer(() => {
         cartStore.addToCart(product);
     };
 
-    // ИСПОЛЬЗУЕМ ВАШУ ФУНКЦИЮ ДЛЯ ПЕРЕХОДА
     const handleProductClick = (product) => {
         navigate(getProductRoute(product.id));
     };
@@ -141,7 +138,7 @@ const ProductList = observer(() => {
         fetchProducts();
     };
 
-    // Функции для тултипа
+    // ИСПРАВЛЕННЫЕ ФУНКЦИИ ДЛЯ ТУЛТИПА
     const handleMouseEnter = async (product) => {
         // Очищаем предыдущий таймаут
         if (tooltipTimeoutRef.current) {
@@ -149,45 +146,38 @@ const ProductList = observer(() => {
             tooltipTimeoutRef.current = null;
         }
 
-        // Проверяем, есть ли описание в кэше
         const hasDescription = descriptions[product.id];
 
         if (hasDescription) {
+            // СРАЗУ УСТАНАВЛИВАЕМ НОВЫЙ ТОВАР - старый тултип закроется автоматически
             setHoveredProduct(product);
         } else {
-            // Если описания нет в кэше, проверяем API
             try {
                 const description = await fetchDescription(product.id);
                 if (description) {
-                    // Обновляем кэш описаний
                     setDescriptions(prev => ({
                         ...prev,
                         [product.id]: description
                     }));
                     setHoveredProduct(product);
                 }
-                // Если описание не найдено (description === null), ничего не делаем
             } catch (error) {
-                // Ошибка при загрузке, ничего не делаем
                 console.error('Error fetching description for tooltip:', error);
             }
         }
     };
 
     const handleMouseLeave = () => {
-        // Если курсор перешел на тултип, не закрываем его
         if (isMouseOnTooltipRef.current) {
             return;
         }
 
-        // Устанавливаем задержку перед закрытием
         tooltipTimeoutRef.current = setTimeout(() => {
             setHoveredProduct(null);
-        }, 100); // Небольшая задержка для плавного перехода
+        }, 100);
     };
 
     const handleTooltipMouseEnter = () => {
-        // Очищаем таймаут закрытия
         if (tooltipTimeoutRef.current) {
             clearTimeout(tooltipTimeoutRef.current);
             tooltipTimeoutRef.current = null;
@@ -197,7 +187,6 @@ const ProductList = observer(() => {
 
     const handleTooltipMouseLeave = () => {
         isMouseOnTooltipRef.current = false;
-        // Закрываем тултип с небольшой задержкой
         tooltipTimeoutRef.current = setTimeout(() => {
             setHoveredProduct(null);
         }, 100);
@@ -313,7 +302,7 @@ const ProductList = observer(() => {
                             const isOutOfStock = inventoryQuantity === 0;
                             const isDeleting = deletingProductId === product.id;
                             const hasDescription = !!descriptions[product.id];
-                            const isHovered = hoveredProduct?.id === product.id;
+                            const isHovered = hoveredProduct?.id === product.id; // ПРОВЕРКА НАВЕДЕНИЯ
 
                             return (
                                 <div
@@ -397,15 +386,20 @@ const ProductList = observer(() => {
                                         </div>
                                     </div>
 
-                                    {/* Постоянно отображаемый тултип для товаров с описанием */}
-                                    {hasDescription && descriptions[product.id] && (
-                                        <ProductTooltip
-                                            product={{
-                                                ...product,
-                                                description: descriptions[product.id]
-                                            }}
-                                            showOnProductsPage={true} // Всегда показываем на странице товаров
-                                        />
+                                    {/* КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Тултип показывается ТОЛЬКО при наведении */}
+                                    {hasDescription && descriptions[product.id] && isHovered && (
+                                        <div
+                                            onMouseEnter={handleTooltipMouseEnter}
+                                            onMouseLeave={handleTooltipMouseLeave}
+                                        >
+                                            <ProductTooltip
+                                                product={{
+                                                    ...product,
+                                                    description: descriptions[product.id]
+                                                }}
+                                                showOnProductsPage={true}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             );
