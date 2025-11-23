@@ -109,15 +109,21 @@ public class OrderService {
         pickupPoint.put("point_id", 1);
         pickupPoint.put("visit_order", 1);
         pickupPoint.put("type", "source");
+
+        // ДОБАВЛЕНО: platform_station для точки забора
+        ObjectNode platformStation = objectMapper.createObjectNode();
+        platformStation.put("platform_id", yandexDeliveryConfig.getPlatform_id());
+        pickupPoint.set("platform_station", platformStation);
+
         ObjectNode pickupContact = objectMapper.createObjectNode();
         pickupContact.put("name", "Склад магазина");
         pickupContact.put("phone", "+79991234567");
         pickupPoint.set("contact", pickupContact);
         ObjectNode pickupAddress = objectMapper.createObjectNode();
-        pickupAddress.put("fullname", "Москва, Ленинградский проспект, 1"); // Реальный адрес склада
+        pickupAddress.put("fullname", "Москва, Ленинградский проспект, 1");
         ArrayNode pickupCoords = objectMapper.createArrayNode();
-        pickupCoords.add(37.517635); // ДОЛГОТА склада (другая!)
-        pickupCoords.add(55.755814); // ШИРОТА склада
+        pickupCoords.add(37.517635);
+        pickupCoords.add(55.755814);
         pickupAddress.set("coordinates", pickupCoords);
         pickupPoint.set("address", pickupAddress);
         pickupPoint.put("skip_confirmation", false);
@@ -142,8 +148,8 @@ public class OrderService {
 
         dropoffAddress.put("fullname", clientAddress);
         ArrayNode dropoffCoords = objectMapper.createArrayNode();
-        dropoffCoords.add(37.617635); // ДОЛГОТА доставки (другая!)
-        dropoffCoords.add(55.755814); // ШИРОТА доставки
+        dropoffCoords.add(37.617635);
+        dropoffCoords.add(55.755814);
         dropoffAddress.set("coordinates", dropoffCoords);
         dropoffPoint.set("address", dropoffAddress);
         dropoffPoint.put("skip_confirmation", false);
@@ -218,7 +224,7 @@ public class OrderService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlWithParams))
-                    .header("Authorization", "OAuth " + yandexDeliveryConfig.getToken())
+                    .header("Authorization", "Bearer " + yandexDeliveryConfig.getToken())
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .header("Accept-Language", "ru") // Обязательный заголовок
