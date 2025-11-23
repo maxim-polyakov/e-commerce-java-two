@@ -168,7 +168,7 @@ public class OrderService {
             item.put("article", quantity.getProduct().getId().toString());
 
             // ИСПРАВЛЕНИЕ: Получаем стоимость продукта
-            item.put("cost_value", quantity.getProduct().getPrice()); // цена товара
+            item.put("cost_value", quantity.getProduct().getPrice().toString()); // цена товара
             item.put("cost_currency", "RUB"); // валюта
 
             // Размеры товара в метрах
