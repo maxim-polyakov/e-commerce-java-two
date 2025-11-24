@@ -100,8 +100,8 @@ public class OrderService {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode requestJson = objectMapper.createObjectNode();
 
-        requestJson.put("status", "accepted");
-        requestJson.put("auto_accept", true);
+        requestJson.put("status", "new");
+        //requestJson.put("auto_accept", true);
         requestJson.put("comment", "Заказ №" + order.getId() + " из интернет-магазина");
 
         // Добавляем comment напрямую в корень
