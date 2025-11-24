@@ -4,7 +4,9 @@ import com.ecommercebackend.model.LocalUser;
 import com.ecommercebackend.model.WebOrderQuantities;
 import com.ecommercebackend.model.Address;
 import com.ecommercebackend.model.Product;
+import com.ecommercebackend.model.Description;
 import com.ecommercebackend.model.WebOrder;
+import com.ecommercebackend.model.dao.DescriptionDAO;
 import com.ecommercebackend.model.dao.ProductDAO;
 import com.ecommercebackend.model.dao.WebOrderDAO;
 import com.ecommercebackend.model.dao.AddressDAO;
@@ -175,15 +177,34 @@ public class OrderService {
             item.put("cost_value", quantity.getProduct().getPrice().toString()); // цена товара
             item.put("cost_currency", "RUB"); // валюта
 
-            // Размеры товара в метрах
+            // РАЗМЕРЫ ТОВАРА: Получаем реальные размеры из Description
             ObjectNode size = objectMapper.createObjectNode();
-            size.put("length", 0.1);  // 10 см в метрах
-            size.put("width", 0.05);  // 5 см в метрах
-            size.put("height", 0.03); // 3 см в метрах
+            Description description = quantity.getProduct().getDescription();
+
+            if (description != null && description.getDimensions() != null) {
+                // Парсим размеры из формата "В×Ш×Г" например "178×60×63 см"
+                String dimensions = description.getDimensions();
+                double[] parsedDimensions = parseDimensions(dimensions);
+
+                // Преобразуем в метры (делим на 100)
+                size.put("length", parsedDimensions[0] / 100.0);  // Длина (Ширина в исходных данных)
+                size.put("width", parsedDimensions[1] / 100.0);   // Ширина (Глубина в исходных данных)
+                size.put("height", parsedDimensions[2] / 100.0);  // Высота
+            } else {
+                // Значения по умолчанию, если размеры не указаны
+                size.put("length", 0.1);  // 10 см в метрах
+                size.put("width", 0.05);  // 5 см в метрах
+                size.put("height", 0.03); // 3 см в метрах
+            }
             item.set("size", size);
 
-            // Вес товара в кг
-            item.put("weight", 1.0); // 1000 грамм в кг
+            // ВЕС ТОВАРА: Получаем реальный вес из Description
+            if (description != null && description.getWeight() != null) {
+                double weightKg = parseWeight(description.getWeight());
+                item.put("weight", weightKg);
+            } else {
+                item.put("weight", 1.0); // Значение по умолчанию: 1 кг
+            }
 
             itemsArray.add(item);
         }
@@ -221,6 +242,65 @@ public class OrderService {
         System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestJson));
 
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestJson);
+    }
+
+    // Метод для парсинга размеров из строки формата "В×Ш×Г" или "ВxШxГ"
+    private double[] parseDimensions(String dimensions) {
+        try {
+            if (dimensions == null || dimensions.trim().isEmpty()) {
+                return getDefaultDimensions();
+            }
+
+            // Удаляем единицы измерения и пробелы
+            String cleanDimensions = dimensions.toLowerCase()
+                    .replace("см", "")
+                    .replace("cm", "")
+                    .replace(" ", "")
+                    .trim();
+
+            // Заменяем оба возможных разделителя на стандартный
+            cleanDimensions = cleanDimensions.replace('x', '×');
+
+            // Разделяем по символу ×
+            String[] parts = cleanDimensions.split("×");
+
+            if (parts.length == 3) {
+                double height = Double.parseDouble(parts[0]); // Высота
+                double width = Double.parseDouble(parts[1]);  // Ширина
+                double length = Double.parseDouble(parts[2]); // Длина (Глубина)
+
+                // Проверяем, что размеры положительные
+                if (height > 0 && width > 0 && length > 0) {
+                    return new double[]{length, width, height};
+                } else {
+                    System.err.println("Некорректные размеры (неположительные значения): " + dimensions);
+                }
+            } else {
+                System.err.println("Некорректный формат размеров (ожидается 3 части): " + dimensions);
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка парсинга размеров: " + dimensions + " - " + e.getMessage());
+        }
+
+        // Возвращаем значения по умолчанию при ошибке
+        return getDefaultDimensions();
+    }
+
+    // Вспомогательный метод для получения размеров по умолчанию
+    private double[] getDefaultDimensions() {
+        return new double[]{10.0, 5.0, 3.0};
+    }
+
+    // Метод для парсинга веса из строки
+    private double parseWeight(String weight) {
+        try {
+            // Удаляем единицы измерения и пробелы
+            String cleanWeight = weight.replace("кг", "").replace(" ", "");
+            return Double.parseDouble(cleanWeight);
+        } catch (Exception e) {
+            System.err.println("Ошибка парсинга веса: " + weight);
+            return 1.0; // Значение по умолчанию
+        }
     }
 
     private String createYandexDelivery(String requestBody, WebOrder order) throws Exception {
