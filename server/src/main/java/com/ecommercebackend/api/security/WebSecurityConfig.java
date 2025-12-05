@@ -25,19 +25,36 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf().disable()
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/product", "/auth/register", "/auth/login",
-                "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
-                "/websocket", "/websocket/**",
-                "/images/**").permitAll() // Разрешаем доступ к изображениям
-            .anyRequest().authenticated()
-        );
+      http
+          .csrf().disable()
+          .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+          .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
+          .authorizeHttpRequests(auth -> auth
+              // ВАЖНО: Разрешаем ВСЕ пути связанные с API документацией
+              .requestMatchers(
+                  "/v3/api-docs",           // Основной JSON
+                  "/v3/api-docs/**",        // Все подпути (swagger-config, yaml и т.д.)
+                  "/v3/api-docs.yaml",      // YAML версия
+                  "/v3/api-docs/swagger-config", // Конфигурация
+                  "/api-docs",
+                  "/swagger-ui/**",
+                  "/swagger-ui.html",
+                  "/swagger-ui/index.html",
+                  "/swagger-resources/**",
+                  "/webjars/**",
+                  "/configuration/**"
+              ).permitAll()
 
-    return http.build();
+              // Ваши существующие публичные эндпоинты
+              .requestMatchers("/product", "/auth/register", "/auth/login",
+                  "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
+                  "/websocket", "/websocket/**",
+                  "/images/**").permitAll()
+
+              .anyRequest().authenticated()
+          );
+
+      return http.build();
   }
 
   @Bean
