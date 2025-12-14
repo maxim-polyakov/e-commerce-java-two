@@ -63,8 +63,10 @@ public class Product {
     @Column(name = "deleted_reason")
     private String deletedReason;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY,
+               cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
+    @Where(clause = "product_id IS NOT NULL")
     private List<WebOrderQuantities> orderQuantities = new ArrayList<>();
 
     /**
