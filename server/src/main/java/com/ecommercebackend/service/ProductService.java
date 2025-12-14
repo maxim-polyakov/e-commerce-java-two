@@ -38,6 +38,8 @@ public class ProductService {
 
     private final UploadConfig uploadConfig;
 
+    private final YandexStorageService storageService;
+
     // ДОБАВЬТЕ ЭТОТ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ТОВАРА ПО ID
     public Product getProductById(Long id) {
         Optional<Product> product = productDAO.findById(id);
@@ -55,33 +57,24 @@ public class ProductService {
         return product.get();
     }
 
+    /**
+     * Сохраняет изображение в S3 вместо локальной файловой системы
+     */
     public String saveMultipartImage(MultipartFile imageFile) {
         if (imageFile == null || imageFile.isEmpty()) {
             return null;
         }
 
         try {
-            Path uploadPath = Paths.get(uploadConfig.getUploadDir());
+            // Загружаем изображение в S3
+            // Префикс "products" создаст виртуальную папку в бакете
+            String s3Key = storageService.uploadImage(imageFile, "products");
 
-            // Создаем директорию, если не существует
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Генерируем уникальное безопасное имя файла
-            String originalFileName = imageFile.getOriginalFilename();
-            String fileExtension = getFileExtension(originalFileName);
-            String safeFileName = UUID.randomUUID().toString() + "." + fileExtension;
-
-            // Сохраняем файл
-            Path filePath = uploadPath.resolve(safeFileName);
-            Files.write(filePath, imageFile.getBytes());
-
-            // Возвращаем имя файла
-            return safeFileName;
+            // Возвращаем ключ S3 для хранения в БД
+            return s3Key;
 
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка сохранения изображения: " + e.getMessage(), e);
+            throw new RuntimeException("Ошибка сохранения изображения в S3: " + e.getMessage(), e);
         }
     }
 
@@ -107,9 +100,9 @@ public class ProductService {
                 throw new RuntimeException("Активный продукт с именем '" + productBody.getName() + "' уже существует");
             }
 
-            String imageFileName = null;
+            String s3ImageKey = null;
             if (productBody.getImage() != null && !productBody.getImage().isEmpty()) {
-                imageFileName = this.saveMultipartImage(productBody.getImage());
+                s3ImageKey = this.saveMultipartImage(productBody.getImage());
             }
 
             // Создаем продукт
@@ -119,7 +112,7 @@ public class ProductService {
             product.setLongDescription(productBody.getLongDescription());
             product.setPrice(productBody.getPrice());
             product.setRaiting(productBody.getRaiting() != null ? productBody.getRaiting() : 0.0);
-            product.setImage(imageFileName);
+            product.setImage(s3ImageKey); // Теперь храним ключ S3
             product.setDeleted(false);
 
             // Создаем инвентарь
