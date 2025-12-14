@@ -40,7 +40,6 @@ public class WebOrder {
   private Address address;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-  @JsonIgnore
   private List<WebOrderQuantities> quantities = new ArrayList<>();
 
 }
