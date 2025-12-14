@@ -3,6 +3,7 @@ import {$authhost} from "./index";
 export const getUserOrders = async () => {
     try {
         const { data } = await $authhost.get('/order');
+        console.log(data);
         return data;
     } catch (error) {
         console.log("Get user orders error:", error);

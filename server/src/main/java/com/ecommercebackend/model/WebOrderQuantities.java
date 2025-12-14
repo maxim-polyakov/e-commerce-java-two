@@ -31,6 +31,7 @@ public class WebOrderQuantities {
     // Связь с заказом
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private WebOrder order;
 
     // Связь с товаром - теперь может быть NULL!
