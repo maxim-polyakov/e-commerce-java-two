@@ -1,6 +1,7 @@
 package com.ecommercebackend.model.dao;
 
 import com.ecommercebackend.model.Product;
+import com.ecommercebackend.model.WebOrderQuantities;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,4 +44,12 @@ public interface ProductDAO extends JpaRepository<Product, Long> {
            "MIN(p.price) as minPrice " +
            "FROM Product p")
     Object[] getProductStatistics();
+
+    @Modifying
+    @Query(nativeQuery = true,
+           value = "DELETE FROM product WHERE id = :productId")
+    void hardDelete(@Param("productId") Long productId);
+
+     @Query("SELECT woq FROM WebOrderQuantities woq WHERE woq.product.id = :productId OR woq.frozenProductSku IS NOT NULL")
+    List<WebOrderQuantities> findAllOrderQuantitiesForProduct(@Param("productId") Long productId);
 }

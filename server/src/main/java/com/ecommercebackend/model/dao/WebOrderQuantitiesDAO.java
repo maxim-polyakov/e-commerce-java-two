@@ -23,8 +23,8 @@ public interface WebOrderQuantitiesDAO extends JpaRepository<WebOrderQuantities,
     @Query("SELECT COUNT(woq) FROM WebOrderQuantities woq WHERE woq.product.id = :productId")
     Long countByProductId(@Param("productId") Long productId);
 
-    @Modifying
-    @Query("UPDATE WebOrderQuantities woq SET woq.product = null WHERE woq.product.id = :productId")
-    void nullifyProductReference(@Param("productId") Long productId);
+    // Найти все позиции заказов для товара
+    @Query("SELECT woq FROM WebOrderQuantities woq WHERE woq.product.id = :productId")
+    List<WebOrderQuantities> findAllByProductId(@Param("productId") Long productId);
 
 }

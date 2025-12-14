@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,22 +22,66 @@ import lombok.Setter;
 @Setter
 public class WebOrderQuantities {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id", nullable = false)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    private Integer quantity;
 
+    // Связь с заказом
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private WebOrder order;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "product_id", nullable = true)
-  private Product product;
+    // Связь с товаром - теперь может быть NULL!
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-  @Column(name = "quantity", nullable = false)
-  private Integer quantity;
+    // ЗАМОРОЖЕННЫЕ ДАННЫЕ ТОВАРА (заполняются при удалении товара)
+    @Column(name = "frozen_product_name")
+    private String frozenProductName;
 
-  @JsonIgnore
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "order_id", nullable = false)
-  private WebOrder order;
+    @Column(name = "frozen_product_price")
+    private Double frozenProductPrice;
+
+    @Column(name = "frozen_product_image")
+    private String frozenProductImage;
+
+    @Column(name = "frozen_product_sku")
+    private String frozenProductSku;
+
+    /**
+     * Получить название товара для отображения (использует замороженные данные если товар удален)
+     */
+    @Transient
+    public String getDisplayProductName() {
+        if (product == null) {
+            return frozenProductName != null ?
+                frozenProductName + " (товар удален)" : "Товар удален";
+        }
+        return product.getName();
+    }
+
+    /**
+     * Получить цену для отображения
+     */
+    @Transient
+    public Double getDisplayPrice() {
+        if (product == null) {
+            return frozenProductPrice;
+        }
+        return product.getPrice();
+    }
+
+    /**
+     * Заморозить данные текущего товара
+     */
+    public void freezeProductData() {
+        if (this.product != null) {
+            this.frozenProductName = this.product.getName();
+            this.frozenProductPrice = this.product.getPrice();
+            this.frozenProductImage = this.product.getImage();
+        }
+    }
 }

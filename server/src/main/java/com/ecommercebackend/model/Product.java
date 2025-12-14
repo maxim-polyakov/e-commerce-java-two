@@ -66,7 +66,6 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY,
                cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    @Where(clause = "product_id IS NOT NULL")
     private List<WebOrderQuantities> orderQuantities = new ArrayList<>();
 
     /**

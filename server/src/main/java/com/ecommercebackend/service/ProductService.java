@@ -38,6 +38,8 @@ public class ProductService {
 
     private final UploadConfig uploadConfig;
 
+    private final ProductDeletionService productDeletionService;
+
     private final YandexStorageService storageService;
 
     // ДОБАВЬТЕ ЭТОТ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ТОВАРА ПО ID
@@ -162,43 +164,36 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(LocalUser user, Long productId, String reason) {
-        // Проверка прав
+        // 1. Проверка прав
         if (!user.getRole().getValue().equals("ADMIN")) {
             throw new RuntimeException("Недостаточно прав для удаления продукта");
         }
 
-        // Находим продукт
-        Product product = productDAO.findById(productId)
-                .orElseThrow(() -> {
-                    return new RuntimeException("Продукт с ID " + productId + " не найден");
-                });
-
-        // Проверяем наличие в заказах
+        // 2. Проверяем наличие в заказах
         long ordersCount = orderQuantitiesDAO.countByProductId(productId);
 
-        if (ordersCount > 0) {
-            // Обнуляем ссылки на продукт в заказах
-            orderQuantitiesDAO.nullifyProductReference(productId);
-        }
+        // 4. Находим продукт
+        Product product = productDAO.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Продукт с ID " + productId + " не найден"));
 
         try {
-            // Удаляем связанное изображение
+            // 5. Удаляем связанное изображение
             if (product.getImage() != null && !product.getImage().isEmpty()) {
                 deleteProductImage(product.getImage());
             }
 
-            // Помечаем инвентарь как удаленный
+            // 6. Помечаем связанные объекты как удаленные
             if (product.getInventory() != null) {
                 product.getInventory().setDeleted(true);
             }
 
-            // Помечаем описание как удаленное
             if (product.getDescription() != null) {
                 product.getDescription().setDeleted(true);
             }
 
-            // Архивируем продукт (Soft Delete)
-            product.softDelete(reason != null ? reason : "Удалено администратором");
+            // 7. SOFT DELETE: Архивируем продукт
+            String deleteReason = reason != null ? reason : "Удалено администратором";
+            product.softDelete(deleteReason);
             productDAO.save(product);
 
         } catch (Exception e) {
@@ -207,47 +202,57 @@ public class ProductService {
     }
 
     @Transactional
+    public void forceDeleteProduct(LocalUser user, Long productId, String reason) {
+        // Двойная проверка прав
+        if (!user.getRole().getValue().equals("ADMIN")) {
+            throw new RuntimeException("Недостаточно прав для физического удаления продукта");
+        }
+
+
+        // Используем сервис для корректного удаления с сохранением истории
+        productDeletionService.hardDeleteProductWithHistory(productId);
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Восстановление удаленного продукта
+     */
+    @Transactional
     public void restoreProduct(LocalUser user, Long productId) {
-        // Проверка прав
         if (!user.getRole().getValue().equals("ADMIN")) {
             throw new RuntimeException("Недостаточно прав для восстановления продукта");
         }
 
-        // Находим продукт (включая удаленные)
         Product product = productDAO.findByIdIncludingDeleted(productId)
-                .orElseThrow(() -> {
-                    return new RuntimeException("Продукт с ID " + productId + " не найден");
-                });
+                .orElseThrow(() -> new RuntimeException("Продукт с ID " + productId + " не найден"));
 
         if (!product.isDeleted()) {
-            throw new RuntimeException("Продукт не является удаленным");
+            throw new RuntimeException("Продукт не был удален");
         }
 
-        try {
-            product.restore();
-            productDAO.save(product);
+        // Восстанавливаем продукт
+        product.restore();
 
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при восстановлении продукта: " + e.getMessage(), e);
+        // Восстанавливаем связанные объекты
+        if (product.getInventory() != null) {
+            product.getInventory().setDeleted(false);
         }
+
+        if (product.getDescription() != null) {
+            product.getDescription().setDeleted(false);
+        }
+
+        productDAO.save(product);
     }
 
-    public long getOrdersCountByProduct(Long productId) {
-        return orderQuantitiesDAO.countByProductId(productId);
-    }
-
-    public Object[] getProductStatistics() {
-        return productDAO.getProductStatistics();
-    }
-
-    public Page<Product> searchProducts(String name, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return productDAO.findByNameContainingIgnoreCase(name, pageable);
-    }
-
-    public Page<Product> getProductsByPriceRange(Double minPrice, Double maxPrice, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return productDAO.findByPriceBetween(minPrice, maxPrice, pageable);
+    /**
+     * НОВЫЙ МЕТОД: Пакетная очистка старых удаленных продуктов
+     */
+    @Transactional
+    public int cleanupOldDeletedProducts(LocalUser user, int daysOld) {
+        if (!user.getRole().getValue().equals("ADMIN")) {
+            throw new RuntimeException("Недостаточно прав для очистки");
+        }
+        return productDeletionService.batchDeleteOldProducts(daysOld);
     }
 
     private void deleteProductImage(String s3Key) {
