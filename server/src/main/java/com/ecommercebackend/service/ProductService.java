@@ -250,15 +250,16 @@ public class ProductService {
         return productDAO.findByPriceBetween(minPrice, maxPrice, pageable);
     }
 
-    private void deleteProductImage(String imageFileName) {
-        try {
-            Path imagePath = Paths.get(uploadConfig.getUploadDir()).resolve(imageFileName);
-            if (Files.exists(imagePath)) {
-                Files.delete(imagePath);
-            }
-        } catch (IOException e) {
-            // Логируем ошибку, но не прерываем удаление продукта
-            System.err.println("Ошибка при удалении файла изображения: " + imageFileName + " - " + e.getMessage());
-        }
+    private void deleteProductImage(String s3Key) {
+    if (s3Key == null || s3Key.isEmpty()) {
+        return;
     }
+
+    try {
+        storageService.deleteImage(s3Key);
+
+    } catch (Exception e) {
+        throw new RuntimeException(e.getMessage());
+    }
+}
 }

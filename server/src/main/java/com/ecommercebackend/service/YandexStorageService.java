@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class YandexStorageService {
 
     private final S3Config s3Config;
-    private S3Client s3Client;
+    private final S3Client s3Client;
 
     /**
      * Загружает изображение из MultipartFile в S3

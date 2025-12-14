@@ -17,8 +17,8 @@ public class ProductBody {
     private MultipartFile image;
 
     @Schema(
-        description = "Название файла изображения (альтернатива загрузке файла)",
-        example = "product_image_123.jpg",
+        description = "Название файла изображения",
+        example = "product_image_123.png",
         nullable = true
     )
     private String imageName;
