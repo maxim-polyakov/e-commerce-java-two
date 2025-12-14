@@ -30,8 +30,9 @@ const ProductList = observer(() => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 
-    const API_BASE_URL = process.env.S3_URL;
-    const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
+    const API_BASE_URL = process.env.REACT_APP_S3_URL;
+    const IMAGES_BASE_URL = `${API_BASE_URL}`;
+
 
     const tooltipTimeoutRef = useRef(null);
     const isMouseOnTooltipRef = useRef(false);
@@ -103,8 +104,7 @@ const ProductList = observer(() => {
 
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;
-        console.log(imagePath)
-        if (imagePath.startsWith('http')) return imagePath;
+        if (imagePath.startsWith('https')) return imagePath;
         return `${IMAGES_BASE_URL}/${imagePath}`;
     };
 

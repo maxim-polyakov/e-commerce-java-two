@@ -13,8 +13,8 @@ const ProductShowcase = observer(() => {
     const [priceRange, setPriceRange] = useState([0, 1000]);
 
     // Базовый URL для изображений
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
-    const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
+    const API_BASE_URL = process.env.REACT_APP_S3_URL;
+    const IMAGES_BASE_URL = `${API_BASE_URL}`;
 
     const fetchAllProducts = async () => {
         try {
@@ -68,7 +68,7 @@ const ProductShowcase = observer(() => {
         if (!imagePath) return null;
 
         // Если уже полный URL, возвращаем как есть
-        if (imagePath.startsWith('http')) {
+        if (imagePath.startsWith('https')) {
             return imagePath;
         }
 
