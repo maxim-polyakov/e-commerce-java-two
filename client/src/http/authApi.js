@@ -38,26 +38,16 @@ export const registration = async (email, username, firstName, lastName, passwor
     }
 };
 
-export const loginWithGoogle = async (idToken) => {
+export const exchangeOAuthCode = async (code) => {
     try {
-        const { data } = await $host.post("/auth/google", {
-            idToken,
-        });
+        const { data } = await $host.get(`/auth/oauth-token?code=${encodeURIComponent(code)}`);
         localStorage.setItem("token", data.jwt);
         return jwtDecode(data.jwt);
     } catch (error) {
-        console.log("Google login error:", error);
-
-        let errorMessage = "Ошибка входа через Google";
-
-        if (error.response?.status === 400) {
-            errorMessage = "Не удалось войти через Google. Попробуйте ещё раз.";
-        } else if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
+        console.log("Google OAuth exchange error:", error);
+        let errorMessage = "Ошибка входа через Google. Попробуйте ещё раз.";
+        if (error.response?.data?.message) errorMessage = error.response.data.message;
+        else if (error.message) errorMessage = error.message;
         throw new Error(errorMessage);
     }
 };

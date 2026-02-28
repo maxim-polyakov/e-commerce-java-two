@@ -1,6 +1,5 @@
 package com.ecommercebackend.service;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.ecommercebackend.model.enums.Role;
 import com.ecommercebackend.api.model.LoginBody;
 import com.ecommercebackend.api.model.PasswordResetBody;
@@ -15,11 +14,7 @@ import com.ecommercebackend.model.dao.LocalUserDAO;
 import com.ecommercebackend.model.dao.VerificationTokenDAO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +35,6 @@ public class UserService {
   private final JWTService jwtService;
 
   private final EmailService emailService;
-
-  private final GoogleAuthService googleAuthService;
 
   public LocalUser registerUser(RegistrationBody registrationBody) throws UserAlreadyExistsException, EmailFailureException {
     if (localUserDAO.findByEmailIgnoreCase(registrationBody.getEmail()).isPresent()
@@ -167,61 +160,6 @@ public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, Em
    */
   public boolean userHasPermissionToUser(LocalUser user, Long id) {
     return user.getId() == id;
-  }
-
-  /**
-   * Вход/регистрация через Google OAuth.
-   * Если пользователь с таким email не существует — создаётся новый (без пароля, email подтверждён).
-   * Username: если у Google имя из 2 слов (first last) — username = "first last", иначе — только first_name.
-   */
-  public String loginOrRegisterGoogleUser(String idToken) throws GeneralSecurityException, IOException {
-    GoogleIdToken.Payload payload = googleAuthService.verifyToken(idToken);
-    if (payload == null) {
-      return null;
-    }
-
-    String email = payload.getEmail();
-    if (email == null || email.isBlank()) {
-      return null;
-    }
-
-    String givenName = payload.get("given_name") != null ? payload.get("given_name").toString() : null;
-    String familyName = payload.get("family_name") != null ? payload.get("family_name").toString() : null;
-
-    String firstName = (givenName != null && !givenName.isBlank()) ? givenName.trim() : "User";
-    String lastName = (familyName != null && !familyName.isBlank()) ? familyName.trim() : null;
-
-    // Username: если last_name есть (2 слова), то "first_name last_name", иначе только first_name
-    String username;
-    if (lastName != null && !lastName.isBlank()) {
-      username = firstName + " " + lastName;
-    } else {
-      username = firstName;
-    }
-
-    Optional<LocalUser> opUser = localUserDAO.findByEmailIgnoreCase(email);
-    LocalUser user;
-    if (opUser.isPresent()) {
-      user = opUser.get();
-    } else {
-      // Регистрация без пароля; если username занят — добавляем суффикс
-      String baseUsername = username;
-      int suffix = 1;
-      while (localUserDAO.findByUsernameIgnoreCase(username).isPresent()) {
-        username = baseUsername + "_" + suffix++;
-      }
-      user = new LocalUser();
-      user.setEmail(email);
-      user.setUsername(username);
-      user.setFirstName(firstName);
-      user.setLastName(lastName);
-      user.setPassword(null);
-      user.setEmailVerified(true);
-      user.setRole(Role.USER);
-      user = localUserDAO.save(user);
-    }
-
-    return jwtService.generateJWT(user);
   }
 
 }

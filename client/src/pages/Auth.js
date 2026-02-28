@@ -1,18 +1,21 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOMMERCE_ROUTE } from "../utils/consts.js";
-import { login, loginWithGoogle, registration } from "../http/authApi.js";
+import { login, exchangeOAuthCode, registration } from "../http/authApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
 import './Auth.css';
 
+const API_URL = process.env.REACT_APP_API_URL || '';
+
 const Auth = observer(() => {
     const { user } = useContext(Context);
     const location = useLocation();
-    const isLogin = location.pathname === LOGIN_ROUTE && true;
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const oauthHandled = useRef(false);
+    const isLogin = location.pathname === LOGIN_ROUTE && true;
 
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
@@ -20,6 +23,37 @@ const Auth = observer(() => {
     const [lastName, setLastName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        const oauthError = searchParams.get('oauth_error');
+        if (oauthError) {
+            const messages = {
+                OAUTH_MISSING_DATA: 'Не удалось получить данные от Google.',
+                OAUTH_AUTH_ERROR: 'Ошибка входа через Google. Попробуйте позже.',
+            };
+            setError(messages[oauthError] || 'Ошибка входа через Google.');
+            setSearchParams({}, { replace: true });
+            return;
+        }
+
+        const code = searchParams.get('code');
+        if (!code || searchParams.get('oauth') !== 'google' || oauthHandled.current) return;
+
+        oauthHandled.current = true;
+        setError('');
+        exchangeOAuthCode(code)
+            .then((data) => {
+                user.setUser(data);
+                user.setIsAuth(true);
+                swapMethod();
+                navigate(ECOMMERCE_ROUTE);
+            })
+            .catch((err) => {
+                oauthHandled.current = false;
+                setError(err.message || 'Ошибка входа через Google');
+                setSearchParams({}, { replace: true });
+            });
+    }, [searchParams, navigate, setSearchParams, user]);
 
     const swapMethod = () => {
         setEmail("");
@@ -88,28 +122,6 @@ const Auth = observer(() => {
             console.log("Ошибка авторизации:", error);
             setError(error.message);
         }
-    };
-
-    const handleGoogleSuccess = async (credentialResponse) => {
-        try {
-            const credential = credentialResponse?.credential;
-            if (!credential) {
-                setError("Не удалось получить данные от Google");
-                return;
-            }
-            setError("");
-            const data = await loginWithGoogle(credential);
-            user.setUser(data);
-            user.setIsAuth(true);
-            swapMethod();
-            navigate(ECOMMERCE_ROUTE);
-        } catch (err) {
-            setError(err.message || "Ошибка входа через Google");
-        }
-    };
-
-    const handleGoogleError = () => {
-        setError("Вход через Google был отменён");
     };
 
     const isButtonDisabled = () => {
@@ -210,18 +222,15 @@ const Auth = observer(() => {
                         required
                     />
 
-                    {process.env.REACT_APP_GOOGLE_CLIENT_ID && (
+                    {API_URL && (
                         <div className="mt-3 d-flex justify-content-center">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={handleGoogleError}
-                                text={isLogin ? "signin_with" : "signup_with"}
-                                shape="rectangular"
-                                theme="outline"
-                                size="large"
-                                locale="ru"
-                                useOneTap={false}
-                            />
+                            <a
+                                href={`${API_URL}/oauth2/authorization/google`}
+                                className="btn btn-outline-secondary btn-lg"
+                                style={{ textDecoration: 'none' }}
+                            >
+                                Войти через Google
+                            </a>
                         </div>
                     )}
 

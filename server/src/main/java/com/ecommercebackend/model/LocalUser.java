@@ -69,6 +69,9 @@ public class LocalUser implements UserDetails {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column(name = "google_id", unique = true, length = 255)
+  private String googleId;
+
   public Boolean isEmailVerified() {
     return emailVerified;
   }

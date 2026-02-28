@@ -1,5 +1,6 @@
 package com.ecommercebackend.api.security;
 
+import com.ecommercebackend.config.OAuth2LoginSuccessHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,33 +24,30 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
   private final UploadConfig uploadConfig;
 
+  private final OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
           .csrf().disable()
           .cors(cors -> cors.configurationSource(corsConfigurationSource()))
           .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
+          .oauth2Login(oauth2 -> oauth2.successHandler(oauth2LoginSuccessHandler))
           .authorizeHttpRequests(auth -> auth
-              // ВАЖНО: Разрешаем ВСЕ пути связанные с API документацией
               .requestMatchers(
-                  "/v3/api-docs",           // Основной JSON
-                  "/v3/api-docs/**",        // Все подпути (swagger-config, yaml и т.д.)
-                  "/v3/api-docs.yaml",      // YAML версия
-                  "/v3/api-docs/swagger-config", // Конфигурация
-                  "/api-docs",
-                  "/swagger-ui/**",
-                  "/swagger-ui.html",
-                  "/swagger-ui/index.html",
-                  "/swagger-resources/**",
-                  "/webjars/**",
-                  "/configuration/**"
+                  "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml",
+                  "/v3/api-docs/swagger-config", "/api-docs", "/swagger-ui/**",
+                  "/swagger-ui.html", "/swagger-ui/index.html", "/swagger-resources/**",
+                  "/webjars/**", "/configuration/**"
               ).permitAll()
 
-              // Ваши существующие публичные эндпоинты
-              .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/google",
+              .requestMatchers(
+                  "/product", "/auth/register", "/auth/login", "/auth/oauth-token",
                   "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
+                  "/oauth2/**", "/login/oauth2/**",
                   "/websocket", "/websocket/**",
-                  "/images/**").permitAll()
+                  "/images/**"
+              ).permitAll()
 
               .anyRequest().authenticated()
           );
