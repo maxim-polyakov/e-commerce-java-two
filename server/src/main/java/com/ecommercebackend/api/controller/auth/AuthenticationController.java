@@ -1,5 +1,6 @@
 package com.ecommercebackend.api.controller.auth;
 
+import com.ecommercebackend.api.model.GoogleTokenBody;
 import com.ecommercebackend.api.model.LoginBody;
 import com.ecommercebackend.api.model.LoginResponse;
 import com.ecommercebackend.api.model.PasswordResetBody;
@@ -20,6 +21,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -118,6 +122,37 @@ public class AuthenticationController {
             response.setJwt(jwt);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        }
+    }
+
+    @PostMapping("/google")
+    @Operation(
+        summary = "Вход через Google",
+        description = "Аутентификация или автоматическая регистрация по Google ID token. Не требует отдельной регистрации."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Успешная аутентификация",
+            content = @Content(schema = @Schema(implementation = LoginResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Невалидный Google ID token"
+        )
+    })
+    public ResponseEntity<LoginResponse> loginWithGoogle(@Valid @RequestBody GoogleTokenBody body) {
+        try {
+            String jwt = userService.loginOrRegisterGoogleUser(body.getIdToken());
+            if (jwt == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            LoginResponse response = new LoginResponse();
+            response.setJwt(jwt);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (GeneralSecurityException | IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

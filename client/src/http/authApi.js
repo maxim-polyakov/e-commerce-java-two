@@ -38,6 +38,30 @@ export const registration = async (email, username, firstName, lastName, passwor
     }
 };
 
+export const loginWithGoogle = async (idToken) => {
+    try {
+        const { data } = await $host.post("/auth/google", {
+            idToken,
+        });
+        localStorage.setItem("token", data.jwt);
+        return jwtDecode(data.jwt);
+    } catch (error) {
+        console.log("Google login error:", error);
+
+        let errorMessage = "Ошибка входа через Google";
+
+        if (error.response?.status === 400) {
+            errorMessage = "Не удалось войти через Google. Попробуйте ещё раз.";
+        } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+    }
+};
+
 export const login = async (usernameoremail, password) => {
     try {
         const { data } = await $host.post("/auth/login", {

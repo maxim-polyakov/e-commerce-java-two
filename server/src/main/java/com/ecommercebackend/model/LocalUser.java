@@ -41,7 +41,7 @@ public class LocalUser implements UserDetails {
   private String username;
 
   @JsonIgnore
-  @Column(name = "password", nullable = false, length = 1000)
+  @Column(name = "password", nullable = true, length = 1000)
   private String password;
 
   @Column(name = "email", nullable = false, unique = true, length = 320)
@@ -50,7 +50,7 @@ public class LocalUser implements UserDetails {
   @Column(name = "first_name", nullable = false)
   private String firstName;
 
-  @Column(name = "last_name", nullable = false)
+  @Column(name = "last_name", nullable = true)
   private String lastName;
 
   @JsonIgnore

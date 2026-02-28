@@ -46,7 +46,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
               ).permitAll()
 
               // Ваши существующие публичные эндпоинты
-              .requestMatchers("/product", "/auth/register", "/auth/login",
+              .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/google",
                   "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
                   "/websocket", "/websocket/**",
                   "/images/**").permitAll()

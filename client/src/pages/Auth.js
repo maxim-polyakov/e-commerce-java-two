@@ -1,8 +1,9 @@
 import { useContext, useState } from "react";
 import { Button, Card, Container, Form, Alert } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOMMERCE_ROUTE } from "../utils/consts.js";
-import { login, registration } from "../http/authApi.js";
+import { login, loginWithGoogle, registration } from "../http/authApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
 import './Auth.css';
@@ -87,6 +88,28 @@ const Auth = observer(() => {
             console.log("Ошибка авторизации:", error);
             setError(error.message);
         }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const credential = credentialResponse?.credential;
+            if (!credential) {
+                setError("Не удалось получить данные от Google");
+                return;
+            }
+            setError("");
+            const data = await loginWithGoogle(credential);
+            user.setUser(data);
+            user.setIsAuth(true);
+            swapMethod();
+            navigate(ECOMMERCE_ROUTE);
+        } catch (err) {
+            setError(err.message || "Ошибка входа через Google");
+        }
+    };
+
+    const handleGoogleError = () => {
+        setError("Вход через Google был отменён");
     };
 
     const isButtonDisabled = () => {
@@ -186,6 +209,21 @@ const Auth = observer(() => {
                         type="password"
                         required
                     />
+
+                    {process.env.REACT_APP_GOOGLE_CLIENT_ID && (
+                        <div className="mt-3 d-flex justify-content-center">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={handleGoogleError}
+                                text={isLogin ? "signin_with" : "signup_with"}
+                                shape="rectangular"
+                                theme="outline"
+                                size="large"
+                                locale="ru"
+                                useOneTap={false}
+                            />
+                        </div>
+                    )}
 
                     {isLogin && (
                         <div className="mt-2 text-end">
