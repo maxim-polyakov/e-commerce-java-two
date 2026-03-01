@@ -56,6 +56,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             if (user.getGoogleId() == null) {
                 user.setGoogleId(googleId);
                 user.setEmailVerified(true);
+                String picture = (String) attrs.get("picture");
+                if (picture != null && !picture.isBlank()) {
+                    user.setAvatarUrl(picture);
+                }
                 localUserDAO.save(user);
             }
 
@@ -117,6 +121,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         user.setGoogleId(googleId);
         user.setEmailVerified(true);
         user.setRole(Role.USER);
+        String picture = (String) attrs.get("picture");
+        if (picture != null && !picture.isBlank()) {
+            user.setAvatarUrl(picture);
+        }
         return localUserDAO.save(user);
     }
 

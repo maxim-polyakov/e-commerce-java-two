@@ -72,6 +72,9 @@ public class LocalUser implements UserDetails {
   @Column(name = "google_id", unique = true, length = 255)
   private String googleId;
 
+  @Column(name = "avatar_url", length = 2048)
+  private String avatarUrl;
+
   public Boolean isEmailVerified() {
     return emailVerified;
   }
