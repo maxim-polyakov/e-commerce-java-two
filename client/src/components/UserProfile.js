@@ -147,7 +147,11 @@ const UserProfile = observer(() => {
             <div className="profile-card">
                 <div className="profile-header">
                     <div className="user-avatar">
-                        {profile.firstName?.[0]}{profile.lastName?.[0]}
+                        {profile.avatarUrl ? (
+                            <img src={profile.avatarUrl} alt="Аватар" className="user-avatar-img" referrerPolicy="no-referrer" />
+                        ) : (
+                            `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}`
+                        )}
                     </div>
                     <div className="user-info">
                         <h2>{profile.firstName} {profile.lastName}</h2>

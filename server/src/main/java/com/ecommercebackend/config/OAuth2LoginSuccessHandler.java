@@ -53,13 +53,18 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     .or(() -> localUserDAO.findByEmailIgnoreCase(email))
                     .orElseGet(() -> createGoogleUser(googleId, email, attrs));
 
+            boolean needSave = false;
             if (user.getGoogleId() == null) {
                 user.setGoogleId(googleId);
                 user.setEmailVerified(true);
-                String picture = (String) attrs.get("picture");
-                if (picture != null && !picture.isBlank()) {
-                    user.setAvatarUrl(picture);
-                }
+                needSave = true;
+            }
+            String picture = (String) attrs.get("picture");
+            if (picture != null && !picture.isBlank()) {
+                user.setAvatarUrl(picture);
+                needSave = true;
+            }
+            if (needSave) {
                 localUserDAO.save(user);
             }
 
