@@ -7,6 +7,7 @@ import CartButton from '../components/CartButton';
 import ProductShowcase from '../components/ProductShowcase';
 import OrderHistory from '../components/OrderHistory';
 import UserProfile from '../components/UserProfile';
+import YandexRtbBanner from '../components/YandexRtbBanner';
 import './Ecommerce.css';
 
 const Ecommerce = observer(() => {
@@ -54,6 +55,8 @@ const Ecommerce = observer(() => {
                     <CartButton />
                 </div>
             </header>
+
+            <YandexRtbBanner />
 
             <main className="ecommerce-main">
                 {activeSection === 'showcase' && <ProductShowcase />}
