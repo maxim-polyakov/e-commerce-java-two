@@ -11,6 +11,8 @@ services:
       - ecomerce_net
   app:
     build: ./server/.
+    env_file:
+      - ./server/.env
     ports:
       - "5654:8080"
     restart: unless-stopped
