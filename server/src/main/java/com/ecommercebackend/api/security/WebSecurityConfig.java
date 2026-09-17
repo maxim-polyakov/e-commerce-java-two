@@ -4,7 +4,9 @@ import com.ecommercebackend.config.OAuth2LoginSuccessHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -33,6 +35,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
           .cors(cors -> cors.configurationSource(corsConfigurationSource()))
           .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
           .oauth2Login(oauth2 -> oauth2.successHandler(oauth2LoginSuccessHandler))
+          .exceptionHandling(exceptions ->
+              exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.FORBIDDEN)))
           .authorizeHttpRequests(auth -> auth
               .requestMatchers(
                   "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml",

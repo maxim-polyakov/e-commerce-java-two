@@ -42,9 +42,11 @@ public class JWTRequestFilter extends OncePerRequestFilter implements ChannelInt
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     String tokenHeader = request.getHeader("Authorization");
-    UsernamePasswordAuthenticationToken token = checkToken(tokenHeader);
-    if (token != null) {
-      token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    if (tokenHeader != null) {
+      UsernamePasswordAuthenticationToken token = checkToken(tokenHeader);
+      if (token != null) {
+        token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+      }
     }
     filterChain.doFilter(request, response);
   }

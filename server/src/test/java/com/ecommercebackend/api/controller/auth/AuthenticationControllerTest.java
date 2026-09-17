@@ -43,7 +43,7 @@ public class AuthenticationControllerTest {
   public void testRegister() throws Exception {
     ObjectMapper mapper = new ObjectMapper();
     RegistrationBody body = new RegistrationBody();
-    body.setEmail("AuthenticationControllerTest$testRegister@junit.com");
+    body.setEmail("AuthenticationControllerTest.testRegister@junit.com");
     body.setFirstName("FirstName");
     body.setLastName("LastName");
     body.setPassword("Password123");
@@ -70,7 +70,7 @@ public class AuthenticationControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(mapper.writeValueAsString(body)))
         .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
-    body.setEmail("AuthenticationControllerTest$testRegister@junit.com");
+    body.setEmail("AuthenticationControllerTest.testRegister@junit.com");
     // Null or blank password.
     body.setPassword(null);
     mvc.perform(post("/auth/register")
