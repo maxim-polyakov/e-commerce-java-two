@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -104,6 +105,7 @@ public class Product {
      * Получить отображаемое имя продукта
      */
     @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getDisplayName() {
         if (this.isDeleted()) {
             return this.name + " (удален)";

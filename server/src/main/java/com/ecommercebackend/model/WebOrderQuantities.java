@@ -1,6 +1,7 @@
 package com.ecommercebackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -56,6 +57,7 @@ public class WebOrderQuantities {
      * Получить название товара для отображения (использует замороженные данные если товар удален)
      */
     @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getDisplayProductName() {
         if (product == null) {
             return frozenProductName != null ?
@@ -68,6 +70,7 @@ public class WebOrderQuantities {
      * Получить цену для отображения
      */
     @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Double getDisplayPrice() {
         if (product == null) {
             return frozenProductPrice;
