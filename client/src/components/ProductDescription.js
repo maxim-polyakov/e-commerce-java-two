@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getDescriptionByProductId, createDescription, updateDescription } from '../http/descriptionApi';
 import './ProductDescription.css';
@@ -22,13 +22,7 @@ const ProductDescription = ({ productId, productName, isOpen, onClose, onDescrip
         countryOfOrigin: ''
     });
 
-    useEffect(() => {
-        if (isOpen && productId) {
-            fetchDescription();
-        }
-    }, [isOpen, productId]);
-
-    const fetchDescription = async () => {
+    const fetchDescription = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -86,7 +80,13 @@ const ProductDescription = ({ productId, productName, isOpen, onClose, onDescrip
         } finally {
             setLoading(false);
         }
-    };
+    }, [productId]);
+
+    useEffect(() => {
+        if (isOpen && productId) {
+            fetchDescription();
+        }
+    }, [isOpen, productId, fetchDescription]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

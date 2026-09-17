@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { Container, Card, Button, Form, Alert } from "react-bootstrap";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts";
 import { resetPassword } from "../http/authApi";

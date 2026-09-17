@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { getProducts } from '../http/productApi';
 import cartStore from '../store/CartStore';
@@ -16,7 +16,7 @@ const ProductShowcase = observer(() => {
     const API_BASE_URL = process.env.REACT_APP_S3_URL;
     const IMAGES_BASE_URL = `${API_BASE_URL}`;
 
-    const fetchAllProducts = async () => {
+    const fetchAllProducts = useCallback(async () => {
         try {
             let allProducts = [];
             let currentPage = 0;
@@ -43,7 +43,7 @@ const ProductShowcase = observer(() => {
             console.error('Error loading all products:', error);
             throw error;
         }
-    };
+    }, []);
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -61,7 +61,7 @@ const ProductShowcase = observer(() => {
         };
 
         loadProducts();
-    }, []);
+    }, [fetchAllProducts]);
 
     // Функция для получения полного URL изображения
     const getImageUrl = (imagePath) => {
@@ -84,7 +84,7 @@ const ProductShowcase = observer(() => {
     }, [products]);
 
     // Функция для фильтрации товаров (общая для основного списка и топа)
-    const filterProducts = (productsList) => {
+    const filterProducts = useCallback((productsList) => {
         const safeProducts = Array.isArray(productsList) ? productsList : [];
 
         return safeProducts.filter(product => {
@@ -92,10 +92,10 @@ const ProductShowcase = observer(() => {
             const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
             return matchesCategory && matchesPrice;
         });
-    };
+    }, [selectedCategory, priceRange]);
 
     // Функция для сортировки товаров
-    const sortProducts = (productsList) => {
+    const sortProducts = useCallback((productsList) => {
         const sortedProducts = [...productsList];
 
         sortedProducts.sort((a, b) => {
@@ -114,13 +114,7 @@ const ProductShowcase = observer(() => {
         });
 
         return sortedProducts;
-    };
-
-    // Основной список товаров с фильтрацией и сортировкой
-    const filteredAndSortedProducts = useMemo(() => {
-        const filtered = filterProducts(products);
-        return sortProducts(filtered);
-    }, [products, selectedCategory, sortBy, priceRange]);
+    }, [sortBy]);
 
     // Топ-3 товара по рейтингу с учетом фильтров И сортировки
     const topRatedProducts = useMemo(() => {
@@ -139,7 +133,7 @@ const ProductShowcase = observer(() => {
         });
 
         return topThree;
-    }, [products, selectedCategory, priceRange, sortBy]); // Добавляем sortBy в зависимости
+    }, [products, filterProducts, sortProducts, sortBy]);
 
     // Проверка наличия товара
     const isProductAvailable = (product) => {
@@ -174,7 +168,6 @@ const ProductShowcase = observer(() => {
         </div>
     );
 
-    const safeProducts = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
     const safeTopRatedProducts = Array.isArray(topRatedProducts) ? topRatedProducts : [];
 
     // Функция для получения текста сортировки

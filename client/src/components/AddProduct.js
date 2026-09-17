@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { createProduct } from '../http/productApi'; // fileToBase64 больше не импортируем
 import './AddProduct.css';
@@ -101,7 +101,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
         }
     };
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         // Сбрасываем форму при закрытии
         setFormData({
             name: '',
@@ -116,7 +116,7 @@ const AddProduct = observer(({ isOpen, onClose, onProductAdded }) => {
         setError('');
         setLoading(false);
         onClose();
-    };
+    }, [onClose]);
 
     // Закрытие по клику на фон
     const handleBackdropClick = (e) => {

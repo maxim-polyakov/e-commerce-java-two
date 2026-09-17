@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import cartStore from '../store/CartStore';
-import { createOrder } from '../http/orderApi';
 import { getUserAddresses } from '../http/userApi';
 import { getCurrentUser } from '../http/authApi';
 import { CHECKOUT_ROUTE } from '../utils/consts';
 import './Cart.css';
 
 const Cart = observer(() => {
-    const { items, totalPrice, totalItems, isOpen, toggleCart, updateQuantity, removeFromCart, clearCart } = cartStore;
+    const { items, totalPrice, isOpen, toggleCart, updateQuantity, removeFromCart, clearCart } = cartStore;
     const [isLoading, setIsLoading] = useState(false);
     const [orderError, setOrderError] = useState('');
     const [addresses, setAddresses] = useState([]);
@@ -17,14 +16,7 @@ const Cart = observer(() => {
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const navigate = useNavigate();
 
-    // Загружаем адреса при открытии корзины
-    useEffect(() => {
-        if (isOpen && items.length > 0) {
-            loadUserAddresses();
-        }
-    }, [isOpen, items.length]);
-
-    const loadUserAddresses = async () => {
+    const loadUserAddresses = useCallback(async () => {
         setIsLoadingAddresses(true);
         try {
             // Получаем текущего пользователя
@@ -36,8 +28,8 @@ const Cart = observer(() => {
             setAddresses(addressesData);
 
             // Автоматически выбираем первый адрес, если есть
-            if (addressesData.length > 0 && !selectedAddressId) {
-                setSelectedAddressId(addressesData[0].id);
+            if (addressesData.length > 0) {
+                setSelectedAddressId(currentId => currentId || addressesData[0].id);
             }
         } catch (error) {
             console.error("Ошибка загрузки адресов:", error);
@@ -45,7 +37,14 @@ const Cart = observer(() => {
         } finally {
             setIsLoadingAddresses(false);
         }
-    };
+    }, []);
+
+    // Загружаем адреса при открытии корзины
+    useEffect(() => {
+        if (isOpen && items.length > 0) {
+            loadUserAddresses();
+        }
+    }, [isOpen, items.length, loadUserAddresses]);
 
     const getSelectedAddress = () => {
         return addresses.find(addr => addr.id === selectedAddressId) || addresses[0];

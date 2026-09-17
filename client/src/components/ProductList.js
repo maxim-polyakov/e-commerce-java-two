@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import { getProducts, deleteProduct } from '../http/productApi';
@@ -46,7 +46,7 @@ const ProductList = observer(() => {
         };
     }, []);
 
-    const fetchDescription = async (productId) => {
+    const fetchDescription = useCallback(async (productId) => {
         try {
             const description = await getDescriptionByProductId(productId);
             return description;
@@ -57,9 +57,9 @@ const ProductList = observer(() => {
             console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
             return null;
         }
-    };
+    }, []);
 
-    const fetchAllDescriptions = async (productsList) => {
+    const fetchAllDescriptions = useCallback(async (productsList) => {
         const descriptionsMap = {};
         const descriptionPromises = productsList.map(async (product) => {
             const description = await fetchDescription(product.id);
@@ -69,9 +69,9 @@ const ProductList = observer(() => {
         });
         await Promise.all(descriptionPromises);
         return descriptionsMap;
-    };
+    }, [fetchDescription]);
 
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         try {
             setLoading(true);
             const response = await getProducts(currentPage, itemsPerPage);
@@ -96,11 +96,11 @@ const ProductList = observer(() => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage, itemsPerPage, fetchAllDescriptions]);
 
     useEffect(() => {
         fetchProducts();
-    }, [currentPage, itemsPerPage]);
+    }, [fetchProducts]);
 
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;

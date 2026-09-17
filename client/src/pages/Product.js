@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { getProductById } from '../http/productApi';
 import { getDescriptionByProductId } from '../http/descriptionApi';
 import cartStore from '../store/CartStore';
-import { Context } from '../index';
-import ProductTooltip from '../components/ProductTooltip';
 import CartButton from '../components/CartButton';
 import Cart from '../components/Cart';
 import { ECOMMERCE_ROUTE } from '../utils/consts';
@@ -20,13 +18,11 @@ const Product = observer(() => {
     const [error, setError] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
 
-    const { user } = useContext(Context);
-
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerceapi.baxic.ru';
     const IMAGES_BASE_URL = `${API_BASE_URL}/images`;
 
     // Функция для загрузки описания товара
-    const fetchDescription = async (productId) => {
+    const fetchDescription = useCallback(async (productId) => {
         try {
             const desc = await getDescriptionByProductId(productId);
             return desc;
@@ -37,9 +33,9 @@ const Product = observer(() => {
             console.error(`Ошибка загрузки описания для товара ${productId}:`, error);
             return null;
         }
-    };
+    }, []);
 
-    const fetchProductData = async () => {
+    const fetchProductData = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -58,13 +54,13 @@ const Product = observer(() => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, fetchDescription]);
 
     useEffect(() => {
         if (id) {
             fetchProductData();
         }
-    }, [id]);
+    }, [id, fetchProductData]);
 
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;

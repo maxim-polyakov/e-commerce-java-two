@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createOrder } from '../http/orderApi';
 import { ECOMMERCE_ROUTE } from '../utils/consts';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = () => {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const [countdown, setCountdown] = useState(5);
     const [status, setStatus] = useState('processing'); // processing, success, error
     const [error, setError] = useState('');
