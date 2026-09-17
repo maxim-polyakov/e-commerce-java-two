@@ -30,7 +30,7 @@ jobs:
 
       - name: Run server tests
         working-directory: server
-        run: ./mvnw --batch-mode test
+        run: ./mvnw --batch-mode -DfailIfNoTests=true test
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -39,13 +39,13 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
 
-      - name: Check client
+      - name: Test and build client
         working-directory: client
         env:
           CI: "true"
         run: |
           npm ci
-          npx react-scripts test --watchAll=false --passWithNoTests
+          npm test -- --watchAll=false
           npm run build
 
   deploy:
