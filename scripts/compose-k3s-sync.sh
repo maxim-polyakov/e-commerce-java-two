@@ -29,6 +29,7 @@ Environment:
   TMPDIR                          Default /tmp for compose build temp files
   COMPOSE_K3S_LOCK_WAIT           Seconds to wait for per-project flock (0 = fail immediately)
   COMPOSE_K3S_CLEAR_ORPHAN_LOCK   Set to 1 to fuser -k stale lock holders after wait (default 1)
+  COMPOSE_K3S_PRUNE               Default 1 — prune build cache/dangling/stale compose-sync images before build
 EOF
 }
 
@@ -385,10 +386,37 @@ compose_image_exists() {
   return 1
 }
 
+reclaim_disk_space() {
+  [[ "${COMPOSE_K3S_PRUNE:-1}" == 1 ]] || return 0
+  log "reclaiming disk space before build/import"
+  # Immutable tags are only needed until imported into k3s containerd; leftover
+  # tags pin every previous build in Docker and eventually fill the disk.
+  local stale
+  stale=$(docker image ls --format '{{.Repository}}:{{.Tag}}' \
+    "compose-sync/${kube_project}-*" 2>/dev/null || true)
+  if [[ -n "$stale" ]]; then
+    xargs -r docker image rm <<<"$stale" >/dev/null 2>&1 || true
+  fi
+  docker image prune -f >/dev/null 2>&1 || true
+  docker builder prune -af >/dev/null 2>&1 || true
+  # Unused images in k3s containerd (old compose-sync imports).
+  if [[ "${k3s_ctr[0]}" == sudo ]]; then
+    sudo -n "$k3s_bin" crictl rmi --prune >/dev/null 2>&1 || true
+  else
+    "$k3s_bin" crictl rmi --prune >/dev/null 2>&1 || true
+  fi
+  df -h / /var/lib 2>/dev/null | sed 's/^/[compose-k3s-sync] /' || true
+}
+
 compose_build_service() {
   local service=$1
   local source_image=$2
   local found
+  if "${compose[@]}" build "${build_args[@]}" "$service"; then
+    return 0
+  fi
+  log "compose build failed for $service; reclaiming disk space and retrying once"
+  reclaim_disk_space
   if "${compose[@]}" build "${build_args[@]}" "$service"; then
     return 0
   fi
@@ -407,6 +435,7 @@ if [[ "$skip_build" != true && "$dry_run" != true ]]; then
   export COMPOSE_BAKE="${COMPOSE_BAKE:-0}"
   export BUILDX_NO_DEFAULT_ATTESTATIONS="${BUILDX_NO_DEFAULT_ATTESTATIONS:-1}"
   mkdir -p "$TMPDIR"
+  reclaim_disk_space
   build_services=()
   for row in "${sync_services[@]}"; do
     IFS=$'\t' read -r service _ _ _ <<<"$row"
@@ -505,6 +534,8 @@ for row in "${sync_services[@]}"; do
     log "importing $source_image as $immutable_image"
     docker image tag "$source_image" "$immutable_image"
     docker image save "$immutable_image" | "${k3s_ctr[@]}" -n k8s.io images import -
+    # Drop the Docker-side tag so it doesn't pin this build after the next deploy.
+    docker image rm "$immutable_image" >/dev/null 2>&1 || true
   fi
 
   container=$("${kube[@]}" get deployment "$deployment" -n "$namespace" \
