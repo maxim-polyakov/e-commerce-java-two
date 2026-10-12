@@ -27,6 +27,8 @@ Environment:
   COMPOSE_BAKE                    Default 0 — avoid compose bake metadata-file races on build
   BUILDX_NO_DEFAULT_ATTESTATIONS  Default 1 — skip provenance attestation (metadata-file flake)
   TMPDIR                          Default /tmp for compose build temp files
+  COMPOSE_K3S_LOCK_WAIT           Seconds to wait for per-project flock (0 = fail immediately)
+  COMPOSE_K3S_CLEAR_ORPHAN_LOCK   Set to 1 to fuser -k stale lock holders after wait (default 1)
 EOF
 }
 
@@ -37,6 +39,56 @@ log() {
 die() {
   printf '[compose-k3s-sync] ERROR: %s\n' "$*" >&2
   exit 1
+}
+
+sync_compose_service_environment() {
+  local namespace=$1 deployment=$2 service=$3
+  local env_patch status
+  env_patch=$(mktemp)
+  chmod 600 "$env_patch"
+
+  if ! python3 - "$config_json" "$service" "$env_patch" <<'PY'
+import json
+import sys
+
+config_path, service_name, patch_path = sys.argv[1:]
+with open(config_path, encoding="utf-8") as stream:
+    service = json.load(stream)["services"][service_name]
+
+environment = service.get("environment") or {}
+if isinstance(environment, list):
+    parsed = {}
+    for item in environment:
+        name, separator, value = str(item).partition("=")
+        parsed[name] = value if separator else ""
+    environment = parsed
+
+env = [
+    {"name": str(name), "value": "" if value is None else str(value)}
+    for name, value in sorted(environment.items())
+]
+patch = [{
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/env",
+    "value": env,
+}]
+with open(patch_path, "w", encoding="utf-8") as stream:
+    json.dump(patch, stream)
+PY
+  then
+    rm -f "$env_patch"
+    die "cannot prepare Compose environment for $service"
+  fi
+
+  if "${kube[@]}" patch deployment "$deployment" -n "$namespace" --type=json \
+    --patch-file "$env_patch" >/dev/null; then
+    status=0
+  else
+    status=$?
+  fi
+  rm -f "$env_patch"
+  ((status == 0)) || return "$status"
+  log "Compose environment synchronized for $namespace/$deployment"
 }
 
 apply_schema_patches() {
@@ -50,6 +102,7 @@ apply_schema_patches() {
     is_maildev=true
   fi
   if [[ "$is_maildev" == true && "${COMPOSE_K3S_SKIP_SMTP_DNS:-}" != 1 ]]; then
+    sync_compose_service_environment "$namespace" "$deployment" "$service"
     local maildev_dns_patch
     maildev_dns_patch=$(
       COMPOSE_K3S_EXTRA_NAMESERVERS="${COMPOSE_K3S_EXTRA_NAMESERVERS:-8.8.8.8,1.1.1.1}" \
@@ -87,8 +140,77 @@ print(
     "${kube[@]}" patch deployment "$deployment" -n "$namespace" --type merge \
       -p "$maildev_dns_patch" >/dev/null
     log "Maildev/SMTP Deployment dnsConfig set for $namespace/$deployment"
+    fix_maildev_container_command "$namespace" "$deployment" "$source_image" "$service"
   fi
   log "schema patches applied for $namespace/$deployment"
+}
+
+fix_maildev_container_command() {
+  local namespace=$1 deployment=$2 source_image=$3 service=$4
+  local inspect_img=$source_image
+  local workdir=/home/node/app
+  if ! docker image inspect "$inspect_img" >/dev/null 2>&1; then
+    inspect_img=maildev/maildev
+  fi
+  if docker image inspect "$inspect_img" >/dev/null 2>&1; then
+    workdir=$(docker image inspect "$inspect_img" --format '{{.Config.WorkingDir}}')
+  fi
+  [[ -n "$workdir" ]] || workdir=/home/node/app
+  # Compose→k8s: command ["bin/maildev"] without WORKDIR, or args ["-c","exec node …"] vs entrypoint node.
+  "${kube[@]}" patch deployment "$deployment" -n "$namespace" --type=json \
+    -p='[{"op":"remove","path":"/spec/template/spec/containers/0/command"}]' \
+    >/dev/null 2>&1 || true
+  local merge_patch
+  merge_patch=$("${kube[@]}" get deployment "$deployment" -n "$namespace" -o json |
+    WD="$workdir" python3 -c '
+import json, os, re, shlex, sys
+deploy = json.load(sys.stdin)
+wd = os.environ["WD"]
+with open(sys.argv[1], encoding="utf-8") as stream:
+    service = json.load(stream)["services"][sys.argv[2]]
+env_map = service.get("environment") or {}
+if isinstance(env_map, list):
+    env_map = dict(
+        str(item).partition("=")[::2] if "=" in str(item) else (str(item), "")
+        for item in env_map
+    )
+compose_command = service.get("command") or []
+script = None
+desired_args = None
+if isinstance(compose_command, str):
+    script = compose_command
+elif (
+    isinstance(compose_command, list)
+    and len(compose_command) >= 2
+    and compose_command[0] == "-c"
+    and "maildev" in str(compose_command[1])
+):
+    script = str(compose_command[1])
+elif isinstance(compose_command, list) and compose_command:
+    desired_args = [str(value) for value in compose_command]
+if script:
+    match = re.search(r"maildev\.js\s+(.*)", script, re.S)
+    if match:
+        flags = re.sub(
+            r"\$\$?\{(\w+)\}",
+            lambda found: str(env_map.get(found.group(1), "") or ""),
+            match.group(1),
+        )
+        desired_args = shlex.split(flags)
+out = []
+for c in deploy["spec"]["template"]["spec"]["containers"]:
+    entry = {"name": c["name"], "image": c["image"], "workingDir": wd}
+    if desired_args is not None:
+        entry["args"] = desired_args
+    out.append(entry)
+print(json.dumps({"spec": {"template": {"spec": {"containers": out}}}}))
+' "$config_json" "$service")
+  "${kube[@]}" patch deployment "$deployment" -n "$namespace" --type strategic \
+    -p "$merge_patch" >/dev/null 2>&1 || true
+  "${kube[@]}" patch deployment "$deployment" -n "$namespace" --type=json \
+    -p='[{"op":"remove","path":"/spec/template/spec/containers/0/command"}]' \
+    >/dev/null 2>&1 || true
+  log "Maildev command/workdir fix for $namespace/$deployment (workdir=$workdir)"
 }
 
 project_dir=
@@ -279,8 +401,31 @@ PY
 
 lock_dir=${COMPOSE_K3S_LOCK_DIR:-${XDG_RUNTIME_DIR:-/tmp}}
 mkdir -p "$lock_dir"
-exec 9>"${lock_dir}/compose-k3s-sync-${kube_project}.lock"
-flock -n 9 || die "another deployment of $kube_project is already running"
+lock_file="${lock_dir}/compose-k3s-sync-${kube_project}.lock"
+exec 9>"$lock_file"
+lock_wait=${COMPOSE_K3S_LOCK_WAIT:-0}
+clear_orphan=${COMPOSE_K3S_CLEAR_ORPHAN_LOCK:-1}
+acquire_deploy_lock() {
+  if flock -n 9; then
+    return 0
+  fi
+  if [[ "$lock_wait" =~ ^[0-9]+$ && "$lock_wait" -gt 0 ]]; then
+    log "deploy lock busy for $kube_project; waiting up to ${lock_wait}s"
+    if flock -w "$lock_wait" 9; then
+      return 0
+    fi
+  fi
+  if [[ "$clear_orphan" == 1 ]] && command -v fuser >/dev/null 2>&1; then
+    log "clearing stale lock holders for $kube_project"
+    fuser -k "$lock_file" 2>/dev/null || true
+    sleep 2
+    if flock -n 9; then
+      return 0
+    fi
+  fi
+  return 1
+}
+acquire_deploy_lock || die "another deployment of $kube_project is already running (or lock wait expired)"
 
 mapfile -t sync_services < <(
   python3 - "$config_json" "$image_separator" <<'PY'
@@ -292,10 +437,7 @@ with open(sys.argv[1], encoding="utf-8") as stream:
 
 project = config["name"]
 separator = sys.argv[2]
-has_builds = any("build" in service for service in config["services"].values())
 for name, service in config["services"].items():
-    if has_builds and "build" not in service:
-        continue
     if "build" not in service and not service.get("image"):
         continue
     explicit_image = "1" if service.get("image") else "0"
@@ -312,14 +454,31 @@ if [[ "$dry_run" != true && "$skip_build" != true && "$patch_only" != true ]]; t
   "${compose[@]}" down --remove-orphans
 fi
 
+compose_image_exists() {
+  local service=$1
+  local source_image=$2
+  local candidate
+  for candidate in \
+    "$source_image" \
+    "${project_name}${image_separator}${service}" \
+    "${project_name}-${service}"; do
+    if docker image inspect "$candidate" >/dev/null 2>&1; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
 compose_build_service() {
   local service=$1
   local source_image=$2
+  local found
   if "${compose[@]}" build "${build_args[@]}" "$service"; then
     return 0
   fi
-  if docker image inspect "$source_image" >/dev/null 2>&1; then
-    log "compose build exited non-zero but image exists ($source_image); continuing (metadata-file flake)"
+  if found=$(compose_image_exists "$service" "$source_image"); then
+    log "compose build exited non-zero but image exists ($found); continuing (metadata-file flake)"
     return 0
   fi
   return 1
@@ -338,16 +497,20 @@ if [[ "$skip_build" != true && "$dry_run" != true ]]; then
     IFS=$'\t' read -r service _ _ _ <<<"$row"
     build_services+=("$service")
   done
-  if ((${#build_services[@]} <= 1)); then
-    IFS=$'\t' read -r service source_image _ _ <<<"${sync_services[0]}"
+  for row in "${sync_services[@]}"; do
+    IFS=$'\t' read -r service source_image _ explicit_image <<<"$row"
+    if [[ "$explicit_image" == 1 ]]; then
+      if docker image inspect "$source_image" >/dev/null 2>&1; then
+        log "image already present for $service ($source_image)"
+      else
+        log "pulling image for service $service ($source_image)"
+        docker pull "$source_image" || die "docker pull failed for $source_image"
+      fi
+      continue
+    fi
+    log "building service $service"
     compose_build_service "$service" "$source_image" || die "compose build failed for $service"
-  else
-    for row in "${sync_services[@]}"; do
-      IFS=$'\t' read -r service source_image _ _ <<<"$row"
-      log "building service $service"
-      compose_build_service "$service" "$source_image" || die "compose build failed for $service"
-    done
-  fi
+  done
 fi
 
 local_ips=" $(hostname -I 2>/dev/null || true) "
