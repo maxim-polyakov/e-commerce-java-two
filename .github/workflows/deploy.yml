@@ -49,8 +49,43 @@ jobs:
           npm test -- --watchAll=false
           npm run build
 
-  deploy:
+  publish:
     needs: verify
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - service: app
+            context: server
+          - service: client
+            context: client
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    needs: publish
     runs-on: ubuntu-latest
 
     steps:
@@ -76,36 +111,37 @@ jobs:
           target: ${{ secrets.DEPLOY_PATH }}
           overwrite: true
 
-      - name: Build project on server
+      - name: Deploy published images
         uses: appleboy/ssh-action@v1.2.0
         env:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_USERNAME: ${{ github.actor }}
-          COMPOSE_K3S_REGISTRY_PREFIX: ghcr.io/${{ github.repository }}
-          COMPOSE_K3S_REGISTRY_TAG: ${{ github.sha }}
+          APP_IMAGE: ghcr.io/${{ github.repository }}/app:${{ github.sha }}
+          CLIENT_IMAGE: ghcr.io/${{ github.repository }}/client:${{ github.sha }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
-          envs: DEPLOY_PATH,GHCR_TOKEN,GHCR_USERNAME,COMPOSE_K3S_REGISTRY_PREFIX,COMPOSE_K3S_REGISTRY_TAG
+          envs: DEPLOY_PATH,APP_IMAGE,CLIENT_IMAGE
           script_stop: true
-          command_timeout: 60m
+          command_timeout: 15m
           script: |
             set -euo pipefail
             echo "[deploy] $(date -Is) connected on $(hostname)"
             cd "$DEPLOY_PATH"
-            export DOCKER_CONFIG
-            DOCKER_CONFIG="$(mktemp -d)"
-            trap 'rm -rf "$DOCKER_CONFIG"' EXIT
-            printf '%s' "$GHCR_TOKEN" | docker login ghcr.io \
-              --username "$GHCR_USERNAME" --password-stdin
-            export COMPOSE_BAKE=0
-            export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-            export TMPDIR=/tmp
             export COMPOSE_K3S_LOCK_WAIT="${COMPOSE_K3S_LOCK_WAIT:-300}"
             export COMPOSE_K3S_CLEAR_ORPHAN_LOCK=1
             stdbuf -oL -eL bash "$DEPLOY_PATH/scripts/compose-k3s-sync.sh" \
               --project-dir "$DEPLOY_PATH" \
-              --env-file client/.env
+              --env-file client/.env \
+              --patch-only
+            kubectl -n e-commerce-java-two set image \
+              deployment/e-commerce-java-two-app \
+              e-commerce-java-two-app="$APP_IMAGE"
+            kubectl -n e-commerce-java-two set image \
+              deployment/e-commerce-java-two-client \
+              e-commerce-java-two-client="$CLIENT_IMAGE"
+            kubectl -n e-commerce-java-two rollout status \
+              deployment/e-commerce-java-two-app --timeout=5m
+            kubectl -n e-commerce-java-two rollout status \
+              deployment/e-commerce-java-two-client --timeout=5m
