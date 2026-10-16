@@ -8,6 +8,7 @@ import ProductShowcase from '../components/ProductShowcase';
 import OrderHistory from '../components/OrderHistory';
 import UserProfile from '../components/UserProfile';
 import YandexRtbBanner from '../components/YandexRtbBanner';
+import LanguageSelector from '../components/LanguageSelector';
 import { useLocale } from '../i18n/LocaleContext';
 import './Ecommerce.css';
 
@@ -53,6 +54,7 @@ const Ecommerce = observer(() => {
                         >
                             👤 {t("profile")}
                         </button>
+                        <LanguageSelector navigation />
                     </nav>
                     <CartButton />
                 </div>

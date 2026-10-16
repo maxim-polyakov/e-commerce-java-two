@@ -2,6 +2,10 @@
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+    margin: 0;
+}
+
+.language-selector:not(.language-selector-nav) {
     padding: 0.35rem 0.55rem;
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 0.75rem;
@@ -10,12 +14,32 @@
     box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
 }
 
-.language-selector .form-select {
+.language-selector select {
     width: auto;
-    min-width: 9.5rem;
+    min-width: 8.5rem;
+    max-width: 11rem;
+    padding: 0;
     border: 0;
     background-color: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    outline: none;
     box-shadow: none;
+}
+
+.language-selector-nav {
+    justify-content: center;
+}
+
+.language-selector-nav select {
+    min-width: 7.5rem;
+}
+
+.language-selector-nav option {
+    color: #2c3e50;
+    background: white;
 }
 
 .language-selector-floating {
@@ -23,4 +47,11 @@
     z-index: 1050;
     top: 1rem;
     inset-inline-end: 1rem;
+}
+
+@media (max-width: 480px) {
+    .language-selector-nav select {
+        min-width: 6.5rem;
+        max-width: 8.5rem;
+    }
 }

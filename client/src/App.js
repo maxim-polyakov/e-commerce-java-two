@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { check } from "./http/authApi";
 import { Spinner, Container } from "react-bootstrap";
@@ -7,6 +7,14 @@ import { Context } from "./index.js";
 import AppRouter from "./components/AppRouter";
 import LanguageSelector from "./components/LanguageSelector";
 import { LocaleProvider } from "./i18n/LocaleContext";
+import { ECOMMERCE_ROUTE } from "./utils/consts";
+
+const GlobalLanguageSelector = () => {
+    const { pathname } = useLocation();
+    return pathname === ECOMMERCE_ROUTE
+        ? null
+        : <LanguageSelector className="language-selector-floating" />;
+};
 
 const App = observer(() => {
     const { user } = useContext(Context);
@@ -47,7 +55,7 @@ const App = observer(() => {
     return (
         <BrowserRouter>
             <LocaleProvider>
-                <LanguageSelector className="language-selector-floating" />
+                <GlobalLanguageSelector />
                 <AppRouter />
             </LocaleProvider>
         </BrowserRouter>
