@@ -122,6 +122,8 @@ const UserProfile = observer(() => {
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        user.setUser({});
         user.setIsAuth(false);
     };
 
