@@ -18,6 +18,7 @@ export const LocaleProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, language);
         applyDocumentLanguage(language);
+        document.title = translations[language].previewTitle;
         const urlLanguage = normalizeLanguage(new URLSearchParams(location.search).get("lang"));
         if (!urlLanguage) {
             navigate(withLang(`${location.pathname}${location.search}${location.hash}`, language), { replace: true });
