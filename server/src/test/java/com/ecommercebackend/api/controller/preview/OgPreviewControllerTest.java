@@ -23,14 +23,14 @@ class OgPreviewControllerTest {
   @Test
   void usesLanguageFromOriginalPublicUrl() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-Original-URI", "/login?lang=de");
+    request.addHeader("X-Original-URI", "/auth/login?lang=de");
 
     ResponseEntity<String> response = controller.preview(request, null, null);
     String html = response.getBody();
 
     assertTrue(html.contains("<html lang=\"de\""));
     assertTrue(html.contains("Online-Shop"));
-    assertTrue(html.contains("https://ecommerce.baxic.ru/login?lang=de"));
+    assertTrue(html.contains("https://ecommerce.baxic.ru/auth/login?lang=de"));
     assertFalse(html.contains("__"));
   }
 
@@ -52,7 +52,7 @@ class OgPreviewControllerTest {
 
     String html = controller.preview(request, "ja", null).getBody();
 
-    assertTrue(html.contains("https://ecommerce.baxic.ru/login?lang=ja"));
+    assertTrue(html.contains("https://ecommerce.baxic.ru/auth/login?lang=ja"));
     assertFalse(html.contains("evil.example"));
   }
 

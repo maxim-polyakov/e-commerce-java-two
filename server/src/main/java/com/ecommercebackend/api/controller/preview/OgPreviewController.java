@@ -139,10 +139,10 @@ public class OgPreviewController {
     String path = originalUri == null ? "" : originalUri.trim();
     if (path.isEmpty() || !path.startsWith("/") || path.startsWith("//")
         || path.contains("..") || path.contains("://")) {
-      path = "/login";
+      path = "/auth/login";
     }
     if (path.length() > 2048) {
-      path = "/login";
+      path = "/auth/login";
     }
     if (!LANG_QUERY.matcher(path).find()) {
       path += (path.contains("?") ? "&" : "?") + "lang=" + language;
