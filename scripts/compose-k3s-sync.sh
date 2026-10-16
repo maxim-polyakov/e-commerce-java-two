@@ -372,6 +372,7 @@ fi
 [[ -n "$project_dir" ]] || die "--project-dir is required"
 project_dir=$(cd "$project_dir" && pwd)
 source "$project_dir/scripts/k3s-storage.sh"
+[[ -f "$project_dir/deploy/storage.yaml" ]] || die "storage manifest not found: $project_dir/deploy/storage.yaml"
 
 for command in docker k3s python3 flock; do
   command -v "$command" >/dev/null 2>&1 || die "required command not found: $command"
