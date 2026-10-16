@@ -52,7 +52,7 @@ public class OgPreviewController {
         request.getHeader("Accept-Language"));
     Preview preview = previews.getOrDefault(language, previews.get("en"));
     String targetUrl = targetUrl(path == null || path.isBlank() ? originalUri : path, language);
-    String imageUrl = normalizedWebUrl() + "/favicon.png";
+    String imageUrl = normalizedWebUrl() + "/ecommerce-og-preview-v1.jpg";
 
     return ResponseEntity.ok()
         .contentType(MediaType.TEXT_HTML)
@@ -171,14 +171,17 @@ public class OgPreviewController {
           <meta charset="utf-8">
           <meta property="og:image" content="%s">
           <meta property="og:image:secure_url" content="%s">
-          <meta property="og:image:type" content="image/png">
+          <meta property="og:image:type" content="image/jpeg">
+          <meta property="og:image:width" content="1536">
+          <meta property="og:image:height" content="864">
+          <meta property="og:image:alt" content="%s">
           <meta property="og:type" content="website">
           <meta property="og:site_name" content="Baxic">
           <meta property="og:title" content="%s">
           <meta property="og:description" content="%s">
           <meta property="og:url" content="%s">
           <meta name="description" content="%s">
-          <meta name="twitter:card" content="summary">
+          <meta name="twitter:card" content="summary_large_image">
           <meta name="twitter:title" content="%s">
           <meta name="twitter:description" content="%s">
           <meta name="twitter:image" content="%s">
@@ -190,7 +193,7 @@ public class OgPreviewController {
         <body><a href="%s">%s</a></body>
         </html>
         """.formatted(
-        htmlLanguage, direction, image, image, title, description, page, description,
+        htmlLanguage, direction, image, image, title, title, description, page, description,
         title, description, image, page, image, page, title, page, title);
   }
 

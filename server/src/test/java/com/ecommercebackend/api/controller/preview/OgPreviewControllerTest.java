@@ -31,6 +31,10 @@ class OgPreviewControllerTest {
     assertTrue(html.contains("<html lang=\"de\""));
     assertTrue(html.contains("Online-Shop"));
     assertTrue(html.contains("https://ecommerce.baxic.ru/auth/login?lang=de"));
+    assertTrue(html.contains("twitter:card\" content=\"summary_large_image"));
+    assertTrue(html.contains(
+        "og:image\" content=\"https://ecommerce.baxic.ru/ecommerce-og-preview-v1.jpg"));
+    assertTrue(html.contains("og:image:width\" content=\"1536"));
     assertFalse(html.contains("__"));
   }
 
