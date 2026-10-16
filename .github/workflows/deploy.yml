@@ -135,13 +135,13 @@ jobs:
               --project-dir "$DEPLOY_PATH" \
               --env-file client/.env \
               --patch-only
-            sudo k3s kubectl -n e-commerce-java-two set image \
+            k3s kubectl -n e-commerce-java-two set image \
               deployment/e-commerce-java-two-app \
               e-commerce-java-two-app="$APP_IMAGE"
-            sudo k3s kubectl -n e-commerce-java-two set image \
+            k3s kubectl -n e-commerce-java-two set image \
               deployment/e-commerce-java-two-client \
               e-commerce-java-two-client="$CLIENT_IMAGE"
-            sudo k3s kubectl -n e-commerce-java-two rollout status \
+            k3s kubectl -n e-commerce-java-two rollout status \
               deployment/e-commerce-java-two-app --timeout=5m
-            sudo k3s kubectl -n e-commerce-java-two rollout status \
+            k3s kubectl -n e-commerce-java-two rollout status \
               deployment/e-commerce-java-two-client --timeout=5m
