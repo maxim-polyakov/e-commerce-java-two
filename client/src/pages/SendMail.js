@@ -1,8 +1,10 @@
 import { Container, Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts.js";
+import { useLocale } from "../i18n/LocaleContext";
 
 const SendMail = () => {
+    const { localize } = useLocale();
     // Получаем email из localStorage или используем заглушку
     const userEmail = localStorage.getItem('registeredEmail') || 'вашу почту';
 
@@ -35,7 +37,7 @@ const SendMail = () => {
                         для завершения регистрации. Если письмо не пришло, проверьте папку "Спам".
                     </p>
 
-                    <Link to={LOGIN_ROUTE}>
+                    <Link to={localize(LOGIN_ROUTE)}>
                         <Button variant="success" size="lg">
                             Перейти к авторизации
                         </Button>

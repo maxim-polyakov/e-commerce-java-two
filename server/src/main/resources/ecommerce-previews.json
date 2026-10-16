@@ -1,0 +1,308 @@
+{
+  "previews": {
+    "ru": {
+      "title": "Baxic — Интернет-магазин",
+      "description": "Просматривайте товары и совершайте покупки в Интернете."
+    },
+    "en": {
+      "title": "Baxic — Online Store",
+      "description": "Browse products and shop online."
+    },
+    "de": {
+      "title": "Baxic — Online-Shop",
+      "description": "Durchsuchen Sie Produkte und kaufen Sie online ein."
+    },
+    "fr": {
+      "title": "Baxic — Boutique en ligne",
+      "description": "Parcourez les produits et achetez en ligne."
+    },
+    "es": {
+      "title": "Baxic — Tienda en línea",
+      "description": "Busque productos y compre en línea."
+    },
+    "ar": {
+      "title": "Baxic — متجر على الانترنت",
+      "description": "تصفح المنتجات والتسوق عبر الإنترنت."
+    },
+    "zh": {
+      "title": "Baxic — 网上商店",
+      "description": "浏览产品并在线购物。"
+    },
+    "zh-TW": {
+      "title": "Baxic — 網上商店",
+      "description": "瀏覽產品並在線購物。"
+    },
+    "ja": {
+      "title": "Baxic — オンラインストア",
+      "description": "製品を閲覧し、オンラインで購入します。"
+    },
+    "ko": {
+      "title": "Baxic — 온라인 스토어",
+      "description": "제품을 찾아보고 온라인으로 쇼핑하세요."
+    },
+    "it": {
+      "title": "Baxic — Negozio in linea",
+      "description": "Sfoglia i prodotti e acquista online."
+    },
+    "pt": {
+      "title": "Baxic — Loja on-line",
+      "description": "Procure produtos e compre online."
+    },
+    "pl": {
+      "title": "Baxic — Sklep internetowy",
+      "description": "Przeglądaj produkty i rób zakupy online."
+    },
+    "uk": {
+      "title": "Baxic — Інтернет магазин",
+      "description": "Переглядайте товари та купуйте в Інтернеті."
+    },
+    "th": {
+      "title": "Baxic — ร้านค้าออนไลน์",
+      "description": "เรียกดูผลิตภัณฑ์และซื้อสินค้าออนไลน์"
+    },
+    "vi": {
+      "title": "Baxic — Cửa hàng trực tuyến",
+      "description": "Duyệt sản phẩm và mua sắm trực tuyến."
+    },
+    "id": {
+      "title": "Baxic — Toko Daring",
+      "description": "Telusuri produk dan belanja online."
+    },
+    "tr": {
+      "title": "Baxic — Çevrimiçi Mağaza",
+      "description": "Ürünlere göz atın ve çevrimiçi alışveriş yapın."
+    },
+    "nl": {
+      "title": "Baxic — Online winkel",
+      "description": "Bekijk producten en winkel online."
+    },
+    "hi": {
+      "title": "Baxic — ऑनलाइन स्टोर",
+      "description": "उत्पाद ब्राउज़ करें और ऑनलाइन खरीदारी करें."
+    },
+    "sq": {
+      "title": "Baxic — Dyqan Online",
+      "description": "Shfletoni produktet dhe blini online."
+    },
+    "hr": {
+      "title": "Baxic — Online trgovina",
+      "description": "Pregledajte proizvode i kupujte online."
+    },
+    "am": {
+      "title": "Baxic — የመስመር ላይ መደብር",
+      "description": "ምርቶችን ያስሱ እና በመስመር ላይ ይግዙ።"
+    },
+    "hy": {
+      "title": "Baxic — Առցանց խանութ",
+      "description": "Զննեք ապրանքները և գնումներ կատարեք առցանց:"
+    },
+    "az": {
+      "title": "Baxic — Onlayn mağaza",
+      "description": "Məhsulları nəzərdən keçirin və onlayn alış-veriş edin."
+    },
+    "eu": {
+      "title": "Baxic — Lineako denda",
+      "description": "Arakatu produktuak eta erosketak linean."
+    },
+    "be": {
+      "title": "Baxic — Інтэрнэт-крама",
+      "description": "Праглядвайце прадукты і рабіце пакупкі ў Інтэрнэце."
+    },
+    "bn": {
+      "title": "Baxic — অনলাইন স্টোর",
+      "description": "পণ্য ব্রাউজ করুন এবং অনলাইনে কেনাকাটা করুন।"
+    },
+    "bg": {
+      "title": "Baxic — Онлайн магазин",
+      "description": "Разглеждайте продукти и пазарувайте онлайн."
+    },
+    "my": {
+      "title": "Baxic — အွန်လိုင်းစတိုး",
+      "description": "ထုတ်ကုန်များကိုကြည့်ရှုပြီး အွန်လိုင်းစျေးဝယ်ပါ။"
+    },
+    "ca": {
+      "title": "Baxic — Botiga en línia",
+      "description": "Busqueu productes i compreu en línia."
+    },
+    "ga": {
+      "title": "Baxic — Siopa Ar Líne",
+      "description": "Brabhsáil táirgí agus siopa ar líne."
+    },
+    "kn": {
+      "title": "Baxic — ಆನ್ಲೈನ್ ಸ್ಟೋರ್",
+      "description": "ಉತ್ಪನ್ನಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಶಾಪಿಂಗ್ ಮಾಡಿ."
+    },
+    "kk": {
+      "title": "Baxic — Интернет-дүкен",
+      "description": "Өнімдерді шолыңыз және онлайн сатып алыңыз."
+    },
+    "km": {
+      "title": "Baxic — ហាងអនឡាញ",
+      "description": "រកមើលផលិតផល និងទិញទំនិញតាមអ៊ីនធឺណិត។"
+    },
+    "lo": {
+      "title": "Baxic — ຮ້ານຄ້າອອນໄລນ໌",
+      "description": "ຄົ້ນຫາຜະລິດຕະພັນແລະຊື້ເຄື່ອງອອນໄລນ໌."
+    },
+    "cs": {
+      "title": "Baxic — Internetový obchod",
+      "description": "Procházejte produkty a nakupujte online."
+    },
+    "da": {
+      "title": "Baxic — Online butik",
+      "description": "Gennemse produkter og shop online."
+    },
+    "et": {
+      "title": "Baxic — Veebipood",
+      "description": "Sirvige tooteid ja ostke veebis."
+    },
+    "fi": {
+      "title": "Baxic — Verkkokauppa",
+      "description": "Selaa tuotteita ja osta verkossa."
+    },
+    "gl": {
+      "title": "Baxic — Tenda en liña",
+      "description": "Busca produtos e compra en liña."
+    },
+    "ka": {
+      "title": "Baxic — ონლაინ მაღაზია",
+      "description": "დაათვალიერეთ პროდუქტები და შეიძინეთ ონლაინ."
+    },
+    "el": {
+      "title": "Baxic — Ηλεκτρονικό Κατάστημα",
+      "description": "Περιηγηθείτε στα προϊόντα και ψωνίστε online."
+    },
+    "he": {
+      "title": "Baxic — חנות מקוונת",
+      "description": "עיין במוצרים וקנה באינטרנט."
+    },
+    "hu": {
+      "title": "Baxic — Online áruház",
+      "description": "Böngésszen a termékek között és vásároljon online."
+    },
+    "is": {
+      "title": "Baxic — Netverslun",
+      "description": "Skoðaðu vörur og verslaðu á netinu."
+    },
+    "lv": {
+      "title": "Baxic — Tiešsaistes veikals",
+      "description": "Pārlūkojiet produktus un iepērcieties tiešsaistē."
+    },
+    "lt": {
+      "title": "Baxic — Internetinė parduotuvė",
+      "description": "Naršykite produktus ir apsipirkite internetu."
+    },
+    "mk": {
+      "title": "Baxic — Онлајн продавница",
+      "description": "Прелистувајте производи и купувајте онлајн."
+    },
+    "ms": {
+      "title": "Baxic — Kedai Dalam Talian",
+      "description": "Semak imbas produk dan beli-belah dalam talian."
+    },
+    "ml": {
+      "title": "Baxic — ഓൺലൈൻ സ്റ്റോർ",
+      "description": "ഉൽപ്പന്നങ്ങൾ ബ്രൗസുചെയ്‌ത് ഓൺലൈനിൽ ഷോപ്പുചെയ്യുക."
+    },
+    "mt": {
+      "title": "Baxic — Aħżen Online",
+      "description": "Fittex il-prodotti u tixtri online."
+    },
+    "mr": {
+      "title": "Baxic — ऑनलाइन स्टोअर",
+      "description": "उत्पादने ब्राउझ करा आणि ऑनलाइन खरेदी करा."
+    },
+    "mn": {
+      "title": "Baxic — Онлайн дэлгүүр",
+      "description": "Бүтээгдэхүүнийг үзэж, онлайн дэлгүүр хэсээрэй."
+    },
+    "ne": {
+      "title": "Baxic — अनलाइन स्टोर",
+      "description": "उत्पादनहरू ब्राउज गर्नुहोस् र अनलाइन किनमेल गर्नुहोस्।"
+    },
+    "nb": {
+      "title": "Baxic — Nettbutikk",
+      "description": "Bla gjennom produkter og handle online."
+    },
+    "fa": {
+      "title": "Baxic — فروشگاه اینترنتی",
+      "description": "محصولات را مرور کنید و آنلاین خرید کنید."
+    },
+    "pa": {
+      "title": "Baxic — ਔਨਲਾਈਨ ਸਟੋਰ",
+      "description": "ਉਤਪਾਦਾਂ ਨੂੰ ਬ੍ਰਾਊਜ਼ ਕਰੋ ਅਤੇ ਆਨਲਾਈਨ ਖਰੀਦਦਾਰੀ ਕਰੋ।"
+    },
+    "ro": {
+      "title": "Baxic — Magazin online",
+      "description": "Căutați produse și cumpărați online."
+    },
+    "sr": {
+      "title": "Baxic — Онлине продавница",
+      "description": "Прегледајте производе и купујте на мрежи."
+    },
+    "si": {
+      "title": "Baxic — මාර්ගගත වෙළඳසැල",
+      "description": "නිෂ්පාදන පිරික්සන්න සහ අන්තර්ජාලය හරහා සාප්පු යන්න."
+    },
+    "sk": {
+      "title": "Baxic — Internetový obchod",
+      "description": "Prehliadajte si produkty a nakupujte online."
+    },
+    "sl": {
+      "title": "Baxic — Spletna trgovina",
+      "description": "Brskajte po izdelkih in nakupujte prek spleta."
+    },
+    "sw": {
+      "title": "Baxic — Duka la Mtandaoni",
+      "description": "Vinjari bidhaa na ununue mtandaoni."
+    },
+    "tl": {
+      "title": "Baxic — Online na Tindahan",
+      "description": "Mag-browse ng mga produkto at mamili online."
+    },
+    "tg": {
+      "title": "Baxic — Мағозаи онлайн",
+      "description": "Маҳсулотро аз назар гузаронед ва онлайн харид кунед."
+    },
+    "ur": {
+      "title": "Baxic — آن لائن سٹور",
+      "description": "مصنوعات کو براؤز کریں اور آن لائن خریداری کریں۔"
+    },
+    "uz": {
+      "title": "Baxic — Onlayn do'kon",
+      "description": "Mahsulotlarni ko'rib chiqing va onlayn xarid qiling."
+    },
+    "cy": {
+      "title": "Baxic — Siop Ar-lein",
+      "description": "Pori cynnyrch a siopa ar-lein."
+    },
+    "xh": {
+      "title": "Baxic — Ivenkile ye-Intanethi",
+      "description": "Jonga iimveliso kwaye uthenge kwi-intanethi."
+    },
+    "yi": {
+      "title": "Baxic — אָנליין סטאָר",
+      "description": "בלעטער פּראָדוקטן און קראָם אָנליין."
+    },
+    "yo": {
+      "title": "Baxic — Online itaja",
+      "description": "Ṣawakiri awọn ọja ati raja lori ayelujara."
+    },
+    "zu": {
+      "title": "Baxic — Isitolo Esiku-inthanethi",
+      "description": "Phequlula imikhiqizo futhi uthenge ku-inthanethi."
+    },
+    "gu": {
+      "title": "Baxic — ઓનલાઈન સ્ટોર",
+      "description": "ઉત્પાદનો બ્રાઉઝ કરો અને ઑનલાઇન ખરીદી કરો."
+    },
+    "haw": {
+      "title": "Baxic — Hale kūʻai pūnaewele",
+      "description": "E ʻimi i nā huahana a kūʻai aku ma ka pūnaewele."
+    },
+    "ig": {
+      "title": "Baxic — Ụlọ ahịa dị n'ịntanetị",
+      "description": "Chọgharịa ngwaahịa wee zụọ ahịa n'ịntanetị."
+    }
+  }
+}

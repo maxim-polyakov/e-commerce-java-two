@@ -3,12 +3,14 @@ import { Container, Card, Button, Form, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts";
 import { sendPasswordResetEmail } from "../http/authApi"; // Добавьте этот импорт
+import { useLocale } from "../i18n/LocaleContext";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const { localize } = useLocale();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -72,7 +74,7 @@ const ForgotPassword = () => {
                         </p>
 
                         <div className="d-flex flex-column gap-3">
-                            <Link to={LOGIN_ROUTE}>
+                            <Link to={localize(LOGIN_ROUTE)}>
                                 <Button variant="success" size="lg">
                                     Вернуться к авторизации
                                 </Button>
@@ -137,7 +139,7 @@ const ForgotPassword = () => {
                                 )}
                             </Button>
 
-                            <Link to={LOGIN_ROUTE}>
+                            <Link to={localize(LOGIN_ROUTE)}>
                                 <Button variant="outline-secondary" className="w-100">
                                     Назад к авторизации
                                 </Button>

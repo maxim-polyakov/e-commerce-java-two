@@ -3,11 +3,13 @@ import { Container, Card, Button, Form, Alert } from "react-bootstrap";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LOGIN_ROUTE } from "../utils/consts";
 import { resetPassword } from "../http/authApi";
+import { useLocale } from "../i18n/LocaleContext";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const navigate = useNavigate();
+    const { localize } = useLocale();
 
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -54,7 +56,7 @@ const ResetPassword = () => {
 
             // Автоматический переход через 3 секунды
             setTimeout(() => {
-                navigate(LOGIN_ROUTE);
+                navigate(localize(LOGIN_ROUTE));
             }, 3000);
 
         } catch (error) {
@@ -89,7 +91,7 @@ const ResetPassword = () => {
                             Пожалуйста, запросите новую ссылку для сброса пароля.
                         </p>
 
-                        <Link to={LOGIN_ROUTE}>
+                        <Link to={localize(LOGIN_ROUTE)}>
                             <Button variant="primary">
                                 Вернуться к авторизации
                             </Button>
@@ -125,7 +127,7 @@ const ResetPassword = () => {
                             Вы будете автоматически перенаправлены на страницу авторизации через 3 секунды...
                         </p>
 
-                        <Link to={LOGIN_ROUTE}>
+                        <Link to={localize(LOGIN_ROUTE)}>
                             <Button variant="success">
                                 Перейти к авторизации
                             </Button>
@@ -205,7 +207,7 @@ const ResetPassword = () => {
                                 )}
                             </Button>
 
-                            <Link to={LOGIN_ROUTE}>
+                            <Link to={localize(LOGIN_ROUTE)}>
                                 <Button variant="outline-secondary" className="w-100">
                                     Назад к авторизации
                                 </Button>

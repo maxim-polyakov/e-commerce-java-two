@@ -9,6 +9,7 @@ import AddProduct from './AddProduct';
 import ProductDescription from './ProductDescription';
 import ProductTooltip from './ProductTooltip';
 import { getProductRoute } from '../utils/consts';
+import { useLocale } from '../i18n/LocaleContext';
 import './ProductList.css';
 
 const ProductList = observer(() => {
@@ -24,6 +25,7 @@ const ProductList = observer(() => {
 
     const { user } = useContext(Context);
     const navigate = useNavigate();
+    const { localize } = useLocale();
 
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage] = useState(8);
@@ -113,7 +115,7 @@ const ProductList = observer(() => {
     };
 
     const handleProductClick = (product) => {
-        navigate(getProductRoute(product.id));
+        navigate(localize(getProductRoute(product.id)));
     };
 
     const handleAddProduct = () => {

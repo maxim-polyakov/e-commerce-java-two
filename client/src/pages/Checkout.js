@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPayment } from '../http/paymentApi';
 import { observer } from 'mobx-react-lite';
 import { PAYMENT_SUCCESS_ROUTE, BASE_URL } from '../utils/consts';
+import { useLocale } from '../i18n/LocaleContext';
 import './Checkout.css';
 
 const Checkout = observer(() => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [checkoutData, setCheckoutData] = useState(null);
+    const { language } = useLocale();
 
     useEffect(() => {
         // Получаем данные из localStorage
@@ -39,9 +41,10 @@ const Checkout = observer(() => {
             const orderId = Date.now();
             const orderDescription = `Заказ #${orderId} из ${totalItemsCount} товаров: ${itemDetails}`;
 
-            const returnUrl = `${BASE_URL}${PAYMENT_SUCCESS_ROUTE}`;
+            const returnUrl = new URL(PAYMENT_SUCCESS_ROUTE, BASE_URL);
+            returnUrl.searchParams.set('lang', language);
 
-            const paymentResponse = await createPayment(totalAmount, orderDescription, returnUrl);
+            const paymentResponse = await createPayment(totalAmount, orderDescription, returnUrl.toString());
 
             // НЕ очищаем корзину здесь - это сделаем после успешного создания заказа
             // НЕ очищаем localStorage здесь - данные нужны для создания заказа

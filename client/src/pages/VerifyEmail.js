@@ -5,12 +5,14 @@ import { observer } from "mobx-react-lite";
 import { Context } from "../index";
 import { verifyEmail } from "../http/authApi"; // Импортируем метод
 import { LOGIN_ROUTE } from "../utils/consts";
+import { useLocale } from "../i18n/LocaleContext";
 
 const VerifyEmail = observer(() => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const navigate = useNavigate();
     const { user } = useContext(Context);
+    const { localize } = useLocale();
 
     const [status, setStatus] = useState('loading'); // loading, success, error
     const [message, setMessage] = useState('');
@@ -45,7 +47,7 @@ const VerifyEmail = observer(() => {
     }, [token, user]);
 
     const handleGoToLogin = () => {
-        navigate(LOGIN_ROUTE);
+        navigate(localize(LOGIN_ROUTE));
     };
 
     return (

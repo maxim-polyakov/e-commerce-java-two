@@ -8,11 +8,13 @@ import ProductShowcase from '../components/ProductShowcase';
 import OrderHistory from '../components/OrderHistory';
 import UserProfile from '../components/UserProfile';
 import YandexRtbBanner from '../components/YandexRtbBanner';
+import { useLocale } from '../i18n/LocaleContext';
 import './Ecommerce.css';
 
 const Ecommerce = observer(() => {
     const [activeSection, setActiveSection] = useState('showcase'); // 'showcase', 'catalog', 'orders', 'profile'
     const location = useLocation();
+    const { t } = useLocale();
 
     // ОБРАБОТКА СОСТОЯНИЯ ПРИ ПЕРЕХОДЕ ИЗ СТРАНИЦЫ ТОВАРА
     useEffect(() => {
@@ -25,31 +27,31 @@ const Ecommerce = observer(() => {
         <div className="ecommerce">
             <header className="ecommerce-header">
                 <div className="header-content">
-                    <h1>🛍️ Интернет-магазин</h1>
+                    <h1>🛍️ {t("shopTitle")}</h1>
                     <nav className="navigation">
                         <button
                             className={`nav-btn ${activeSection === 'showcase' ? 'active' : ''}`}
                             onClick={() => setActiveSection('showcase')}
                         >
-                            🏠 Витрина
+                            🏠 {t("showcase")}
                         </button>
                         <button
                             className={`nav-btn ${activeSection === 'catalog' ? 'active' : ''}`}
                             onClick={() => setActiveSection('catalog')}
                         >
-                            📋 Все товары
+                            📋 {t("catalog")}
                         </button>
                         <button
                             className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
                             onClick={() => setActiveSection('orders')}
                         >
-                            📦 Мои заказы
+                            📦 {t("orders")}
                         </button>
                         <button
                             className={`nav-btn ${activeSection === 'profile' ? 'active' : ''}`}
                             onClick={() => setActiveSection('profile')}
                         >
-                            👤 Профиль
+                            👤 {t("profile")}
                         </button>
                     </nav>
                     <CartButton />

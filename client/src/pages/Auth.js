@@ -5,6 +5,7 @@ import { LOGIN_ROUTE, REGISTRATION_ROUTE, SEND_MAIL, FORGOT_PASSWORD_ROUTE, ECOM
 import { login, exchangeOAuthCode, registration } from "../http/authApi.js";
 import { observer } from "mobx-react-lite";
 import { Context } from "../index.js";
+import { useLocale } from "../i18n/LocaleContext";
 import './Auth.css';
 
 const API_URL = process.env.REACT_APP_API_URL || '';
@@ -16,6 +17,7 @@ const Auth = observer(() => {
     const [searchParams, setSearchParams] = useSearchParams();
     const oauthHandled = useRef(false);
     const isLogin = location.pathname === LOGIN_ROUTE && true;
+    const { language, localize, t } = useLocale();
 
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
@@ -28,11 +30,11 @@ const Auth = observer(() => {
         const oauthError = searchParams.get('oauth_error');
         if (oauthError) {
             const messages = {
-                OAUTH_MISSING_DATA: 'Не удалось получить данные от Google.',
-                OAUTH_AUTH_ERROR: 'Ошибка входа через Google. Попробуйте позже.',
+                OAUTH_MISSING_DATA: t("oauthMissingData"),
+                OAUTH_AUTH_ERROR: t("oauthError"),
             };
-            setError(messages[oauthError] || 'Ошибка входа через Google.');
-            setSearchParams({}, { replace: true });
+            setError(messages[oauthError] || t("oauthError"));
+            setSearchParams({ lang: language }, { replace: true });
             return;
         }
 
@@ -46,14 +48,14 @@ const Auth = observer(() => {
                 user.setUser(data);
                 user.setIsAuth(true);
                 swapMethod();
-                navigate(ECOMMERCE_ROUTE);
+                navigate(localize(ECOMMERCE_ROUTE));
             })
             .catch((err) => {
                 oauthHandled.current = false;
-                setError(err.message || 'Ошибка входа через Google');
-                setSearchParams({}, { replace: true });
+                setError(err.message || t("oauthError"));
+                setSearchParams({ lang: language }, { replace: true });
             });
-    }, [searchParams, navigate, setSearchParams, user]);
+    }, [searchParams, navigate, setSearchParams, user, language, localize, t]);
 
     const swapMethod = () => {
         setEmail("");
@@ -67,12 +69,12 @@ const Auth = observer(() => {
     const signIn = async () => {
         if (isLogin) {
             if (!username.trim() || !password.trim()) {
-                setError("Имя пользователя и пароль обязательны для заполнения");
+                setError(t("usernamePasswordRequired"));
                 return;
             }
         } else {
             if (!email.trim() || !username.trim() || !firstName.trim() || !lastName.trim() || !password.trim()) {
-                setError("Все поля должны быть заполнены");
+                setError(t("allFieldsRequired"));
                 return;
             }
         }
@@ -80,18 +82,18 @@ const Auth = observer(() => {
         if (!isLogin) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                setError("Введите корректный email адрес");
+                setError(t("invalidEmail"));
                 return;
             }
         }
 
         if (password.length < 6) {
-            setError("Пароль должен содержать минимум 6 символов");
+            setError(t("passwordMin"));
             return;
         }
 
         if (username.length < 3) {
-            setError("Имя пользователя должно содержать минимум 3 символа");
+            setError(t("usernameMin"));
             return;
         }
 
@@ -104,7 +106,7 @@ const Auth = observer(() => {
                 user.setUser(data);
                 user.setIsAuth(true);
                 swapMethod();
-                navigate(ECOMMERCE_ROUTE);
+                navigate(localize(ECOMMERCE_ROUTE));
             } else {
                 await registration(
                     email,
@@ -115,7 +117,7 @@ const Auth = observer(() => {
                 );
                 localStorage.setItem('registeredEmail', email);
                 swapMethod();
-                navigate(SEND_MAIL);
+                navigate(localize(SEND_MAIL));
             }
 
         } catch (error) {
@@ -139,7 +141,7 @@ const Auth = observer(() => {
         >
             <Card style={{ width: 700 }} className="p-5 auth-card">
                 <h2 className="m-auto text-center auth-title">
-                    {isLogin ? "Авторизация" : "Регистрация"}
+                    {isLogin ? t("signIn") : t("registration")}
                 </h2>
 
                 {error && (
@@ -152,7 +154,7 @@ const Auth = observer(() => {
                     {isLogin ? (
                         <Form.Control
                             className="mt-3"
-                            placeholder="Введите имя пользователя"
+                            placeholder={t("username")}
                             value={username}
                             onChange={(e) => {
                                 setUsername(e.target.value);
@@ -164,7 +166,7 @@ const Auth = observer(() => {
                         <>
                             <Form.Control
                                 className="mt-3"
-                                placeholder="Введите email"
+                                placeholder={t("email")}
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);
@@ -174,7 +176,7 @@ const Auth = observer(() => {
                             />
                             <Form.Control
                                 className="mt-2"
-                                placeholder="Введите имя пользователя"
+                                placeholder={t("username")}
                                 value={username}
                                 onChange={(e) => {
                                     setUsername(e.target.value);
@@ -189,7 +191,7 @@ const Auth = observer(() => {
                         <>
                             <Form.Control
                                 className="mt-2"
-                                placeholder="Введите имя"
+                                placeholder={t("firstName")}
                                 value={firstName}
                                 onChange={(e) => {
                                     setFirstName(e.target.value);
@@ -199,7 +201,7 @@ const Auth = observer(() => {
                             />
                             <Form.Control
                                 className="mt-2"
-                                placeholder="Введите фамилию"
+                                placeholder={t("lastName")}
                                 value={lastName}
                                 onChange={(e) => {
                                     setLastName(e.target.value);
@@ -212,7 +214,7 @@ const Auth = observer(() => {
 
                     <Form.Control
                         className="mt-2"
-                        placeholder="Введите пароль"
+                        placeholder={t("password")}
                         value={password}
                         onChange={(e) => {
                             setPassword(e.target.value);
@@ -229,7 +231,7 @@ const Auth = observer(() => {
                                 className="btn btn-outline-secondary btn-lg"
                                 style={{ textDecoration: 'none' }}
                             >
-                                Войти через Google
+                                {t("google")}
                             </a>
                         </div>
                     )}
@@ -237,10 +239,10 @@ const Auth = observer(() => {
                     {isLogin && (
                         <div className="mt-2 text-end">
                             <Link
-                                to={FORGOT_PASSWORD_ROUTE}
+                                to={localize(FORGOT_PASSWORD_ROUTE)}
                                 className="forgot-password-link"
                             >
-                                Забыли пароль?
+                                {t("forgotPassword")}
                             </Link>
                         </div>
                     )}
@@ -249,26 +251,26 @@ const Auth = observer(() => {
                         <div className="auth-switch-text">
                             {isLogin ? (
                                 <>
-                                    Нет аккаунта?
+                                    {t("noAccount")}
                                     <Link
-                                        to={REGISTRATION_ROUTE}
+                                        to={localize(REGISTRATION_ROUTE)}
                                         className="auth-switch-link"
                                         onClick={() => swapMethod()}
                                     >
                                         {" "}
-                                        Регистрация
+                                        {t("registration")}
                                     </Link>
                                 </>
                             ) : (
                                 <>
-                                    Уже есть аккаунт?
+                                    {t("alreadyAccount")}
                                     <Link
-                                        to={LOGIN_ROUTE}
+                                        to={localize(LOGIN_ROUTE)}
                                         className="auth-switch-link"
                                         onClick={() => swapMethod()}
                                     >
                                         {" "}
-                                        Войти
+                                        {t("signInButton")}
                                     </Link>
                                 </>
                             )}
@@ -279,7 +281,7 @@ const Auth = observer(() => {
                             disabled={isButtonDisabled()}
                             className="auth-btn"
                         >
-                            {isLogin ? "Войти" : "Зарегистрироваться"}
+                            {isLogin ? t("signInButton") : t("registerButton")}
                         </Button>
                     </div>
                 </Form>

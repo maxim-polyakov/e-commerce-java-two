@@ -7,11 +7,13 @@ import cartStore from '../store/CartStore';
 import CartButton from '../components/CartButton';
 import Cart from '../components/Cart';
 import { ECOMMERCE_ROUTE } from '../utils/consts';
+import { useLocale } from '../i18n/LocaleContext';
 import './Product.css';
 
 const Product = observer(() => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { localize } = useLocale();
     const [product, setProduct] = useState(null);
     const [description, setDescription] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -83,7 +85,7 @@ const Product = observer(() => {
     };
 
     const handleBackClick = () => {
-        navigate(ECOMMERCE_ROUTE, {
+        navigate(localize(ECOMMERCE_ROUTE), {
             state: { activeTab: 'catalog' }
         });
     };
@@ -210,7 +212,7 @@ const Product = observer(() => {
                         ← Назад к товарам
                     </button>
                     <Link
-                        to={ECOMMERCE_ROUTE}
+                        to={localize(ECOMMERCE_ROUTE)}
                         state={{ activeTab: 'catalog' }}
                         className="shop-link"
                     >
@@ -243,10 +245,10 @@ const Product = observer(() => {
             </header>
 
             <nav className="breadcrumb">
-                <Link to="/" className="breadcrumb-link">Главная</Link>
+                <Link to={localize("/")} className="breadcrumb-link">Главная</Link>
                 <span className="breadcrumb-separator">/</span>
                 <Link
-                    to={ECOMMERCE_ROUTE}
+                    to={localize(ECOMMERCE_ROUTE)}
                     state={{ activeTab: 'catalog' }}
                     className="breadcrumb-link"
                 >

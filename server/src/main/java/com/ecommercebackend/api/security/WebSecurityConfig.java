@@ -49,6 +49,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                   "/product", "/auth/register", "/auth/login", "/auth/oauth-token",
                   "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
                   "/oauth2/**", "/login/oauth2/**",
+                  "/og/preview",
                   "/websocket", "/websocket/**",
                   "/images/**"
               ).permitAll()

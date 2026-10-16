@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createOrder } from '../http/orderApi';
 import { ECOMMERCE_ROUTE } from '../utils/consts';
+import { useLocale } from '../i18n/LocaleContext';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = () => {
     const navigate = useNavigate();
+    const { localize } = useLocale();
     const [countdown, setCountdown] = useState(5);
     const [status, setStatus] = useState('processing'); // processing, success, error
     const [error, setError] = useState('');
@@ -63,7 +65,7 @@ const PaymentSuccess = () => {
                     setCountdown(prev => {
                         if (prev <= 1) {
                             clearInterval(timer);
-                            navigate(ECOMMERCE_ROUTE);
+                            navigate(localize(ECOMMERCE_ROUTE));
                             return 0;
                         }
                         return prev - 1;
@@ -80,10 +82,10 @@ const PaymentSuccess = () => {
         };
 
         processSuccessfulPayment();
-    }, [navigate]);
+    }, [navigate, localize]);
 
     const handleReturnHome = () => {
-        navigate(ECOMMERCE_ROUTE);
+        navigate(localize(ECOMMERCE_ROUTE));
     };
 
     const handleRetry = () => {

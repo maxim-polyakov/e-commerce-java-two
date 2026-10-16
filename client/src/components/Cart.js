@@ -5,6 +5,7 @@ import cartStore from '../store/CartStore';
 import { getUserAddresses } from '../http/userApi';
 import { getCurrentUser } from '../http/authApi';
 import { CHECKOUT_ROUTE } from '../utils/consts';
+import { useLocale } from '../i18n/LocaleContext';
 import './Cart.css';
 
 const Cart = observer(() => {
@@ -15,6 +16,7 @@ const Cart = observer(() => {
     const [selectedAddressId, setSelectedAddressId] = useState('');
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const navigate = useNavigate();
+    const { localize } = useLocale();
 
     const loadUserAddresses = useCallback(async () => {
         setIsLoadingAddresses(true);
@@ -75,7 +77,7 @@ const Cart = observer(() => {
 
             // Закрываем корзину и переходим на страницу оплаты
             handleCloseCart();
-            navigate(CHECKOUT_ROUTE);
+            navigate(localize(CHECKOUT_ROUTE));
 
         } catch (error) {
             console.error("Ошибка при оформлении заказа:", error);

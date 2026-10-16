@@ -5,6 +5,8 @@ import { check } from "./http/authApi";
 import { Spinner, Container } from "react-bootstrap";
 import { Context } from "./index.js";
 import AppRouter from "./components/AppRouter";
+import LanguageSelector from "./components/LanguageSelector";
+import { LocaleProvider } from "./i18n/LocaleContext";
 
 const App = observer(() => {
     const { user } = useContext(Context);
@@ -44,7 +46,10 @@ const App = observer(() => {
 
     return (
         <BrowserRouter>
-            <AppRouter />
+            <LocaleProvider>
+                <LanguageSelector className="language-selector-floating" />
+                <AppRouter />
+            </LocaleProvider>
         </BrowserRouter>
     );
 });

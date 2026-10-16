@@ -5,10 +5,12 @@ import { authRoutes, publicRoutes } from "../Routes.js";
 import { observer } from "mobx-react-lite";
 import Ecommerce from "../pages/Ecommerce.js";
 import { LOGIN_ROUTE} from "../utils/consts.js";
+import { useLocale } from "../i18n/LocaleContext";
 
 const AppRouter = observer(() => {
     const { user } = useContext(Context);
     const isAuth = user?.isAuth;
+    const { localize } = useLocale();
 
     console.log("User auth status:", user?.isAuth);
 
@@ -33,7 +35,7 @@ const AppRouter = observer(() => {
 
             <Route
                 path="/"
-                element={<Navigate to={LOGIN_ROUTE} replace />}
+                element={<Navigate to={localize(LOGIN_ROUTE)} replace />}
             />
 
             <Route
@@ -41,7 +43,7 @@ const AppRouter = observer(() => {
                 element={
                     isAuth ?
                         <Ecommerce /> :
-                        <Navigate to={LOGIN_ROUTE} replace />
+                        <Navigate to={localize(LOGIN_ROUTE)} replace />
                 }
             />
         </Routes>
