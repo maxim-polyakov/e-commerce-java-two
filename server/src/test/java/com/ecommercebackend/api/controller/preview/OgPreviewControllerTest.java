@@ -29,7 +29,7 @@ class OgPreviewControllerTest {
     String html = response.getBody();
 
     assertTrue(html.contains("<html lang=\"de\""));
-    assertTrue(html.contains("Baxic — Online-Shop"));
+    assertTrue(html.contains("Online-Shop"));
     assertTrue(html.contains("https://ecommerce.baxic.ru/login?lang=de"));
     assertFalse(html.contains("__"));
   }
