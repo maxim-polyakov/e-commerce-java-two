@@ -10,7 +10,6 @@ const LanguageSelector = ({ className = "", navigation = false }) => {
             className={`language-selector ${navigation ? "nav-btn language-selector-nav" : ""} ${className}`.trim()}
         >
             <span className="visually-hidden">{t("language")}</span>
-            <span className="language-selector-icon" aria-hidden="true">🌐</span>
             <select
                 value={language}
                 onChange={(event) => setLanguage(event.target.value)}
